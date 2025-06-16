@@ -140,14 +140,33 @@
 
         #highscore-list {
             list-style: none;
-            padding: 0;
+            padding: 0 10px 0 20px; /* Beri ruang untuk scrollbar */
+            margin: 0;
             font-size: 1.2rem;
-            text-align: center;
+            text-align: left; /* Ubah ke kiri agar lebih rapi */
             background: rgba(0, 0, 0, 0.2);
-            padding: 20px;
             border-radius: 10px;
             width: 80%;
             max-width: 400px;
+            /* --- PERUBAHAN UTAMA DIMULAI DI SINI --- */
+            max-height: 40vh; /* Batasi tinggi maksimum (misalnya, 40% dari tinggi layar) */
+            overflow-y: auto; /* Tambahkan scrollbar vertikal jika konten melebihi batas */
+        }
+
+        /* Styling agar scrollbar terlihat bagus */
+        #highscore-list::-webkit-scrollbar {
+            width: 10px;
+        }
+        #highscore-list::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        #highscore-list::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.4);
+            border-radius: 10px;
+        }
+        #highscore-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.6);
         }
 
         #highscore-list li {
@@ -705,11 +724,133 @@
             z-index: 1500;
         }
 
+        /* --- (PERBAIKAN) Styling & Animasi untuk Layar Pembuka --- */
+        #splash-screen {
+            cursor: pointer;
+            /* SAMAKAN background dengan .screen agar konsisten */
+            background: radial-gradient(circle, #1e6b52, #0a5c3f);
+        }
+
+        #splash-cards-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            /* TURUNKAN posisi kartu dari atas layar */
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .splash-card {
+            width: 80px;
+            height: 120px;
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        /* Animasi Pop In */
+        .pop-in {
+            animation: pop-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+
+        @keyframes pop-in {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Hapus .pop-out yang lama, kita akan pakai .fade-out */
+
+        #splash-title {
+            font-size: clamp(5rem, 20vw, 10rem);
+            text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transform: translateY(-100vh);
+        }
+
+        /* Animasi Slide Down */
+        .slide-down {
+            animation: slide-down 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @keyframes slide-down {
+            to {
+                opacity: 1;
+                transform: translateY(-40px);
+            }
+        }
+
+        #splash-prompt {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            /* TAMBAHKAN INI untuk memulai dari tengah */
+            transform: translateX(-50%);
+            /* TAMBAHKAN INI untuk memusatkan dengan sempurna */
+            font-size: 1.2rem;
+            opacity: 0;
+        }
+
+        /* Animasi Fade In & Out Universal */
+        .fade-in {
+            animation: fade-in 1s ease forwards;
+        }
+
+        @keyframes fade-in {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .fade-out {
+            animation: fade-out 1s ease forwards;
+        }
+
+        @keyframes fade-out {
+            to {
+                opacity: 0;
+            }
+        }
+
+        /* (TAMBAHKAN INI) CSS untuk Wadah Teks yang Hilang */
+        #splash-text-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Penyesuaian untuk layar mobile yang lebih kecil */
+        @media (max-width: 480px) {
+            .splash-card {
+                width: 60px;
+                height: 90px;
+            }
+
+            #splash-cards-container {
+                gap: 10px;
+            }
+        }
+
+        /* (PERBAIKAN) Persiapkan elemen menu utama untuk animasi pop-in */
+        #main-menu-screen .menu-title,
+        #main-menu-screen .menu-btn {
+            opacity: 0;
+            /* TAMBAHAN PENTING: Atur ukuran awal agar animasi pop-in bekerja */
+            transform: scale(0.5);
+            animation-fill-mode: forwards;
+        }
+
         /* ========================================================================= */
         /* ATURAN CSS KHUSUS UNTUK TAMPILAN MOBILE VERTIKAL (VERSI BARU)             */
         /* ========================================================================= */
         @media (max-width: 768px) and (orientation: portrait) {
-            
+
             /* -- Variabel Ukuran untuk Mobile -- */
             :root {
                 --card-width: 48px;
@@ -719,22 +860,29 @@
 
             /* --- Penyesuaian Layar Menu & Pengaturan --- */
             .screen {
-                padding: 10px; /* Beri padding agar konten tidak menempel di tepi */
+                padding: 10px;
+                /* Beri padding agar konten tidak menempel di tepi */
             }
+
             #game-setup-screen .menu-title {
-                font-size: clamp(1.8rem, 8vw, 2.5rem); /* Perkecil judul */
+                font-size: clamp(1.8rem, 8vw, 2.5rem);
+                /* Perkecil judul */
                 margin-top: 20px;
                 margin-bottom: 0;
             }
+
             .setup-options {
-                transform: scale(0.9); /* Perkecil seluruh kotak opsi */
+                transform: scale(0.9);
+                /* Perkecil seluruh kotak opsi */
                 margin-bottom: 5px;
             }
+
             .setup-buttons {
-                transform: scale(0.9); /* Perkecil tombol bawah */
+                transform: scale(0.9);
+                /* Perkecil tombol bawah */
                 gap: 10px;
             }
-            
+
             /* --- (PERBAIKAN) Perkecil tombol khusus di layar pengaturan --- */
             #game-setup-screen .menu-btn {
                 padding: 10px 25px;
@@ -743,21 +891,29 @@
 
             /* --- (PERBAIKAN) Penyesuaian layar Pra-Game --- */
             #pre-game-info {
-                width: 90%; /* Batasi lebar agar tidak keluar layar */
+                width: 90%;
+                /* Batasi lebar agar tidak keluar layar */
                 padding: 15px;
                 /* Menggabungkan translate & scale agar tetap di tengah */
                 transform: translate(-50%, -50%) scale(0.9);
             }
+
             #pre-game-info h3 {
-                font-size: 1.5rem; /* Perkecil judul */
+                font-size: 1.5rem;
+                /* Perkecil judul */
                 margin-bottom: 10px;
             }
+
             #pre-game-cards {
-                gap: 10px; /* Kurangi jarak antar kartu */
-                transform: scale(0.95); /* Perkecil area kartu */
+                gap: 10px;
+                /* Kurangi jarak antar kartu */
+                transform: scale(0.95);
+                /* Perkecil area kartu */
             }
-             #pre-game-info p {
-                font-size: 1.1rem; /* Perkecil tulisan pemenang */
+
+            #pre-game-info p {
+                font-size: 1.1rem;
+                /* Perkecil tulisan pemenang */
             }
 
             /* -- Penyesuaian Area Pemain -- */
@@ -765,28 +921,43 @@
                 bottom: 10px;
             }
 
-            #player-area-left, #player-area-right {
+            #player-area-left,
+            #player-area-right {
                 top: 55%;
                 transform: translateY(-50%);
                 height: auto;
-                align-items: center; /* Pusatkan item secara vertikal */
-                gap: 5px; /* Beri sedikit jarak antara kartu & nama */
+                align-items: center;
+                /* Pusatkan item secara vertikal */
+                gap: 5px;
+                /* Beri sedikit jarak antara kartu & nama */
             }
 
             /* 1. Atur Posisi Pemain Kiri & Kanan */
-            #player-area-left { 
-                left: 5px; 
-                flex-direction: row; 
+            #player-area-left {
+                left: 5px;
+                flex-direction: row;
             }
-            #player-area-left .player-info { order: 2; }
-            #player-area-left .hand { order: 1; }
 
-            #player-area-right { 
+            #player-area-left .player-info {
+                order: 2;
+            }
+
+            #player-area-left .hand {
+                order: 1;
+            }
+
+            #player-area-right {
                 right: 5px;
                 flex-direction: row-reverse;
             }
-            #player-area-right .player-info { order: 2; } 
-            #player-area-right .hand { order: 1; }
+
+            #player-area-right .player-info {
+                order: 2;
+            }
+
+            #player-area-right .hand {
+                order: 1;
+            }
 
             #player-area-left .bot-hand .card,
             #player-area-right .bot-hand .card {
@@ -798,7 +969,7 @@
                 padding-left: 20px;
                 padding-right: 20px;
             }
-            
+
             /* -- Penyesuaian Elemen Tengah & Info -- */
             #center-area {
                 gap: 15px;
@@ -806,7 +977,8 @@
             }
 
             #game-info {
-                top: 32%; /* Sesuaikan posisi info giliran */
+                top: 32%;
+                /* Sesuaikan posisi info giliran */
                 padding: 5px 10px;
                 font-size: 0.9em;
                 max-width: 80%;
@@ -818,20 +990,26 @@
                 right: 15px;
                 bottom: auto;
                 transform: none;
-                padding: 8px; /* Perkecil padding karena hanya panah */
+                padding: 8px;
+                /* Perkecil padding karena hanya panah */
             }
+
             #direction-indicator #direction-text {
-                display: none; /* Sembunyikan teks */
+                display: none;
+                /* Sembunyikan teks */
             }
+
             #direction-arrow {
-                font-size: 1.5em; /* Perbesar sedikit panahnya agar jelas */
+                font-size: 1.5em;
+                /* Perbesar sedikit panahnya agar jelas */
                 margin: 0;
             }
 
             /* 3. Atur Posisi Notifikasi */
             #notification {
                 top: auto;
-                bottom: 145px; /* Posisikan di atas tangan pemain */
+                bottom: 145px;
+                /* Posisikan di atas tangan pemain */
                 left: 50%;
                 transform: translateX(-50%);
                 text-align: center;
@@ -839,13 +1017,16 @@
                 padding: 8px 15px;
                 font-size: 0.9em;
             }
-            
+
             /* -- Penyesuaian Tombol -- */
             #uno-button {
                 bottom: 150px;
-                right: 15px; /* Posisikan ke kanan */
-                left: auto; /* Hapus posisi kiri */
-                transform: none; /* Hapus pemusatan horizontal */
+                right: 15px;
+                /* Posisikan ke kanan */
+                left: auto;
+                /* Hapus posisi kiri */
+                transform: none;
+                /* Hapus pemusatan horizontal */
                 padding: 8px 20px;
                 font-size: 1em;
             }
@@ -862,28 +1043,40 @@
                 margin: 0;
             }
 
-            .popup h3 { font-size: 1.5rem; }
-            .popup-btn, .color-btn { transform: scale(0.9); }
+            .popup h3 {
+                font-size: 1.5rem;
+            }
+
+            .popup-btn,
+            .color-btn {
+                transform: scale(0.9);
+            }
 
             /* --- Penyesuaian Semua Pop-up --- */
             .popup {
                 width: 90%;
             }
-            .popup h3 { 
-                font-size: 1.5rem; 
+
+            .popup h3 {
+                font-size: 1.5rem;
             }
-            .popup-btn, .color-btn { 
-                transform: scale(0.9); 
+
+            .popup-btn,
+            .color-btn {
+                transform: scale(0.9);
             }
 
             /* --- (PERBAIKAN TERAKHIR) Penyesuaian Pop-up Tantangan +4 --- */
             #challenge-popup .popup-options {
-                flex-direction: column; /* Tumpuk tombol secara vertikal */
+                flex-direction: column;
+                /* Tumpuk tombol secara vertikal */
                 width: 100%;
                 gap: 10px;
             }
+
             #challenge-popup .menu-btn {
-                width: 100%; /* Buat tombol selebar pop-up */
+                width: 100%;
+                /* Buat tombol selebar pop-up */
                 padding: 12px 10px;
                 font-size: 1rem;
             }
@@ -893,570 +1086,665 @@
 
 <body>
 
-    <!-- Layar Menu Utama -->
-    <div id="main-menu-screen" class="screen">
-        <h1 class="menu-title">UNO</h1>
-        <button id="start-game-btn" class="menu-btn green">Mulai Game</button>
-        <button id="how-to-play-btn" class="menu-btn blue">Petunjuk Permainan</button>
-        <button id="highscore-btn" class="menu-btn yellow">High Score</button>
-        <button id="exit-btn" class="menu-btn red">Keluar</button>
-    </div>
+    <!-- (TAMBAHKAN INI) Layar Animasi Pembuka -->
+    <div id="splash-screen" class="screen">
+        <div id="splash-cards-container">
+            <!-- Kartu akan dibuat oleh JavaScript -->
+        </div>
 
-    <!-- Layar Input Nama -->
-    <div id="player-name-screen" class="screen hidden">
-        <h2 class="menu-title">Masukkan Nama Anda</h2>
-        <form id="player-name-form">
-            <input type="text" id="player-name-input" maxlength="15" required placeholder="Nama Pemain">
-            <button type="submit" class="menu-btn green">Lanjutkan</button>
-        </form>
-        <button id="back-to-menu-from-name" class="menu-btn red">Kembali</button>
-    </div>
+        <div id="splash-text-container">
+            <h1 id="splash-title">UNO</h1>
+            <p id="splash-prompt">Tekan layar untuk melanjutkan</p>
+        </div>
 
-    <!-- Layar Pengaturan Permainan (BARU) -->
-    <div id="game-setup-screen" class="screen hidden">
-        <h2 class="menu-title">Pengaturan Permainan</h2>
-        <div class="setup-options">
-            <div class="setup-option">
-                <label for="difficulty-select">Tingkat Kesulitan Bot:</label>
-                <select id="difficulty-select" class="setup-select">
-                    <option value="easy">Easy</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="hard">Hard</option>
-                    <option value="expert">Expert</option>
-                </select>
+        <!-- Layar Menu Utama -->
+        <div id="main-menu-screen" class="screen">
+            <h1 class="menu-title">UNO</h1>
+            <button id="start-game-btn" class="menu-btn green">Mulai Game</button>
+            <button id="how-to-play-btn" class="menu-btn blue">Petunjuk Permainan</button>
+            <button id="highscore-btn" class="menu-btn yellow">High Score</button>
+            <button id="exit-btn" class="menu-btn red">Keluar</button>
+        </div>
+
+        <!-- Layar Input Nama -->
+        <div id="player-name-screen" class="screen hidden">
+            <h2 class="menu-title">Masukkan Nama Anda</h2>
+            <form id="player-name-form">
+                <input type="text" id="player-name-input" maxlength="15" required placeholder="Nama Pemain">
+                <button type="submit" class="menu-btn green">Lanjutkan</button>
+            </form>
+            <button id="back-to-menu-from-name" class="menu-btn red">Kembali</button>
+        </div>
+
+        <!-- Layar Pengaturan Permainan (BARU) -->
+        <div id="game-setup-screen" class="screen hidden">
+            <h2 class="menu-title">Pengaturan Permainan</h2>
+            <div class="setup-options">
+                <div class="setup-option">
+                    <label for="difficulty-select">Tingkat Kesulitan Bot:</label>
+                    <select id="difficulty-select" class="setup-select">
+                        <option value="easy">Easy</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="hard">Hard</option>
+                        <option value="expert">Expert</option>
+                    </select>
+                </div>
+                <div class="setup-option">
+                    <label for="player-count-select">Jumlah Pemain:</label>
+                    <select id="player-count-select" class="setup-select">
+                        <option value="2">2 Pemain</option>
+                        <option value="3">3 Pemain</option>
+                        <option value="4" selected>4 Pemain</option>
+                    </select>
+                </div>
             </div>
-            <div class="setup-option">
-                <label for="player-count-select">Jumlah Pemain:</label>
-                <select id="player-count-select" class="setup-select">
-                    <option value="2">2 Pemain</option>
-                    <option value="3">3 Pemain</option>
-                    <option value="4" selected>4 Pemain</option>
-                </select>
+            <div class="setup-buttons">
+                <button id="start-pre-game-btn" class="menu-btn green">Lanjutkan</button>
+                <button id="back-to-name-btn" class="menu-btn red">Kembali</button>
             </div>
         </div>
-        <div class="setup-buttons">
-            <button id="start-pre-game-btn" class="menu-btn green">Lanjutkan</button>
-            <button id="back-to-name-btn" class="menu-btn red">Kembali</button>
+
+        <!-- Layar High Score -->
+        <div id="highscore-screen" class="screen hidden">
+            <h2 class="menu-title">High Score</h2>
+            <ul id="highscore-list"></ul>
+            <button id="back-to-menu-from-hs" class="menu-btn red">Kembali</button>
         </div>
-    </div>
 
-    <!-- Layar High Score -->
-    <div id="highscore-screen" class="screen hidden">
-        <h2 class="menu-title">High Score</h2>
-        <ul id="highscore-list"></ul>
-        <button id="back-to-menu-from-hs" class="menu-btn red">Kembali</button>
-    </div>
+        <!-- Layar Petunjuk Permainan -->
+        <div id="how-to-play-screen" class="screen hidden">
+            <h2 class="menu-title">Petunjuk Permainan</h2>
+            <div class="instructions-content">
+                <h3>Tujuan Permainan</h3>
+                <p>Jadilah pemain pertama yang menghabiskan semua kartu di tangan Anda.</p>
 
-    <!-- Layar Petunjuk Permainan -->
-    <div id="how-to-play-screen" class="screen hidden">
-        <h2 class="menu-title">Petunjuk Permainan</h2>
-        <div class="instructions-content">
-            <h3>Tujuan Permainan</h3>
-            <p>Jadilah pemain pertama yang menghabiskan semua kartu di tangan Anda.</p>
+                <h3>Memulai Permainan</h3>
+                <p>Setiap pemain dibagikan 7 kartu. Sisa kartu diletakkan tertutup sebagai Dek Ambil. Kartu teratas dari
+                    Dek
+                    Ambil dibalik untuk memulai Tumpukan Buang.</p>
 
-            <h3>Memulai Permainan</h3>
-            <p>Setiap pemain dibagikan 7 kartu. Sisa kartu diletakkan tertutup sebagai Dek Ambil. Kartu teratas dari Dek
-                Ambil dibalik untuk memulai Tumpukan Buang.</p>
+                <h3>Cara Bermain</h3>
+                <p>Pemain pertama harus mencocokkan kartu di Tumpukan Buang berdasarkan Angka, Warna, atau Simbol.
+                    Contohnya, jika kartu di Tumpukan Buang adalah Biru 7, Anda harus mengeluarkan kartu Biru atau kartu
+                    7
+                    dengan warna apa pun.</p>
+                <p>Jika Anda tidak memiliki kartu yang cocok, Anda harus mengambil satu kartu dari Dek Ambil. Jika kartu
+                    yang baru diambil bisa dimainkan, Anda boleh langsung memainkannya. Jika tidak, giliran beralih ke
+                    pemain berikutnya.</p>
 
-            <h3>Cara Bermain</h3>
-            <p>Pemain pertama harus mencocokkan kartu di Tumpukan Buang berdasarkan Angka, Warna, atau Simbol.
-                Contohnya, jika kartu di Tumpukan Buang adalah Biru 7, Anda harus mengeluarkan kartu Biru atau kartu 7
-                dengan warna apa pun.</p>
-            <p>Jika Anda tidak memiliki kartu yang cocok, Anda harus mengambil satu kartu dari Dek Ambil. Jika kartu
-                yang baru diambil bisa dimainkan, Anda boleh langsung memainkannya. Jika tidak, giliran beralih ke
-                pemain berikutnya.</p>
+                <h3>Kartu Aksi</h3>
+                <ul>
+                    <li><strong>Kartu Lewati (Skip):</strong> Pemain berikutnya kehilangan gilirannya.</li>
+                    <li><strong>Kartu Putar Balik (Reverse):</strong> Arah permainan berbalik.</li>
+                    <li><strong>Kartu Ambil Dua (+2):</strong> Pemain berikutnya harus mengambil 2 kartu dan kehilangan
+                        gilirannya.</li>
+                    <li><strong>Kartu Wild:</strong> Pemain yang mengeluarkan kartu ini dapat memilih warna selanjutnya.
+                    </li>
+                    <li><strong>Kartu Wild Ambil Empat (+4):</strong> Pemain memilih warna selanjutnya, dan pemain
+                        berikutnya harus mengambil 4 kartu serta kehilangan gilirannya. Kartu ini hanya boleh dimainkan
+                        jika
+                        Anda tidak memiliki kartu lain yang cocok dengan WARNA di Tumpukan Buang.</li>
+                </ul>
 
-            <h3>Kartu Aksi</h3>
-            <ul>
-                <li><strong>Kartu Lewati (Skip):</strong> Pemain berikutnya kehilangan gilirannya.</li>
-                <li><strong>Kartu Putar Balik (Reverse):</strong> Arah permainan berbalik.</li>
-                <li><strong>Kartu Ambil Dua (+2):</strong> Pemain berikutnya harus mengambil 2 kartu dan kehilangan
-                    gilirannya.</li>
-                <li><strong>Kartu Wild:</strong> Pemain yang mengeluarkan kartu ini dapat memilih warna selanjutnya.
-                </li>
-                <li><strong>Kartu Wild Ambil Empat (+4):</strong> Pemain memilih warna selanjutnya, dan pemain
-                    berikutnya harus mengambil 4 kartu serta kehilangan gilirannya. Kartu ini hanya boleh dimainkan jika
-                    Anda tidak memiliki kartu lain yang cocok dengan WARNA di Tumpukan Buang.</li>
-            </ul>
+                <h3>Menang</h3>
+                <p>Saat Anda hanya memiliki satu kartu tersisa, Anda harus menekan tombol "UNO!". Jika lupa dan pemain
+                    lain
+                    menyadarinya, Anda harus mengambil 2 kartu sebagai penalti. Pemain pertama yang berhasil
+                    menghabiskan
+                    kartunya adalah pemenangnya.</p>
 
-            <h3>Menang</h3>
-            <p>Saat Anda hanya memiliki satu kartu tersisa, Anda harus menekan tombol "UNO!". Jika lupa dan pemain lain
-                menyadarinya, Anda harus mengambil 2 kartu sebagai penalti. Pemain pertama yang berhasil menghabiskan
-                kartunya adalah pemenangnya.</p>
+                <hr>
 
-            <hr>
+                <h3>Kontrol</h3>
+                <p>Cukup drag and drop kartu yang udah dipilih ke bagian tengah kartu dilempar. Untuk mengambil kartu
+                    dalam
+                    dek
+                    cukup dengan menekan kartu yang terbalik di bagian tengah.</p>
 
-            <h3>Kontrol</h3>
-            <p>Cukup drag and drop kartu yang udah dipilih ke bagian tengah kartu dilempar. Untuk mengambil kartu dalam dek
-                cukup dengan menekan kartu yang terbalik di bagian tengah.</p>
+                <hr>
 
-            <hr>
+                <h3>Auto Mode</h3>
+                <p>Kalau kamu capek karena gamenya gak selesai-selesai, cukup tekan pause dan aktifkan Auto Mode, maka
+                    gameplaymu
+                    akan berjalan secara otomatis.</p>
 
-            <h3>Auto Mode</h3>
-            <p>Kalau kamu capek karena gamenya gak selesai-selesai, cukup tekan pause dan aktifkan Auto Mode, maka gameplaymu
-                akan berjalan secara otomatis.</p>
+                <hr>
 
-            <hr>
+                <div class="credits-section">
+                    <p><strong>UNO HTML VERSION v1.5</p>
+                    <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
+                    <p><strong>Instagram:</strong> rnd_savage</p>
+                    <p><strong>Youtube:</strong> RenaldiTV</p>
+                    <br>
+                    <p><em>UNO® is a trademark of Mattel, Inc. © Mattel, Inc. All Rights Reserved. This is a fan-made
+                            project and is not affiliated with, endorsed by, or sponsored by Mattel, Inc.</em></p>
+                </div>
+            </div>
+            <button id="back-to-menu-from-htp" class="menu-btn red">Kembali</button>
+        </div>
 
-            <div class="credits-section">
-                <p><strong>UNO HTML VERSION v1.0</p>
-                <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
-                <p><strong>Instagram:</strong> rnd_savage</p>
-                <p><strong>Youtube:</strong> RenaldiTV</p>
-                <br>
-                <p><em>UNO® is a trademark of Mattel, Inc. © Mattel, Inc. All Rights Reserved. This is a fan-made
-                        project and is not affiliated with, endorsed by, or sponsored by Mattel, Inc.</em></p>
+        <!-- Kontainer Game (Wrapper) -->
+        <div id="game-wrapper" class="screen hidden">
+            <div id="pre-game-info" class="hidden"></div>
+            <div id="game-container" class="hidden">
+                <button id="pause-btn">||</button>
+                <div id="direction-indicator">
+                    <span id="direction-text"></span>
+                    <span id="direction-arrow"></span>
+                </div>
+                <div id="action-indicator"></div>
+
+                <!-- Area Pemain -->
+                <div id="player-area-top" class="player-area">
+                    <div class="player-info" id="info-bot-2"></div>
+                    <div class="hand bot-hand" id="hand-bot-2"></div>
+                </div>
+                <div id="player-area-left" class="player-area">
+                    <div class="player-info" id="info-bot-1"></div>
+                    <div class="hand bot-hand" id="hand-bot-1"></div>
+                </div>
+                <div id="player-area-right" class="player-area">
+                    <div class="player-info" id="info-bot-3"></div>
+                    <div class="hand bot-hand" id="hand-bot-3"></div>
+                </div>
+                <div id="player-area-bottom" class="player-area">
+                    <button id="uno-button">UNO!</button>
+                    <div class="hand" id="player-hand"></div>
+                    <div class="player-info" id="info-player"></div>
+                </div>
+
+                <!-- Area Tengah -->
+                <div id="center-area">
+                    <div id="deck-pile" class="card card-back"></div>
+                    <div id="discard-pile-container"></div>
+                </div>
+
+                <div id="game-info"></div>
+                <div id="notification"></div>
             </div>
         </div>
-        <button id="back-to-menu-from-htp" class="menu-btn red">Kembali</button>
-    </div>
 
-    <!-- Kontainer Game (Wrapper) -->
-    <div id="game-wrapper" class="screen hidden">
-        <div id="pre-game-info" class="hidden"></div>
-        <div id="game-container" class="hidden">
-            <button id="pause-btn">||</button>
-            <div id="direction-indicator">
-                <span id="direction-text"></span>
-                <span id="direction-arrow"></span>
+        <!-- Layar Akhir Game -->
+        <div id="end-game-screen" class="screen hidden">
+            <h2 class="menu-title">Permainan Selesai!</h2>
+            <div id="end-game-ranks"></div>
+            <div class="end-game-options">
+                <button id="restart-game-btn" class="menu-btn green">Main Lagi</button>
+                <button id="back-to-menu-from-end" class="menu-btn red">Kembali ke Menu</button>
             </div>
-            <div id="action-indicator"></div>
-
-            <!-- Area Pemain -->
-            <div id="player-area-top" class="player-area">
-                <div class="player-info" id="info-bot-2"></div>
-                <div class="hand bot-hand" id="hand-bot-2"></div>
-            </div>
-            <div id="player-area-left" class="player-area">
-                <div class="player-info" id="info-bot-1"></div>
-                <div class="hand bot-hand" id="hand-bot-1"></div>
-            </div>
-            <div id="player-area-right" class="player-area">
-                <div class="player-info" id="info-bot-3"></div>
-                <div class="hand bot-hand" id="hand-bot-3"></div>
-            </div>
-            <div id="player-area-bottom" class="player-area">
-                <button id="uno-button">UNO!</button>
-                <div class="hand" id="player-hand"></div>
-                <div class="player-info" id="info-player"></div>
-            </div>
-
-            <!-- Area Tengah -->
-            <div id="center-area">
-                <div id="deck-pile" class="card card-back"></div>
-                <div id="discard-pile-container"></div>
-            </div>
-
-            <div id="game-info"></div>
-            <div id="notification"></div>
         </div>
-    </div>
 
-    <!-- Layar Akhir Game -->
-    <div id="end-game-screen" class="screen hidden">
-        <h2 class="menu-title">Permainan Selesai!</h2>
-        <div id="end-game-ranks"></div>
-        <div class="end-game-options">
-            <button id="restart-game-btn" class="menu-btn green">Main Lagi</button>
-            <button id="back-to-menu-from-end" class="menu-btn red">Kembali ke Menu</button>
-        </div>
-    </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                // =========================================================================
+                //  KONSTANTA & STATE GAME
+                // =========================================================================
+                const COLORS = ['red', 'yellow', 'green', 'blue'];
+                const VALUES = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'skip', 'reverse', 'draw2'];
+                const SPECIAL_VALUES = ['wild', 'wild4'];
+                let NUM_PLAYERS = 4; // Diubah dari const menjadi let
+                const CARDS_PER_PLAYER = 7;
+                let botDifficulty = 'medium'; // Variabel baru untuk kesulitan
+                const HIGHSCORE_KEY = 'unoHighScores';
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // =========================================================================
-            //  KONSTANTA & STATE GAME
-            // =========================================================================
-            const COLORS = ['red', 'yellow', 'green', 'blue'];
-            const VALUES = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'skip', 'reverse', 'draw2'];
-            const SPECIAL_VALUES = ['wild', 'wild4'];
-            let NUM_PLAYERS = 4; // Diubah dari const menjadi let
-            const CARDS_PER_PLAYER = 7;
-            let botDifficulty = 'medium'; // Variabel baru untuk kesulitan
-            const HIGHSCORE_KEY = 'unoHighScores';
+                let deck = [];
+                let discardPile = [];
+                let players = [];
+                let currentPlayerIndex = 0;
+                let gameDirection = 1; // 1 for clockwise, -1 for counter-clockwise
+                let gameActive = false;
+                let unoCalledByPlayer = false;
+                let isPaused = false;
+                let playerRanks = [];
+                let mainPlayerName = 'Pemain';
+                let botTurnTimeout;
+                let draggedElement = null; // Elemen yang sedang di-drag via sentuhan
+                let draggedCardData = null; // Data kartu yang di-drag
+                let ghostCard = null; // Kartu "hantu" yang mengikuti jari
+                let isAutoMode = false;
+                let touchedCardElement = null; // Kartu yang sedang disentuh/dipilih
 
-            let deck = [];
-            let discardPile = [];
-            let players = [];
-            let currentPlayerIndex = 0;
-            let gameDirection = 1; // 1 for clockwise, -1 for counter-clockwise
-            let gameActive = false;
-            let unoCalledByPlayer = false;
-            let isPaused = false;
-            let playerRanks = [];
-            let mainPlayerName = 'Pemain';
-            let botTurnTimeout;
-            let draggedElement = null; // Elemen yang sedang di-drag via sentuhan
-            let draggedCardData = null; // Data kartu yang di-drag
-            let ghostCard = null; // Kartu "hantu" yang mengikuti jari
-            let isAutoMode = false;
-            let touchedCardElement = null; // Kartu yang sedang disentuh/dipilih
-
-            // =========================================================================
-            //  SELEKTOR ELEMEN DOM
-            // =========================================================================
-            const screens = {
-                mainMenu: document.getElementById('main-menu-screen'),
-                name: document.getElementById('player-name-screen'),
-                gameSetup: document.getElementById('game-setup-screen'),
-                highscore: document.getElementById('highscore-screen'),
-                howToPlay: document.getElementById('how-to-play-screen'),
-                game: document.getElementById('game-wrapper'),
-                endGame: document.getElementById('end-game-screen'),
-            };
-            const gameContainer = document.getElementById('game-container');
-            const playerHandElem = document.getElementById('player-hand');
-            const deckPileElem = document.getElementById('deck-pile');
-            const discardPileContainer = document.getElementById('discard-pile-container');
-            const gameInfoElem = document.getElementById('game-info');
-            const unoButton = document.getElementById('uno-button');
-            const notificationElem = document.getElementById('notification');
-            const actionIndicatorElem = document.getElementById('action-indicator');
-            const directionTextElem = document.getElementById('direction-text');
-            const directionArrowElem = document.getElementById('direction-arrow');
-            const preGameInfoElem = document.getElementById('pre-game-info');
-
-            // =========================================================================
-            //  FUNGSI UTILITAS
-            // =========================================================================
-            const showScreen = (screenName) => {
-                Object.values(screens).forEach(s => s.classList.add('hidden'));
-                screens[screenName].classList.remove('hidden');
-            };
-
-            const showNotification = (msg, duration = 2500) => {
-                notificationElem.textContent = msg;
-                notificationElem.classList.add('show');
-                setTimeout(() => notificationElem.classList.remove('show'), duration);
-            };
-
-            const showAction = (symbol) => {
-                actionIndicatorElem.textContent = symbol;
-                actionIndicatorElem.classList.add('show');
-                setTimeout(() => actionIndicatorElem.classList.remove('show'), 1000);
-            };
-
-            const updateDirectionIndicator = () => {
-                directionTextElem.textContent = gameDirection === 1 ? 'Searah Jarum Jam' : 'Berlawanan Arah';
-                directionArrowElem.innerHTML = gameDirection === 1 ? '&#8641;' : '&#8640;'; // Arrows
-                directionArrowElem.style.transform = `scaleX(${gameDirection})`;
-            };
-
-            const getTopCard = () => discardPile[discardPile.length - 1];
-
-            const isValidMove = (card, topCard) => {
-                if (!topCard) return true; // First card on discard pile
-                return card.color === 'black' || card.color === topCard.color || card.value === topCard.value;
-            };
-
-            const playerHasValidMove = (playerIndex) => {
-                const player = players.find(p => p.id === playerIndex);
-                if (!player) return false;
-                const topCard = getTopCard();
-                return player.hand.some(card => isValidMove(card, topCard));
-            };
-
-            // =========================================================================
-            //  LOGIKA MENU & HIGH SCORE
-            // =========================================================================
-            function initMenus() {
-                // --- Tombol Menu Utama ---
-                document.getElementById('start-game-btn').onclick = () => showScreen('name');
-                document.getElementById('how-to-play-btn').onclick = () => showScreen('howToPlay');
-                document.getElementById('highscore-btn').onclick = () => {
-                    displayHighScores();
-                    showScreen('highscore');
+                // =========================================================================
+                //  SELEKTOR ELEMEN DOM
+                // =========================================================================
+                const screens = {
+                    mainMenu: document.getElementById('main-menu-screen'),
+                    name: document.getElementById('player-name-screen'),
+                    gameSetup: document.getElementById('game-setup-screen'),
+                    highscore: document.getElementById('highscore-screen'),
+                    howToPlay: document.getElementById('how-to-play-screen'),
+                    game: document.getElementById('game-wrapper'),
+                    endGame: document.getElementById('end-game-screen'),
                 };
-                document.getElementById('exit-btn').onclick = () => window.close() || alert("Tutup tab ini untuk keluar.");
+                const gameContainer = document.getElementById('game-container');
+                const playerHandElem = document.getElementById('player-hand');
+                const deckPileElem = document.getElementById('deck-pile');
+                const discardPileContainer = document.getElementById('discard-pile-container');
+                const gameInfoElem = document.getElementById('game-info');
+                const unoButton = document.getElementById('uno-button');
+                const notificationElem = document.getElementById('notification');
+                const actionIndicatorElem = document.getElementById('action-indicator');
+                const directionTextElem = document.getElementById('direction-text');
+                const directionArrowElem = document.getElementById('direction-arrow');
+                const preGameInfoElem = document.getElementById('pre-game-info');
 
-                // --- Alur Layar Nama -> Pengaturan ---
-                document.getElementById('player-name-form').onsubmit = (e) => {
-                    e.preventDefault();
-                    mainPlayerName = document.getElementById('player-name-input').value.trim() || 'Pemain';
-                    showScreen('gameSetup'); // Pindah ke layar pengaturan, BUKAN langsung mulai game
+                // =========================================================================
+                //  FUNGSI UTILITAS
+                // =========================================================================
+                const showScreen = (screenName) => {
+                    Object.values(screens).forEach(s => s.classList.add('hidden'));
+                    screens[screenName].classList.remove('hidden');
                 };
-                document.getElementById('back-to-menu-from-name').onclick = () => showScreen('mainMenu');
 
-                // --- Alur Layar Pengaturan -> Mulai Game ---
-                document.getElementById('start-pre-game-btn').onclick = () => {
-                    // Ambil nilai dari dropdown
-                    botDifficulty = document.getElementById('difficulty-select').value;
-                    NUM_PLAYERS = parseInt(document.getElementById('player-count-select').value);
-                    startPreGame(); // Mulai game dengan pengaturan baru
+                const showNotification = (msg, duration = 2500) => {
+                    notificationElem.textContent = msg;
+                    notificationElem.classList.add('show');
+                    setTimeout(() => notificationElem.classList.remove('show'), duration);
                 };
-                document.getElementById('back-to-name-btn').onclick = () => showScreen('name');
+
+                const showAction = (symbol) => {
+                    actionIndicatorElem.textContent = symbol;
+                    actionIndicatorElem.classList.add('show');
+                    setTimeout(() => actionIndicatorElem.classList.remove('show'), 1000);
+                };
+
+                const updateDirectionIndicator = () => {
+                    directionTextElem.textContent = gameDirection === 1 ? 'Searah Jarum Jam' : 'Berlawanan Arah';
+                    directionArrowElem.innerHTML = gameDirection === 1 ? '&#8641;' : '&#8640;'; // Arrows
+                    directionArrowElem.style.transform = `scaleX(${gameDirection})`;
+                };
+
+                const getTopCard = () => discardPile[discardPile.length - 1];
+
+                const isValidMove = (card, topCard) => {
+                    if (!topCard) return true; // First card on discard pile
+                    return card.color === 'black' || card.color === topCard.color || card.value === topCard.value;
+                };
+
+                const playerHasValidMove = (playerIndex) => {
+                    const player = players.find(p => p.id === playerIndex);
+                    if (!player) return false;
+                    const topCard = getTopCard();
+                    return player.hand.some(card => isValidMove(card, topCard));
+                };
+
+                // =========================================================================
+                //  LOGIKA MENU & HIGH SCORE
+                // =========================================================================
+                function initMenus() {
+                    // --- Tombol Menu Utama ---
+                    document.getElementById('start-game-btn').onclick = () => showScreen('name');
+                    document.getElementById('how-to-play-btn').onclick = () => showScreen('howToPlay');
+                    document.getElementById('highscore-btn').onclick = () => {
+                        displayHighScores();
+                        showScreen('highscore');
+                    };
+                    document.getElementById('exit-btn').onclick = () => window.close() || alert("Tutup tab ini untuk keluar.");
+
+                    // --- Alur Layar Nama -> Pengaturan ---
+                    document.getElementById('player-name-form').onsubmit = (e) => {
+                        e.preventDefault();
+                        mainPlayerName = document.getElementById('player-name-input').value.trim() || 'Pemain';
+                        showScreen('gameSetup'); // Pindah ke layar pengaturan, BUKAN langsung mulai game
+                    };
+                    document.getElementById('back-to-menu-from-name').onclick = () => showScreen('mainMenu');
+
+                    // --- Alur Layar Pengaturan -> Mulai Game ---
+                    document.getElementById('start-pre-game-btn').onclick = () => {
+                        // Ambil nilai dari dropdown
+                        botDifficulty = document.getElementById('difficulty-select').value;
+                        NUM_PLAYERS = parseInt(document.getElementById('player-count-select').value);
+                        startPreGame(); // Mulai game dengan pengaturan baru
+                    };
+                    document.getElementById('back-to-name-btn').onclick = () => showScreen('name');
 
 
-                // --- Tombol Kembali Lainnya ---
-                document.getElementById('back-to-menu-from-hs').onclick = () => showScreen('mainMenu');
-                document.getElementById('back-to-menu-from-htp').onclick = () => showScreen('mainMenu');
-                document.getElementById('restart-game-btn').onclick = startPreGame;
-                document.getElementById('back-to-menu-from-end').onclick = () => showScreen('mainMenu');
-                document.getElementById('pause-btn').onclick = togglePause;
-            }
-
-            function getHighScores() {
-                try {
-                    const scores = localStorage.getItem(HIGHSCORE_KEY);
-                    return scores ? JSON.parse(scores) : [];
-                } catch (e) {
-                    console.error("Could not parse high scores from localStorage", e);
-                    return [];
+                    // --- Tombol Kembali Lainnya ---
+                    document.getElementById('back-to-menu-from-hs').onclick = () => showScreen('mainMenu');
+                    document.getElementById('back-to-menu-from-htp').onclick = () => showScreen('mainMenu');
+                    document.getElementById('restart-game-btn').onclick = startPreGame;
+                    document.getElementById('back-to-menu-from-end').onclick = () => showScreen('mainMenu');
+                    document.getElementById('pause-btn').onclick = togglePause;
                 }
-            }
 
-            function saveHighScore(name, score) {
-                let scores = getHighScores();
-                scores.push({ name, score });
-                scores.sort((a, b) => b.score - a.score);
-                scores = scores.slice(0, 10); // Keep only top 10
-                localStorage.setItem(HIGHSCORE_KEY, JSON.stringify(scores));
-            }
-
-            function displayHighScores() {
-                const scores = getHighScores();
-                const list = document.getElementById('highscore-list');
-                if (scores.length > 0) {
-                    list.innerHTML = scores.map((s, i) => `<li>#${i + 1} ${s.name} <span class="score">${s.score}</span></li>`).join('');
-                } else {
-                    list.innerHTML = '<li>Belum ada skor tinggi.</li>';
+                function getHighScores() {
+                    try {
+                        const scores = localStorage.getItem(HIGHSCORE_KEY);
+                        return scores ? JSON.parse(scores) : [];
+                    } catch (e) {
+                        console.error("Could not parse high scores from localStorage", e);
+                        return [];
+                    }
                 }
-            }
 
-            // =========================================================================
-            //  LOGIKA KARTU & DEK
-            // =========================================================================
-            function createDeck() {
-                const newDeck = [];
-                // Number cards
-                COLORS.forEach(color => {
-                    VALUES.forEach(value => {
-                        newDeck.push({ color, value });
-                        if (value !== '0') { // Each color has two of each card from 1-9 and action cards
-                            newDeck.push({ color, value });
+                function saveHighScore(name, score) {
+                    let scores = getHighScores();
+                    scores.push({ name, score });
+                    scores.sort((a, b) => b.score - a.score);
+                    scores = scores.slice(0, 10); // Keep only top 10
+                    localStorage.setItem(HIGHSCORE_KEY, JSON.stringify(scores));
+                }
+
+                function displayHighScores() {
+                    const scores = getHighScores();
+                    const list = document.getElementById('highscore-list');
+                    if (scores.length > 0) {
+                        list.innerHTML = scores.map((s, i) => `<li>#${i + 1} ${s.name} <span class="score">${s.score}</span></li>`).join('');
+                    } else {
+                        list.innerHTML = '<li>Belum ada skor tinggi.</li>';
+                    }
+                }
+
+                function startSplashAnimation() {
+                    const splashScreen = document.getElementById('splash-screen');
+                    const cardsContainer = document.getElementById('splash-cards-container');
+                    const splashTextContainer = document.getElementById('splash-text-container');
+                    const splashTitle = document.getElementById('splash-title');
+                    const splashPrompt = document.getElementById('splash-prompt');
+
+                    const cardData = [
+                        { color: 'red', value: '1' },
+                        { color: 'blue', value: '2' },
+                        { color: 'green', value: '3' },
+                        { color: 'yellow', value: '4' }
+                    ];
+
+                    Object.values(screens).forEach(s => s.classList.add('hidden'));
+                    splashScreen.classList.remove('hidden');
+
+                    // 1. Animasi kartu muncul
+                    cardData.forEach((card, index) => {
+                        setTimeout(() => {
+                            const cardEl = createCardElement(card);
+                            cardEl.classList.add('splash-card', 'pop-in');
+                            cardsContainer.appendChild(cardEl);
+                        }, index * 1000);
+                    });
+
+                    // 2. Animasi KARTU menghilang
+                    setTimeout(() => {
+                        cardsContainer.classList.add('fade-out');
+                    }, 5000);
+
+                    // 3. Animasi TULISAN "UNO" turun
+                    setTimeout(() => {
+                        splashTitle.classList.add('slide-down');
+                    }, 6000); // 1 detik setelah kartu mulai hilang
+
+                    // 4. Animasi PROMPT "Tekan layar" muncul
+                    setTimeout(() => {
+                        splashPrompt.classList.add('fade-in');
+
+                        // 5. Event listener untuk melanjutkan ke menu
+                        function proceedToMenu() {
+                            splashScreen.removeEventListener('click', proceedToMenu);
+                            splashScreen.removeEventListener('touchstart', proceedToMenu);
+
+                            // Animasikan WADAH TULISAN agar keduanya hilang bersamaan
+                            splashTextContainer.classList.add('fade-out');
+
+                            setTimeout(() => {
+                                showScreen('mainMenu');
+                                // Panggil fungsi animasi menu yang baru kita buat
+                                animateMainMenu();
+                            }, 1000);;
+                        }
+
+                        splashScreen.addEventListener('click', proceedToMenu);
+                        splashScreen.addEventListener('touchstart', proceedToMenu);
+
+                    }, 8000); // 2 detik setelah slide-down dimulai
+                }
+
+                function animateMainMenu() {
+                    const menuScreen = screens.mainMenu;
+                    const menuItems = [
+                        menuScreen.querySelector('.menu-title'),
+                        ...menuScreen.querySelectorAll('.menu-btn')
+                    ];
+
+                    menuItems.forEach((item, index) => {
+                        if (item) {
+                            item.style.animationDelay = `${index * 0.2}s`;
+                            item.classList.add('pop-in');
                         }
                     });
-                });
-                // Wild cards
-                for (let i = 0; i < 4; i++) {
-                    newDeck.push({ color: 'black', value: 'wild' });
-                    newDeck.push({ color: 'black', value: 'wild4' });
-                }
-                return newDeck;
-            }
-
-            function shuffleDeck(deckToShuffle) {
-                for (let i = deckToShuffle.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [deckToShuffle[i], deckToShuffle[j]] = [deckToShuffle[j], deckToShuffle[i]];
-                }
-            }
-
-            // =========================================================================
-            //  ALUR PERMAINAN (PRE-GAME, START, END)
-            // =========================================================================
-            /**
-             * [FIXED] Merombak total cara pemain dibuat.
-             * Sekarang, `players` hanya berisi pemain yang aktif.
-             * Properti `id` pada setiap objek bot sekarang secara konsisten merujuk pada slot visualnya
-             * (1=kiri, 2=atas, 3=kanan), yang memperbaiki bug animasi.
-             */
-            function resetGameState() {
-                deck = [];
-                discardPile = [];
-                gameActive = false;
-                gameDirection = 1;
-                playerRanks = [];
-                unoCalledByPlayer = false;
-                isPaused = false;
-                isAutoMode = false;
-
-                const activePlayers = [];
-                let botCounter = 1; // Counter untuk penamaan bot yang sekuensial
-
-                // Player 0 (Manusia) selalu dibuat
-                activePlayers.push({ id: 0, name: mainPlayerName, hand: [], isBot: false, isFinished: false, unoCalled: false });
-
-                // Bot dibuat berdasarkan NUM_PLAYERS dan ID slot visual, tapi nama disesuaikan
-                if (NUM_PLAYERS === 2) {
-                    // Slot 2 (Atas), Nama: Bot 1
-                    activePlayers.push({ id: 2, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
-                } else if (NUM_PLAYERS === 3) {
-                    // Slot 1 (Kiri), Nama: Bot 1
-                    activePlayers.push({ id: 1, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
-                    // Slot 3 (Kanan), Nama: Bot 2
-                    activePlayers.push({ id: 3, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
-                } else if (NUM_PLAYERS === 4) {
-                    // Slot 1 (Kiri), Nama: Bot 1
-                    activePlayers.push({ id: 1, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
-                    // Slot 2 (Atas), Nama: Bot 2
-                    activePlayers.push({ id: 2, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
-                    // Slot 3 (Kanan), Nama: Bot 3
-                    activePlayers.push({ id: 3, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
                 }
 
-                players = activePlayers;
-
-                document.querySelectorAll('.player-area').forEach(el => el.classList.remove('finished'));
-            }
-
-            function setupPlayerLayout() {
-                const topArea = document.getElementById('player-area-top');
-                const leftArea = document.getElementById('player-area-left');
-                const rightArea = document.getElementById('player-area-right');
-
-                // Sembunyikan semua area bot terlebih dahulu
-                topArea.classList.add('hidden');
-                leftArea.classList.add('hidden');
-                rightArea.classList.add('hidden');
-
-                if (NUM_PLAYERS === 2) {
-                    topArea.classList.remove('hidden');
-                } else if (NUM_PLAYERS === 3) {
-                    leftArea.classList.remove('hidden');
-                    rightArea.classList.remove('hidden');
-                } else if (NUM_PLAYERS === 4) {
-                    topArea.classList.remove('hidden');
-                    leftArea.classList.remove('hidden');
-                    rightArea.classList.remove('hidden');
-                }
-            }
-
-            function startPreGame() {
-                showScreen('game');
-                gameContainer.classList.add('hidden');
-                preGameInfoElem.classList.remove('hidden');
-
-                resetGameState();
-                preGameInfoElem.innerHTML = `<h3>Menentukan Giliran Pertama...</h3><div id="pre-game-cards"></div>`;
-
-                // --- LOGIKA BARU UNTUK KARTU UNIK (VERSI ALTERNATIF) ---
-                // Logika ini menjamin setiap pemain mendapat angka yang berbeda.
-                const drawnCards = [];
-                const usedNumbers = new Set(); // Menggunakan Set untuk menyimpan angka yang sudah terpakai
-
-                // Terus menerus mengambil angka acak sampai jumlah angka unik sama dengan jumlah pemain.
-                while (usedNumbers.size < players.length) {
-                    const randomNumber = Math.floor(Math.random() * 10).toString();
-                    usedNumbers.add(randomNumber); // Set secara otomatis menolak nilai duplikat.
+                // =========================================================================
+                //  LOGIKA KARTU & DEK
+                // =========================================================================
+                function createDeck() {
+                    const newDeck = [];
+                    // Number cards
+                    COLORS.forEach(color => {
+                        VALUES.forEach(value => {
+                            newDeck.push({ color, value });
+                            if (value !== '0') { // Each color has two of each card from 1-9 and action cards
+                                newDeck.push({ color, value });
+                            }
+                        });
+                    });
+                    // Wild cards
+                    for (let i = 0; i < 4; i++) {
+                        newDeck.push({ color: 'black', value: 'wild' });
+                        newDeck.push({ color: 'black', value: 'wild4' });
+                    }
+                    return newDeck;
                 }
 
-                const uniqueNumbersArray = Array.from(usedNumbers);
-
-                // Bagikan angka unik yang sudah didapat kepada setiap pemain.
-                for (let i = 0; i < players.length; i++) {
-                    const value = uniqueNumbersArray[i];
-                    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-                    drawnCards.push({ value, color });
+                function shuffleDeck(deckToShuffle) {
+                    for (let i = deckToShuffle.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [deckToShuffle[i], deckToShuffle[j]] = [deckToShuffle[j], deckToShuffle[i]];
+                    }
                 }
-                // --- AKHIR LOGIKA BARU ---
 
-                const preGameCardsContainer = document.getElementById('pre-game-cards');
-                preGameCardsContainer.innerHTML = '';
-                drawnCards.forEach((card, index) => {
-                    const cardContainer = document.createElement('div');
-                    cardContainer.className = 'pre-game-card-container';
-                    cardContainer.innerHTML = `<p class="player-name-label">${players[index].name}</p>`;
-                    cardContainer.appendChild(createCardElement(card));
-                    preGameCardsContainer.appendChild(cardContainer);
-                });
+                // =========================================================================
+                //  ALUR PERMAINAN (PRE-GAME, START, END)
+                // =========================================================================
+                /**
+                 * [FIXED] Merombak total cara pemain dibuat.
+                 * Sekarang, `players` hanya berisi pemain yang aktif.
+                 * Properti `id` pada setiap objek bot sekarang secara konsisten merujuk pada slot visualnya
+                 * (1=kiri, 2=atas, 3=kanan), yang memperbaiki bug animasi.
+                 */
+                function resetGameState() {
+                    deck = [];
+                    discardPile = [];
+                    gameActive = false;
+                    gameDirection = 1;
+                    playerRanks = [];
+                    unoCalledByPlayer = false;
+                    isPaused = false;
+                    isAutoMode = false;
 
-                setTimeout(() => {
-                    const highestCard = drawnCards.reduce((prev, current, index) => {
-                        const currentValue = parseInt(current.value);
-                        if (currentValue > prev.value) {
-                            return { value: currentValue, index: index };
-                        }
-                        return prev;
-                    }, { value: -1, index: -1 });
+                    const activePlayers = [];
+                    let botCounter = 1; // Counter untuk penamaan bot yang sekuensial
 
-                    const startingPlayer = players[highestCard.index];
-                    preGameInfoElem.innerHTML += `<p>${startingPlayer.name} mendapat giliran pertama!</p>`;
+                    // Player 0 (Manusia) selalu dibuat
+                    activePlayers.push({ id: 0, name: mainPlayerName, hand: [], isBot: false, isFinished: false, unoCalled: false });
+
+                    // Bot dibuat berdasarkan NUM_PLAYERS dan ID slot visual, tapi nama disesuaikan
+                    if (NUM_PLAYERS === 2) {
+                        // Slot 2 (Atas), Nama: Bot 1
+                        activePlayers.push({ id: 2, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
+                    } else if (NUM_PLAYERS === 3) {
+                        // Slot 1 (Kiri), Nama: Bot 1
+                        activePlayers.push({ id: 1, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
+                        // Slot 3 (Kanan), Nama: Bot 2
+                        activePlayers.push({ id: 3, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
+                    } else if (NUM_PLAYERS === 4) {
+                        // Slot 1 (Kiri), Nama: Bot 1
+                        activePlayers.push({ id: 1, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
+                        // Slot 2 (Atas), Nama: Bot 2
+                        activePlayers.push({ id: 2, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
+                        // Slot 3 (Kanan), Nama: Bot 3
+                        activePlayers.push({ id: 3, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
+                    }
+
+                    players = activePlayers;
+
+                    document.querySelectorAll('.player-area').forEach(el => el.classList.remove('finished'));
+                }
+
+                function setupPlayerLayout() {
+                    const topArea = document.getElementById('player-area-top');
+                    const leftArea = document.getElementById('player-area-left');
+                    const rightArea = document.getElementById('player-area-right');
+
+                    // Sembunyikan semua area bot terlebih dahulu
+                    topArea.classList.add('hidden');
+                    leftArea.classList.add('hidden');
+                    rightArea.classList.add('hidden');
+
+                    if (NUM_PLAYERS === 2) {
+                        topArea.classList.remove('hidden');
+                    } else if (NUM_PLAYERS === 3) {
+                        leftArea.classList.remove('hidden');
+                        rightArea.classList.remove('hidden');
+                    } else if (NUM_PLAYERS === 4) {
+                        topArea.classList.remove('hidden');
+                        leftArea.classList.remove('hidden');
+                        rightArea.classList.remove('hidden');
+                    }
+                }
+
+                function startPreGame() {
+                    showScreen('game');
+                    gameContainer.classList.add('hidden');
+                    preGameInfoElem.classList.remove('hidden');
+
+                    resetGameState();
+                    preGameInfoElem.innerHTML = `<h3>Menentukan Giliran Pertama...</h3><div id="pre-game-cards"></div>`;
+
+                    // --- LOGIKA BARU UNTUK KARTU UNIK (VERSI ALTERNATIF) ---
+                    // Logika ini menjamin setiap pemain mendapat angka yang berbeda.
+                    const drawnCards = [];
+                    const usedNumbers = new Set(); // Menggunakan Set untuk menyimpan angka yang sudah terpakai
+
+                    // Terus menerus mengambil angka acak sampai jumlah angka unik sama dengan jumlah pemain.
+                    while (usedNumbers.size < players.length) {
+                        const randomNumber = Math.floor(Math.random() * 10).toString();
+                        usedNumbers.add(randomNumber); // Set secara otomatis menolak nilai duplikat.
+                    }
+
+                    const uniqueNumbersArray = Array.from(usedNumbers);
+
+                    // Bagikan angka unik yang sudah didapat kepada setiap pemain.
+                    for (let i = 0; i < players.length; i++) {
+                        const value = uniqueNumbersArray[i];
+                        const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+                        drawnCards.push({ value, color });
+                    }
+                    // --- AKHIR LOGIKA BARU ---
+
+                    const preGameCardsContainer = document.getElementById('pre-game-cards');
+                    preGameCardsContainer.innerHTML = '';
+                    drawnCards.forEach((card, index) => {
+                        const cardContainer = document.createElement('div');
+                        cardContainer.className = 'pre-game-card-container';
+                        cardContainer.innerHTML = `<p class="player-name-label">${players[index].name}</p>`;
+                        cardContainer.appendChild(createCardElement(card));
+                        preGameCardsContainer.appendChild(cardContainer);
+                    });
 
                     setTimeout(() => {
-                        preGameInfoElem.classList.add('hidden');
-                        gameContainer.classList.remove('hidden');
-                        startGame(startingPlayer.id);
-                    }, 2500);
-                }, 1500);
-            }
+                        const highestCard = drawnCards.reduce((prev, current, index) => {
+                            const currentValue = parseInt(current.value);
+                            if (currentValue > prev.value) {
+                                return { value: currentValue, index: index };
+                            }
+                            return prev;
+                        }, { value: -1, index: -1 });
 
-            function startGame(startIdx) {
-                setupPlayerLayout();
-                // `resetGameState` sudah dipanggil di `startPreGame`, tidak perlu dipanggil lagi
-                currentPlayerIndex = startIdx;
-                updateDirectionIndicator();
+                        const startingPlayer = players[highestCard.index];
+                        preGameInfoElem.innerHTML += `<p>${startingPlayer.name} mendapat giliran pertama!</p>`;
 
-                deck = createDeck();
-                shuffleDeck(deck);
-
-                // Reset tangan pemain sebelum membagikan kartu baru
-                players.forEach(p => p.hand = []);
-
-                renderAll();
-
-                animateDealing(() => {
-                    let firstCard;
-                    do {
-                        firstCard = deck.pop();
-                        if (firstCard.value === 'wild4') {
-                            deck.push(firstCard);
-                            shuffleDeck(deck);
-                        }
-                    } while (firstCard.value === 'wild4');
-
-                    discardPile.push(firstCard);
-                    renderAll();
-                    setTimeout(() => beginFirstTurn(firstCard), 500);
-                });
-            }
-
-            function beginFirstTurn(firstCard) {
-                gameActive = true;
-                handleCardEffect(firstCard, currentPlayerIndex, true);
-            }
-
-            function endGame() {
-                gameActive = false;
-                clearTimeout(botTurnTimeout);
-
-                const lastPlayer = players.find(p => !p.isFinished);
-                if (lastPlayer) {
-                    playerRanks.push({ id: lastPlayer.id, name: lastPlayer.name });
+                        setTimeout(() => {
+                            preGameInfoElem.classList.add('hidden');
+                            gameContainer.classList.remove('hidden');
+                            startGame(startingPlayer.id);
+                        }, 2500);
+                    }, 1500);
                 }
 
-                const ranksContainer = document.getElementById('end-game-ranks');
-                ranksContainer.innerHTML = '<h3>Peringkat Akhir</h3>';
-                const scorePoints = [100, 50, 25, 10];
-                playerRanks.forEach((p, i) => {
-                    const score = scorePoints[i] || 0;
-                    if (p.id === 0) {
-                        saveHighScore(p.name, score);
-                    }
-                    const rankDiv = document.createElement('div');
-                    rankDiv.className = 'rank-item';
-                    rankDiv.innerHTML = `<span class="rank-pos">#${i + 1}</span> <span>${p.name}</span> <span class="score">${score} Poin</span>`;
-                    ranksContainer.appendChild(rankDiv);
-                });
-                showScreen('endGame');
-            }
+                function startGame(startIdx) {
+                    setupPlayerLayout();
+                    // `resetGameState` sudah dipanggil di `startPreGame`, tidak perlu dipanggil lagi
+                    currentPlayerIndex = startIdx;
+                    updateDirectionIndicator();
 
-            // =========================================================================
-            //  PAUSE MENU
-            // =========================================================================
-            function togglePause() {
-                if (!gameActive) return;
-                isPaused = !isPaused;
+                    deck = createDeck();
+                    shuffleDeck(deck);
 
-                const existingPauseMenu = document.getElementById('pause-menu');
-                if (existingPauseMenu) existingPauseMenu.remove();
+                    // Reset tangan pemain sebelum membagikan kartu baru
+                    players.forEach(p => p.hand = []);
 
-                if (isPaused) {
+                    renderAll();
+
+                    animateDealing(() => {
+                        let firstCard;
+                        do {
+                            firstCard = deck.pop();
+                            if (firstCard.value === 'wild4') {
+                                deck.push(firstCard);
+                                shuffleDeck(deck);
+                            }
+                        } while (firstCard.value === 'wild4');
+
+                        discardPile.push(firstCard);
+                        renderAll();
+                        setTimeout(() => beginFirstTurn(firstCard), 500);
+                    });
+                }
+
+                function beginFirstTurn(firstCard) {
+                    gameActive = true;
+                    handleCardEffect(firstCard, currentPlayerIndex, true);
+                }
+
+                function endGame() {
+                    gameActive = false;
                     clearTimeout(botTurnTimeout);
-                    const pauseMenu = document.createElement('div');
-                    pauseMenu.id = 'pause-menu';
-                    pauseMenu.className = 'popup';
-                    pauseMenu.innerHTML = `
+
+                    const lastPlayer = players.find(p => !p.isFinished);
+                    if (lastPlayer) {
+                        playerRanks.push({ id: lastPlayer.id, name: lastPlayer.name });
+                    }
+
+                    const ranksContainer = document.getElementById('end-game-ranks');
+                    ranksContainer.innerHTML = '<h3>Peringkat Akhir</h3>';
+                    const scorePoints = [100, 50, 25, 10];
+                    playerRanks.forEach((p, i) => {
+                        const score = scorePoints[i] || 0;
+                        if (p.id === 0) {
+                            saveHighScore(p.name, score);
+                        }
+                        const rankDiv = document.createElement('div');
+                        rankDiv.className = 'rank-item';
+                        rankDiv.innerHTML = `<span class="rank-pos">#${i + 1}</span> <span>${p.name}</span> <span class="score">${score} Poin</span>`;
+                        ranksContainer.appendChild(rankDiv);
+                    });
+                    showScreen('endGame');
+                }
+
+                // =========================================================================
+                //  PAUSE MENU
+                // =========================================================================
+                function togglePause() {
+                    if (!gameActive) return;
+                    isPaused = !isPaused;
+
+                    const existingPauseMenu = document.getElementById('pause-menu');
+                    if (existingPauseMenu) existingPauseMenu.remove();
+
+                    if (isPaused) {
+                        clearTimeout(botTurnTimeout);
+                        const pauseMenu = document.createElement('div');
+                        pauseMenu.id = 'pause-menu';
+                        pauseMenu.className = 'popup';
+                        pauseMenu.innerHTML = `
                         <h3>Jeda</h3>
                         <div class="popup-options" style="flex-direction: column;">
                             <button id="auto-mode-btn" class="menu-btn"></button>
@@ -1466,848 +1754,848 @@
                         </div>
                     `;
 
-                    const autoModeBtn = pauseMenu.querySelector('#auto-mode-btn');
+                        const autoModeBtn = pauseMenu.querySelector('#auto-mode-btn');
 
-                    const updateAutoModeButton = () => {
-                        autoModeBtn.textContent = isAutoMode ? 'Auto Mode: ON' : 'Auto Mode: OFF';
-                        autoModeBtn.classList.toggle('green', isAutoMode);
-                        autoModeBtn.classList.toggle('blue', !isAutoMode);
-                    };
+                        const updateAutoModeButton = () => {
+                            autoModeBtn.textContent = isAutoMode ? 'Auto Mode: ON' : 'Auto Mode: OFF';
+                            autoModeBtn.classList.toggle('green', isAutoMode);
+                            autoModeBtn.classList.toggle('blue', !isAutoMode);
+                        };
 
-                    updateAutoModeButton();
-
-                    autoModeBtn.onclick = () => {
-                        isAutoMode = !isAutoMode;
                         updateAutoModeButton();
-                    };
 
-                    screens.game.appendChild(pauseMenu);
+                        autoModeBtn.onclick = () => {
+                            isAutoMode = !isAutoMode;
+                            updateAutoModeButton();
+                        };
 
-                    // Perbaikan ada di 2 baris di bawah ini
-                    pauseMenu.querySelector('#resume-btn').onclick = togglePause;
-                    pauseMenu.querySelector('#restart-pause-btn').onclick = () => {
-                        screens.game.removeChild(pauseMenu); // Hapus menu sebelum restart
-                        startPreGame();
-                    };
-                    pauseMenu.querySelector('#exit-pause-btn').onclick = () => {
-                        screens.game.removeChild(pauseMenu); // Hapus menu sebelum keluar
-                        showScreen('mainMenu');
-                    };
-                } else {
-                    const currentPlayer = players.find(p => p.id === currentPlayerIndex);
-                    if (isAutoMode && currentPlayer && !currentPlayer.isBot && !currentPlayer.isFinished) {
-                        botTurnTimeout = setTimeout(playHumanAsBotTurn, 1000);
-                    } else if (currentPlayer && currentPlayer.isBot) {
-                        botTurnTimeout = setTimeout(playBotTurn, 1000);
+                        screens.game.appendChild(pauseMenu);
+
+                        // Perbaikan ada di 2 baris di bawah ini
+                        pauseMenu.querySelector('#resume-btn').onclick = togglePause;
+                        pauseMenu.querySelector('#restart-pause-btn').onclick = () => {
+                            screens.game.removeChild(pauseMenu); // Hapus menu sebelum restart
+                            startPreGame();
+                        };
+                        pauseMenu.querySelector('#exit-pause-btn').onclick = () => {
+                            screens.game.removeChild(pauseMenu); // Hapus menu sebelum keluar
+                            showScreen('mainMenu');
+                        };
+                    } else {
+                        const currentPlayer = players.find(p => p.id === currentPlayerIndex);
+                        if (isAutoMode && currentPlayer && !currentPlayer.isBot && !currentPlayer.isFinished) {
+                            botTurnTimeout = setTimeout(playHumanAsBotTurn, 1000);
+                        } else if (currentPlayer && currentPlayer.isBot) {
+                            botTurnTimeout = setTimeout(playBotTurn, 1000);
+                        }
                     }
                 }
-            }
 
-            // =========================================================================
-            //  RENDER & ANIMASI
-            // =========================================================================
-            function createCardElement(card, isBack = false) {
-                const cardElem = document.createElement('div');
-                cardElem.className = 'card';
+                // =========================================================================
+                //  RENDER & ANIMASI
+                // =========================================================================
+                function createCardElement(card, isBack = false) {
+                    const cardElem = document.createElement('div');
+                    cardElem.className = 'card';
 
-                if (isBack) {
-                    cardElem.classList.add('card-back');
-                } else {
-                    cardElem.dataset.color = card.color;
-                    cardElem.dataset.value = card.value;
-                    cardElem.dataset.cardData = JSON.stringify(card);
+                    if (isBack) {
+                        cardElem.classList.add('card-back');
+                    } else {
+                        cardElem.dataset.color = card.color;
+                        cardElem.dataset.value = card.value;
+                        cardElem.dataset.cardData = JSON.stringify(card);
 
-                    let textContent = '';
-                    switch (card.value) {
-                        case 'skip': textContent = '🚫'; break;
-                        case 'reverse': textContent = '⟲'; break;
-                        case 'draw2': textContent = '+2'; break;
-                        case 'wild': textContent = ''; break;
-                        case 'wild4': textContent = '+4'; break;
-                        default: textContent = card.value; break;
+                        let textContent = '';
+                        switch (card.value) {
+                            case 'skip': textContent = '🚫'; break;
+                            case 'reverse': textContent = '⟲'; break;
+                            case 'draw2': textContent = '+2'; break;
+                            case 'wild': textContent = ''; break;
+                            case 'wild4': textContent = '+4'; break;
+                            default: textContent = card.value; break;
+                        }
+                        cardElem.textContent = textContent;
                     }
-                    cardElem.textContent = textContent;
+                    return cardElem;
                 }
-                return cardElem;
-            }
 
-            function animateCardMove(startElem, endElem, cardData, onComplete) {
-                if (!startElem || !endElem) return; // Guard clause
-                const startRect = startElem.getBoundingClientRect();
-                const endRect = endElem.getBoundingClientRect();
-                const boardRect = screens.game.getBoundingClientRect();
+                function animateCardMove(startElem, endElem, cardData, onComplete) {
+                    if (!startElem || !endElem) return; // Guard clause
+                    const startRect = startElem.getBoundingClientRect();
+                    const endRect = endElem.getBoundingClientRect();
+                    const boardRect = screens.game.getBoundingClientRect();
 
-                const movingCard = createCardElement(cardData, Object.keys(cardData).length === 0);
-                movingCard.classList.add('card-animation');
-                movingCard.style.left = `${startRect.left - boardRect.left}px`;
-                movingCard.style.top = `${startRect.top - boardRect.top}px`;
-                screens.game.appendChild(movingCard);
+                    const movingCard = createCardElement(cardData, Object.keys(cardData).length === 0);
+                    movingCard.classList.add('card-animation');
+                    movingCard.style.left = `${startRect.left - boardRect.left}px`;
+                    movingCard.style.top = `${startRect.top - boardRect.top}px`;
+                    screens.game.appendChild(movingCard);
 
-                requestAnimationFrame(() => {
-                    movingCard.style.left = `${endRect.left - boardRect.left + (endRect.width / 4)}px`;
-                    movingCard.style.top = `${endRect.top - boardRect.top + (endRect.height / 4)}px`;
-                });
-
-                setTimeout(() => {
-                    if (screens.game.contains(movingCard)) {
-                        screens.game.removeChild(movingCard);
-                    }
-                    if (onComplete) onComplete();
-                }, 200);
-            }
-
-            /**
-             * [FIXED] Memperbaiki logika animasi pembagian kartu.
-             * `endElemId` sekarang ditentukan secara dinamis menggunakan `playerToDeal.id`
-             * untuk menargetkan elemen visual yang benar, sesuai dengan slotnya.
-             */
-            function animateDealing(onComplete) {
-                let cardsDealt = 0;
-                let playerDealIndex = 0;
-                const totalCardsToDeal = players.length * CARDS_PER_PLAYER;
-
-                function dealOneCard() {
-                    if (cardsDealt >= totalCardsToDeal) {
-                        onComplete();
-                        return;
-                    }
-
-                    const playerToDeal = players[playerDealIndex];
-                    if (deck.length > 0) {
-                        const cardData = deck.pop();
-                        playerToDeal.hand.push(cardData);
-                    }
-
-                    // FIX: Menggunakan player's ID untuk menemukan elemen tangan yang benar
-                    const endElemId = playerToDeal.isBot ? `hand-bot-${playerToDeal.id}` : 'player-hand';
-                    const endElem = document.getElementById(endElemId);
-
-                    animateCardMove(deckPileElem, endElem, {}, () => {
-                        renderAll();
-                        playerDealIndex = (playerDealIndex + 1) % players.length;
-                        cardsDealt++;
-                        setTimeout(dealOneCard, 100);
+                    requestAnimationFrame(() => {
+                        movingCard.style.left = `${endRect.left - boardRect.left + (endRect.width / 4)}px`;
+                        movingCard.style.top = `${endRect.top - boardRect.top + (endRect.height / 4)}px`;
                     });
-                }
-                dealOneCard();
-            }
 
-            function renderAll() {
-                if (players.length === 0) return;
-
-                // Render human player's hand
-                playerHandElem.innerHTML = '';
-                players[0].hand.forEach(card => {
-                    const cardElem = createCardElement(card);
-                    cardElem.draggable = true;
-                    cardElem.addEventListener('dragstart', (ev) => {
-                        if (currentPlayerIndex === 0 && gameActive && !isPaused && !players[0].isFinished) {
-                            ev.dataTransfer.setData('text/plain', ev.target.dataset.cardData);
-                        } else {
-                            ev.preventDefault();
+                    setTimeout(() => {
+                        if (screens.game.contains(movingCard)) {
+                            screens.game.removeChild(movingCard);
                         }
-                    });
-                    cardElem.addEventListener('touchstart', handleTouchStart, { passive: false });
-                    playerHandElem.appendChild(cardElem);
-                });
+                        if (onComplete) onComplete();
+                    }, 200);
+                }
 
-                // Render bots' hands (as card backs)
-                players.forEach(player => {
-                    if (player.isBot) {
-                        const botHandElem = document.getElementById(`hand-bot-${player.id}`);
-                        if (botHandElem) {
-                            botHandElem.innerHTML = '';
-                            player.hand.forEach(() => {
-                                botHandElem.appendChild(createCardElement({}, true));
-                            });
+                /**
+                 * [FIXED] Memperbaiki logika animasi pembagian kartu.
+                 * `endElemId` sekarang ditentukan secara dinamis menggunakan `playerToDeal.id`
+                 * untuk menargetkan elemen visual yang benar, sesuai dengan slotnya.
+                 */
+                function animateDealing(onComplete) {
+                    let cardsDealt = 0;
+                    let playerDealIndex = 0;
+                    const totalCardsToDeal = players.length * CARDS_PER_PLAYER;
+
+                    function dealOneCard() {
+                        if (cardsDealt >= totalCardsToDeal) {
+                            onComplete();
+                            return;
                         }
-                    }
-                });
 
-                // Render discard pile
-                discardPileContainer.innerHTML = '';
-                const topCard = getTopCard();
-                if (topCard) {
-                    const topCardElem = createCardElement(topCard);
-                    topCardElem.style.cursor = 'default';
-                    discardPileContainer.appendChild(topCardElem);
-                }
-
-                updatePlayerInfos();
-
-                // Handle UNO button visibility
-                const humanPlayer = players[0];
-                if (gameActive && humanPlayer && humanPlayer.hand.length === 2 && !humanPlayer.isFinished) {
-                    unoButton.classList.add('visible');
-                } else {
-                    unoButton.classList.remove('visible');
-                }
-                if (humanPlayer && humanPlayer.hand.length !== 2) {
-                    unoCalledByPlayer = false;
-                    unoButton.classList.remove('called');
-                }
-            }
-
-            /**
-             * [FIXED] Merombak total logika pemetaan info pemain.
-             * Fungsi ini sekarang memetakan setiap pemain aktif ke area visualnya yang benar
-             * dan secara akurat menerapkan kelas 'active' dan 'finished'.
-             */
-            function updatePlayerInfos() {
-                if (!players || players.length === 0) return;
-
-                const activePlayer = players.find(p => p.id === currentPlayerIndex);
-
-                players.forEach((p) => {
-                    // ID elemen info (info-player, info-bot-1, dll)
-                    const infoId = p.isBot ? `info-bot-${p.id}` : 'info-player';
-                    const infoElem = document.getElementById(infoId);
-
-                    if (infoElem) {
-                        if (p.isFinished) {
-                            const rankIndex = playerRanks.findIndex(rank => rank.id === p.id);
-                            infoElem.textContent = (rankIndex !== -1) ? `#${rankIndex + 1} ${p.name}` : `${p.name} (Selesai)`;
-                        } else {
-                            infoElem.textContent = `${p.name} (${p.hand.length})`;
+                        const playerToDeal = players[playerDealIndex];
+                        if (deck.length > 0) {
+                            const cardData = deck.pop();
+                            playerToDeal.hand.push(cardData);
                         }
-                    }
 
-                    // ID elemen area (player-area-top, player-area-left, dll)
-                    let areaId;
-                    if (p.id === 0) { areaId = 'bottom'; }
-                    else if (p.id === 1) { areaId = 'left'; }
-                    else if (p.id === 2) { areaId = 'top'; }
-                    else if (p.id === 3) { areaId = 'right'; }
+                        // FIX: Menggunakan player's ID untuk menemukan elemen tangan yang benar
+                        const endElemId = playerToDeal.isBot ? `hand-bot-${playerToDeal.id}` : 'player-hand';
+                        const endElem = document.getElementById(endElemId);
 
-                    if (areaId) {
-                        const areaElem = document.getElementById(`player-area-${areaId}`);
-                        if (areaElem) {
-                            areaElem.classList.toggle('finished', p.isFinished);
-                            areaElem.classList.toggle('active', gameActive && !p.isFinished && activePlayer && p.id === activePlayer.id);
-                        }
-                    }
-                });
-            }
-
-            function updateGameInfo(message) {
-                if (!gameActive && message) {
-                    gameInfoElem.textContent = message;
-                    return;
-                }
-                const player = players.find(p => p.id === currentPlayerIndex);
-                if (!gameActive || !player) return;
-
-                gameInfoElem.textContent = message || (player.isFinished ? `Menunggu...` : `Giliran ${player.name}`);
-            }
-
-            // =========================================================================
-            //  LOGIKA INTI PERMAINAN
-            // =========================================================================
-            /**
-             * [FIXED] Merombak total logika giliran pemain.
-             * Fungsi ini sekarang mencari pemain berikutnya berdasarkan posisinya di dalam
-             * array `players` yang aktif, bukan berdasarkan asumsi ID yang berurutan.
-             */
-            function nextTurn() {
-                if (isPaused) return;
-
-                let currentPhysicalIndex = players.findIndex(p => p.id === currentPlayerIndex);
-                if (currentPhysicalIndex === -1) return; // Player not found, abort
-
-                let nextPlayer;
-                let guard = 0;
-                do {
-                    currentPhysicalIndex = (currentPhysicalIndex + gameDirection + players.length) % players.length;
-                    nextPlayer = players[currentPhysicalIndex];
-                    guard++;
-                } while (nextPlayer.isFinished && guard < players.length * 2);
-
-                if (guard >= players.length * 2) {
-                    endGame();
-                    return;
-                }
-
-                currentPlayerIndex = nextPlayer.id;
-                updateGameInfo();
-                updatePlayerInfos();
-
-                players.forEach((p) => {
-                    if (p.id !== currentPlayerIndex && p.hand.length === 1 && !p.unoCalled) {
-                        showNotification(`${p.name} lupa bilang UNO! Ambil 2 kartu.`);
-                        triggerDraw(p.id, 2);
-                    }
-                    if (p.hand.length > 1) p.unoCalled = false;
-                });
-
-                const currentPlayerObject = players.find(p => p.id === currentPlayerIndex);
-                if (currentPlayerObject && currentPlayerObject.isBot) {
-                    botTurnTimeout = setTimeout(playBotTurn, 2000);
-                } else if (isAutoMode) { // Jika ini pemain manusia DAN auto mode ON
-                    botTurnTimeout = setTimeout(playHumanAsBotTurn, 2000);
-                }
-            }
-
-            function playCard(playerIndex, card) {
-                const player = players.find(p => p.id === playerIndex);
-                if (!player) return;
-                const cardIndex = player.hand.findIndex(c => c.color === card.color && c.value === card.value);
-                if (cardIndex === -1) return;
-
-                const playedCard = player.hand.splice(cardIndex, 1)[0];
-                discardPile.push(playedCard);
-
-                renderAll();
-
-                if (player.hand.length === 0) {
-                    player.isFinished = true;
-                    playerRanks.push({ id: player.id, name: player.name });
-                    showNotification(`${player.name} selesai! (Peringkat #${playerRanks.length})`);
-                    renderAll();
-
-                    if (playerRanks.length >= NUM_PLAYERS - 1) {
-                        setTimeout(endGame, 1000);
-                        return;
-                    }
-                }
-
-                handleCardEffect(playedCard, playerIndex, false);
-            }
-
-            /**
-             * [FIXED] Memperbaiki cara target (korban) dari kartu aksi ditentukan.
-             * Sama seperti `nextTurn`, ini sekarang menggunakan array `players` yang aktif.
-             */
-            function handleCardEffect(card, playerIndex, isFirstCard) {
-                let shouldAdvanceTurn = true;
-                const cardBeforePlay = discardPile[discardPile.length - 2] || null;
-
-                let victimId = playerIndex;
-                let guard = 0;
-                let currentPhysicalIndex = players.findIndex(p => p.id === victimId);
-
-                if (currentPhysicalIndex !== -1) {
-                    do {
-                        currentPhysicalIndex = (currentPhysicalIndex + gameDirection + players.length) % players.length;
-                        victimId = players[currentPhysicalIndex].id;
-                        guard++;
-                    } while (players.find(p => p.id === victimId).isFinished && guard < players.length * 2);
-                }
-
-                switch (card.value) {
-                    case 'skip':
-                        showAction('🚫');
-                        updateGameInfo(`Giliran ${players.find(p => p.id === victimId).name} dilewati!`);
-                        currentPlayerIndex = victimId;
-                        break;
-
-                    case 'reverse':
-                        if (players.filter(p => !p.isFinished).length > 2) {
-                            showAction('⟲');
-                            gameDirection *= -1;
-                            updateDirectionIndicator();
-                        }
-                        break;
-
-                    case 'draw2':
-                        updateGameInfo(`${players.find(p => p.id === victimId).name} ambil 2 kartu!`);
-                        shouldAdvanceTurn = false;
-                        currentPlayerIndex = victimId;
-                        triggerDraw(victimId, 2, () => nextTurn());
-                        break;
-
-                    case 'wild':
-                        if (isFirstCard) {
-                            promptChooseColor(playerIndex, () => {
-                                currentPlayerIndex = playerIndex;
-                                updateGameInfo();
-                                updatePlayerInfos();
-                                if (players.find(p => p.id === currentPlayerIndex).isBot) botTurnTimeout = setTimeout(playBotTurn, 2000);
-                            });
-                        } else {
-                            shouldAdvanceTurn = false;
-                            promptChooseColor(playerIndex, () => nextTurn());
-                        }
-                        break;
-
-                    case 'wild4':
-                        if (isFirstCard) break;
-                        shouldAdvanceTurn = false;
-                        promptChooseColor(playerIndex, (chosenColor) => {
-                            promptChallenge(playerIndex, victimId, cardBeforePlay, chosenColor, () => nextTurn());
+                        animateCardMove(deckPileElem, endElem, {}, () => {
+                            renderAll();
+                            playerDealIndex = (playerDealIndex + 1) % players.length;
+                            cardsDealt++;
+                            setTimeout(dealOneCard, 100);
                         });
-                        break;
+                    }
+                    dealOneCard();
                 }
 
-                if (shouldAdvanceTurn) {
-                    if (isFirstCard) {
-                        let firstPlayerToAct = playerIndex;
-                        let firstPlayerPhysicalIndex = players.findIndex(p => p.id === firstPlayerToAct);
-                        if (firstPlayerPhysicalIndex !== -1) {
-                            if (card.value === 'skip') {
-                                firstPlayerPhysicalIndex = (firstPlayerPhysicalIndex + gameDirection + players.length) % players.length;
-                                firstPlayerToAct = players[firstPlayerPhysicalIndex].id;
-                            } else if (card.value === 'reverse') {
-                                gameDirection *= -1;
-                                updateDirectionIndicator();
-                                firstPlayerPhysicalIndex = (firstPlayerPhysicalIndex + gameDirection + players.length) % players.length;
-                                firstPlayerToAct = players[firstPlayerPhysicalIndex].id;
+                function renderAll() {
+                    if (players.length === 0) return;
+
+                    // Render human player's hand
+                    playerHandElem.innerHTML = '';
+                    players[0].hand.forEach(card => {
+                        const cardElem = createCardElement(card);
+                        cardElem.draggable = true;
+                        cardElem.addEventListener('dragstart', (ev) => {
+                            if (currentPlayerIndex === 0 && gameActive && !isPaused && !players[0].isFinished) {
+                                ev.dataTransfer.setData('text/plain', ev.target.dataset.cardData);
+                            } else {
+                                ev.preventDefault();
+                            }
+                        });
+                        cardElem.addEventListener('touchstart', handleTouchStart, { passive: false });
+                        playerHandElem.appendChild(cardElem);
+                    });
+
+                    // Render bots' hands (as card backs)
+                    players.forEach(player => {
+                        if (player.isBot) {
+                            const botHandElem = document.getElementById(`hand-bot-${player.id}`);
+                            if (botHandElem) {
+                                botHandElem.innerHTML = '';
+                                player.hand.forEach(() => {
+                                    botHandElem.appendChild(createCardElement({}, true));
+                                });
+                            }
+                        }
+                    });
+
+                    // Render discard pile
+                    discardPileContainer.innerHTML = '';
+                    const topCard = getTopCard();
+                    if (topCard) {
+                        const topCardElem = createCardElement(topCard);
+                        topCardElem.style.cursor = 'default';
+                        discardPileContainer.appendChild(topCardElem);
+                    }
+
+                    updatePlayerInfos();
+
+                    // Handle UNO button visibility
+                    const humanPlayer = players[0];
+                    if (gameActive && humanPlayer && humanPlayer.hand.length === 2 && !humanPlayer.isFinished) {
+                        unoButton.classList.add('visible');
+                    } else {
+                        unoButton.classList.remove('visible');
+                    }
+                    if (humanPlayer && humanPlayer.hand.length !== 2) {
+                        unoCalledByPlayer = false;
+                        unoButton.classList.remove('called');
+                    }
+                }
+
+                /**
+                 * [FIXED] Merombak total logika pemetaan info pemain.
+                 * Fungsi ini sekarang memetakan setiap pemain aktif ke area visualnya yang benar
+                 * dan secara akurat menerapkan kelas 'active' dan 'finished'.
+                 */
+                function updatePlayerInfos() {
+                    if (!players || players.length === 0) return;
+
+                    const activePlayer = players.find(p => p.id === currentPlayerIndex);
+
+                    players.forEach((p) => {
+                        // ID elemen info (info-player, info-bot-1, dll)
+                        const infoId = p.isBot ? `info-bot-${p.id}` : 'info-player';
+                        const infoElem = document.getElementById(infoId);
+
+                        if (infoElem) {
+                            if (p.isFinished) {
+                                const rankIndex = playerRanks.findIndex(rank => rank.id === p.id);
+                                infoElem.textContent = (rankIndex !== -1) ? `#${rankIndex + 1} ${p.name}` : `${p.name} (Selesai)`;
+                            } else {
+                                infoElem.textContent = `${p.name} (${p.hand.length})`;
                             }
                         }
 
-                        currentPlayerIndex = firstPlayerToAct;
-                        updateGameInfo();
-                        updatePlayerInfos();
-                        if (players.find(p => p.id === currentPlayerIndex)?.isBot) botTurnTimeout = setTimeout(playBotTurn, 2000);
+                        // ID elemen area (player-area-top, player-area-left, dll)
+                        let areaId;
+                        if (p.id === 0) { areaId = 'bottom'; }
+                        else if (p.id === 1) { areaId = 'left'; }
+                        else if (p.id === 2) { areaId = 'top'; }
+                        else if (p.id === 3) { areaId = 'right'; }
 
-                    } else {
-                        nextTurn();
-                    }
-                }
-            }
-
-            function promptChooseColor(playerIndex, callback) {
-                const player = players.find(p => p.id === playerIndex);
-                if (!player) return;
-
-                // Cek jika pemain adalah manusia dalam Auto Mode ATAU memang bot
-                if ((player.id === 0 && isAutoMode) || player.isBot) {
-                    let chosenColor;
-                    const nameSuffix = (player.id === 0 && isAutoMode) ? " (Auto)" : "";
-
-                    if (botDifficulty === 'easy' && player.isBot) {
-                        chosenColor = COLORS[Math.floor(Math.random() * 4)];
-                    } else {
-                        // Logika medium/hard/expert (termasuk untuk auto mode pemain)
-                        const colorCounts = COLORS.reduce((acc, color) => {
-                            acc[color] = player.hand.filter(c => c.color === color).length;
-                            return acc;
-                        }, {});
-                        const maxCount = Math.max(...Object.values(colorCounts));
-                        const bestColors = Object.keys(colorCounts).filter(color => colorCounts[color] === maxCount);
-                        chosenColor = bestColors[0] || COLORS[Math.floor(Math.random() * 4)];
-                    }
-
-                    getTopCard().color = chosenColor;
-                    showNotification(`${player.name}${nameSuffix} memilih warna ${chosenColor}.`);
-                    renderAll();
-                    if (callback) setTimeout(() => callback(chosenColor), 500);
-                    return; // PENTING: Hentikan eksekusi agar pop-up tidak muncul
+                        if (areaId) {
+                            const areaElem = document.getElementById(`player-area-${areaId}`);
+                            if (areaElem) {
+                                areaElem.classList.toggle('finished', p.isFinished);
+                                areaElem.classList.toggle('active', gameActive && !p.isFinished && activePlayer && p.id === activePlayer.id);
+                            }
+                        }
+                    });
                 }
 
-                // Jika bukan auto mode, tampilkan pop-up untuk pemain manusia
-                const picker = document.createElement('div');
-                picker.id = 'color-picker';
-                picker.className = 'popup';
-                picker.innerHTML = `<h3>Pilih Warna</h3><div class="popup-options" style="flex-direction: row;"></div>`;
-                COLORS.forEach(color => {
-                    const btn = document.createElement('button');
-                    btn.className = 'color-btn';
-                    btn.style.backgroundColor = `var(--${color})`;
-                    btn.onclick = () => {
-                        screens.game.removeChild(picker);
-                        getTopCard().color = color;
-                        renderAll();
-                        if (callback) callback(color);
-                    };
-                    picker.querySelector('.popup-options').appendChild(btn);
-                });
-                screens.game.appendChild(picker);
-            }
+                function updateGameInfo(message) {
+                    if (!gameActive && message) {
+                        gameInfoElem.textContent = message;
+                        return;
+                    }
+                    const player = players.find(p => p.id === currentPlayerIndex);
+                    if (!gameActive || !player) return;
 
-            function promptChallenge(attackerIndex, victimIndex, cardBeforePlay, chosenColor, onComplete) {
-                const victim = players.find(p => p.id === victimIndex);
-                const attacker = players.find(p => p.id === attackerIndex);
-                if (!victim || !attacker) return;
+                    gameInfoElem.textContent = message || (player.isFinished ? `Menunggu...` : `Giliran ${player.name}`);
+                }
 
-                // Fungsi resolve yang akan dipanggil nanti
-                function resolveChallenge(didChallenge) {
-                    if (!didChallenge) {
-                        updateGameInfo(`${victim.name} ambil 4 kartu.`);
-                        currentPlayerIndex = victimIndex;
-                        triggerDraw(victimIndex, 4, onComplete);
+                // =========================================================================
+                //  LOGIKA INTI PERMAINAN
+                // =========================================================================
+                /**
+                 * [FIXED] Merombak total logika giliran pemain.
+                 * Fungsi ini sekarang mencari pemain berikutnya berdasarkan posisinya di dalam
+                 * array `players` yang aktif, bukan berdasarkan asumsi ID yang berurutan.
+                 */
+                function nextTurn() {
+                    if (isPaused) return;
+
+                    let currentPhysicalIndex = players.findIndex(p => p.id === currentPlayerIndex);
+                    if (currentPhysicalIndex === -1) return; // Player not found, abort
+
+                    let nextPlayer;
+                    let guard = 0;
+                    do {
+                        currentPhysicalIndex = (currentPhysicalIndex + gameDirection + players.length) % players.length;
+                        nextPlayer = players[currentPhysicalIndex];
+                        guard++;
+                    } while (nextPlayer.isFinished && guard < players.length * 2);
+
+                    if (guard >= players.length * 2) {
+                        endGame();
                         return;
                     }
 
-                    const wasIllegal = cardBeforePlay ? attacker.hand.some(c => c.color === cardBeforePlay.color || c.value === cardBeforePlay.value) : false;
+                    currentPlayerIndex = nextPlayer.id;
+                    updateGameInfo();
+                    updatePlayerInfos();
 
-                    if (wasIllegal) {
-                        showNotification(`Tantangan Berhasil! ${attacker.name} ambil 4 kartu.`);
-                        triggerDraw(attackerIndex, 4, () => {
+                    players.forEach((p) => {
+                        if (p.id !== currentPlayerIndex && p.hand.length === 1 && !p.unoCalled) {
+                            showNotification(`${p.name} lupa bilang UNO! Ambil 2 kartu.`);
+                            triggerDraw(p.id, 2);
+                        }
+                        if (p.hand.length > 1) p.unoCalled = false;
+                    });
+
+                    const currentPlayerObject = players.find(p => p.id === currentPlayerIndex);
+                    if (currentPlayerObject && currentPlayerObject.isBot) {
+                        botTurnTimeout = setTimeout(playBotTurn, 2000);
+                    } else if (isAutoMode) { // Jika ini pemain manusia DAN auto mode ON
+                        botTurnTimeout = setTimeout(playHumanAsBotTurn, 2000);
+                    }
+                }
+
+                function playCard(playerIndex, card) {
+                    const player = players.find(p => p.id === playerIndex);
+                    if (!player) return;
+                    const cardIndex = player.hand.findIndex(c => c.color === card.color && c.value === card.value);
+                    if (cardIndex === -1) return;
+
+                    const playedCard = player.hand.splice(cardIndex, 1)[0];
+                    discardPile.push(playedCard);
+
+                    renderAll();
+
+                    if (player.hand.length === 0) {
+                        player.isFinished = true;
+                        playerRanks.push({ id: player.id, name: player.name });
+                        showNotification(`${player.name} selesai! (Peringkat #${playerRanks.length})`);
+                        renderAll();
+
+                        if (playerRanks.length >= NUM_PLAYERS - 1) {
+                            setTimeout(endGame, 1000);
+                            return;
+                        }
+                    }
+
+                    handleCardEffect(playedCard, playerIndex, false);
+                }
+
+                /**
+                 * [FIXED] Memperbaiki cara target (korban) dari kartu aksi ditentukan.
+                 * Sama seperti `nextTurn`, ini sekarang menggunakan array `players` yang aktif.
+                 */
+                function handleCardEffect(card, playerIndex, isFirstCard) {
+                    let shouldAdvanceTurn = true;
+                    const cardBeforePlay = discardPile[discardPile.length - 2] || null;
+
+                    let victimId = playerIndex;
+                    let guard = 0;
+                    let currentPhysicalIndex = players.findIndex(p => p.id === victimId);
+
+                    if (currentPhysicalIndex !== -1) {
+                        do {
+                            currentPhysicalIndex = (currentPhysicalIndex + gameDirection + players.length) % players.length;
+                            victimId = players[currentPhysicalIndex].id;
+                            guard++;
+                        } while (players.find(p => p.id === victimId).isFinished && guard < players.length * 2);
+                    }
+
+                    switch (card.value) {
+                        case 'skip':
+                            showAction('🚫');
+                            updateGameInfo(`Giliran ${players.find(p => p.id === victimId).name} dilewati!`);
+                            currentPlayerIndex = victimId;
+                            break;
+
+                        case 'reverse':
+                            if (players.filter(p => !p.isFinished).length > 2) {
+                                showAction('⟲');
+                                gameDirection *= -1;
+                                updateDirectionIndicator();
+                            }
+                            break;
+
+                        case 'draw2':
+                            updateGameInfo(`${players.find(p => p.id === victimId).name} ambil 2 kartu!`);
+                            shouldAdvanceTurn = false;
+                            currentPlayerIndex = victimId;
+                            triggerDraw(victimId, 2, () => nextTurn());
+                            break;
+
+                        case 'wild':
+                            if (isFirstCard) {
+                                promptChooseColor(playerIndex, () => {
+                                    currentPlayerIndex = playerIndex;
+                                    updateGameInfo();
+                                    updatePlayerInfos();
+                                    if (players.find(p => p.id === currentPlayerIndex).isBot) botTurnTimeout = setTimeout(playBotTurn, 2000);
+                                });
+                            } else {
+                                shouldAdvanceTurn = false;
+                                promptChooseColor(playerIndex, () => nextTurn());
+                            }
+                            break;
+
+                        case 'wild4':
+                            if (isFirstCard) break;
+                            shouldAdvanceTurn = false;
+                            promptChooseColor(playerIndex, (chosenColor) => {
+                                promptChallenge(playerIndex, victimId, cardBeforePlay, chosenColor, () => nextTurn());
+                            });
+                            break;
+                    }
+
+                    if (shouldAdvanceTurn) {
+                        if (isFirstCard) {
+                            let firstPlayerToAct = playerIndex;
+                            let firstPlayerPhysicalIndex = players.findIndex(p => p.id === firstPlayerToAct);
+                            if (firstPlayerPhysicalIndex !== -1) {
+                                if (card.value === 'skip') {
+                                    firstPlayerPhysicalIndex = (firstPlayerPhysicalIndex + gameDirection + players.length) % players.length;
+                                    firstPlayerToAct = players[firstPlayerPhysicalIndex].id;
+                                } else if (card.value === 'reverse') {
+                                    gameDirection *= -1;
+                                    updateDirectionIndicator();
+                                    firstPlayerPhysicalIndex = (firstPlayerPhysicalIndex + gameDirection + players.length) % players.length;
+                                    firstPlayerToAct = players[firstPlayerPhysicalIndex].id;
+                                }
+                            }
+
+                            currentPlayerIndex = firstPlayerToAct;
+                            updateGameInfo();
+                            updatePlayerInfos();
+                            if (players.find(p => p.id === currentPlayerIndex)?.isBot) botTurnTimeout = setTimeout(playBotTurn, 2000);
+
+                        } else {
+                            nextTurn();
+                        }
+                    }
+                }
+
+                function promptChooseColor(playerIndex, callback) {
+                    const player = players.find(p => p.id === playerIndex);
+                    if (!player) return;
+
+                    // Cek jika pemain adalah manusia dalam Auto Mode ATAU memang bot
+                    if ((player.id === 0 && isAutoMode) || player.isBot) {
+                        let chosenColor;
+                        const nameSuffix = (player.id === 0 && isAutoMode) ? " (Auto)" : "";
+
+                        if (botDifficulty === 'easy' && player.isBot) {
+                            chosenColor = COLORS[Math.floor(Math.random() * 4)];
+                        } else {
+                            // Logika medium/hard/expert (termasuk untuk auto mode pemain)
+                            const colorCounts = COLORS.reduce((acc, color) => {
+                                acc[color] = player.hand.filter(c => c.color === color).length;
+                                return acc;
+                            }, {});
+                            const maxCount = Math.max(...Object.values(colorCounts));
+                            const bestColors = Object.keys(colorCounts).filter(color => colorCounts[color] === maxCount);
+                            chosenColor = bestColors[0] || COLORS[Math.floor(Math.random() * 4)];
+                        }
+
+                        getTopCard().color = chosenColor;
+                        showNotification(`${player.name}${nameSuffix} memilih warna ${chosenColor}.`);
+                        renderAll();
+                        if (callback) setTimeout(() => callback(chosenColor), 500);
+                        return; // PENTING: Hentikan eksekusi agar pop-up tidak muncul
+                    }
+
+                    // Jika bukan auto mode, tampilkan pop-up untuk pemain manusia
+                    const picker = document.createElement('div');
+                    picker.id = 'color-picker';
+                    picker.className = 'popup';
+                    picker.innerHTML = `<h3>Pilih Warna</h3><div class="popup-options" style="flex-direction: row;"></div>`;
+                    COLORS.forEach(color => {
+                        const btn = document.createElement('button');
+                        btn.className = 'color-btn';
+                        btn.style.backgroundColor = `var(--${color})`;
+                        btn.onclick = () => {
+                            screens.game.removeChild(picker);
+                            getTopCard().color = color;
+                            renderAll();
+                            if (callback) callback(color);
+                        };
+                        picker.querySelector('.popup-options').appendChild(btn);
+                    });
+                    screens.game.appendChild(picker);
+                }
+
+                function promptChallenge(attackerIndex, victimIndex, cardBeforePlay, chosenColor, onComplete) {
+                    const victim = players.find(p => p.id === victimIndex);
+                    const attacker = players.find(p => p.id === attackerIndex);
+                    if (!victim || !attacker) return;
+
+                    // Fungsi resolve yang akan dipanggil nanti
+                    function resolveChallenge(didChallenge) {
+                        if (!didChallenge) {
+                            updateGameInfo(`${victim.name} ambil 4 kartu.`);
                             currentPlayerIndex = victimIndex;
-                            if (onComplete) onComplete();
-                        });
-                    } else {
-                        showNotification(`Tantangan Gagal! ${victim.name} ambil 6 kartu.`);
-                        currentPlayerIndex = victimIndex;
-                        triggerDraw(victimIndex, 6, onComplete);
+                            triggerDraw(victimIndex, 4, onComplete);
+                            return;
+                        }
+
+                        const wasIllegal = cardBeforePlay ? attacker.hand.some(c => c.color === cardBeforePlay.color || c.value === cardBeforePlay.value) : false;
+
+                        if (wasIllegal) {
+                            showNotification(`Tantangan Berhasil! ${attacker.name} ambil 4 kartu.`);
+                            triggerDraw(attackerIndex, 4, () => {
+                                currentPlayerIndex = victimIndex;
+                                if (onComplete) onComplete();
+                            });
+                        } else {
+                            showNotification(`Tantangan Gagal! ${victim.name} ambil 6 kartu.`);
+                            currentPlayerIndex = victimIndex;
+                            triggerDraw(victimIndex, 6, onComplete);
+                        }
                     }
-                }
 
-                // Cek jika korban adalah manusia dalam Auto Mode ATAU memang bot
-                if ((victim.id === 0 && isAutoMode) || victim.isBot) {
-                    const nameSuffix = (victim.id === 0 && isAutoMode) ? " (Auto)" : "";
-                    const shouldChallenge = victim.isBot ? Math.random() < 0.3 : false; // Auto mode manusia tidak pernah menantang
+                    // Cek jika korban adalah manusia dalam Auto Mode ATAU memang bot
+                    if ((victim.id === 0 && isAutoMode) || victim.isBot) {
+                        const nameSuffix = (victim.id === 0 && isAutoMode) ? " (Auto)" : "";
+                        const shouldChallenge = victim.isBot ? Math.random() < 0.3 : false; // Auto mode manusia tidak pernah menantang
 
-                    if (!shouldChallenge) {
-                        showNotification(`${victim.name}${nameSuffix} memilih untuk tidak menantang.`);
+                        if (!shouldChallenge) {
+                            showNotification(`${victim.name}${nameSuffix} memilih untuk tidak menantang.`);
+                        }
+
+                        setTimeout(() => resolveChallenge(shouldChallenge), 500);
+                        return; // PENTING: Hentikan eksekusi agar pop-up tidak muncul
                     }
 
-                    setTimeout(() => resolveChallenge(shouldChallenge), 500);
-                    return; // PENTING: Hentikan eksekusi agar pop-up tidak muncul
-                }
-
-                // Jika bukan auto mode, tampilkan pop-up untuk pemain manusia
-                const popup = document.createElement('div');
-                popup.id = 'challenge-popup';
-                popup.className = 'popup';
-                popup.innerHTML = `
+                    // Jika bukan auto mode, tampilkan pop-up untuk pemain manusia
+                    const popup = document.createElement('div');
+                    popup.id = 'challenge-popup';
+                    popup.className = 'popup';
+                    popup.innerHTML = `
                     <h3>Anda Terkena +4!</h3>
                     <p>${attacker.name} memilih warna <strong>${chosenColor}</strong>. Tantang?</p>
                     <div class="popup-options" style="flex-direction: row;">
                         <button id="ch-no" class="menu-btn green">Terima (Ambil 4)</button>
                         <button id="ch-yes" class="menu-btn red">Tantang!</button>
                     </div>`;
-                popup.querySelector('#ch-no').onclick = () => { screens.game.removeChild(popup); resolveChallenge(false); };
-                popup.querySelector('#ch-yes').onclick = () => { screens.game.removeChild(popup); resolveChallenge(true); };
-                screens.game.appendChild(popup);
-            }
-
-
-            function drawCardLogic(playerIndex, amount = 1) {
-                const player = players.find(p => p.id === playerIndex);
-                if (!player) return;
-                for (let i = 0; i < amount; i++) {
-                    if (deck.length === 0) {
-                        if (discardPile.length <= 1) {
-                            showNotification('Tidak ada kartu lagi untuk diambil!');
-                            return;
-                        }
-                        const topCard = discardPile.pop();
-                        deck = discardPile.splice(0, discardPile.length);
-                        shuffleDeck(deck);
-                        discardPile = [topCard];
-                        showNotification('Dek dikocok ulang!');
-                    }
-                    if (deck.length > 0) {
-                        player.hand.push(deck.pop());
-                    }
+                    popup.querySelector('#ch-no').onclick = () => { screens.game.removeChild(popup); resolveChallenge(false); };
+                    popup.querySelector('#ch-yes').onclick = () => { screens.game.removeChild(popup); resolveChallenge(true); };
+                    screens.game.appendChild(popup);
                 }
-            }
 
-            function triggerDraw(playerIndex, amount = 1, onCompleteAll) {
-                let drawnCount = 0;
-                function drawOne() {
-                    if (drawnCount >= amount) {
-                        renderAll();
-                        if (onCompleteAll) onCompleteAll();
-                        return;
-                    }
 
+                function drawCardLogic(playerIndex, amount = 1) {
                     const player = players.find(p => p.id === playerIndex);
                     if (!player) return;
-                    const endElemId = player.isBot ? `hand-bot-${player.id}` : 'player-hand';
-                    const endElem = document.getElementById(endElemId);
-
-                    animateCardMove(deckPileElem, endElem, {}, () => {
-                        drawCardLogic(playerIndex, 1);
-                        renderAll();
-                        drawnCount++;
-                        setTimeout(drawOne, 100);
-                    });
-                }
-                drawOne();
-            }
-
-            function playBotTurn() {
-                const bot = players.find(p => p.id === currentPlayerIndex);
-                if (!gameActive || isPaused || !bot || bot.isFinished) return;
-
-                const topCard = getTopCard();
-                let cardToPlay = getBotMove(bot, topCard);
-
-                if (bot.hand.length === 2 && cardToPlay) {
-                    showNotification(`${bot.name} bilang UNO!`);
-                    bot.unoCalled = true;
-                }
-
-                if (cardToPlay) {
-                    const botHandContainer = document.getElementById(`hand-bot-${bot.id}`);
-                    const startAnimationElem = botHandContainer.querySelector('.card:last-child') || botHandContainer;
-                    animateCardMove(startAnimationElem, discardPileContainer, cardToPlay, () => playCard(currentPlayerIndex, cardToPlay));
-                } else {
-                    triggerDraw(currentPlayerIndex, 1, () => {
-                        const newCard = bot.hand[bot.hand.length - 1];
-                        if (isValidMove(newCard, topCard)) {
-                            setTimeout(() => {
-                                const botHandContainer = document.getElementById(`hand-bot-${bot.id}`);
-                                const startAnimationElem = botHandContainer.querySelector('.card:last-child') || botHandContainer;
-                                animateCardMove(startAnimationElem, discardPileContainer, newCard, () => playCard(currentPlayerIndex, newCard));
-                            }, 500);
-                        } else {
-                            nextTurn();
+                    for (let i = 0; i < amount; i++) {
+                        if (deck.length === 0) {
+                            if (discardPile.length <= 1) {
+                                showNotification('Tidak ada kartu lagi untuk diambil!');
+                                return;
+                            }
+                            const topCard = discardPile.pop();
+                            deck = discardPile.splice(0, discardPile.length);
+                            shuffleDeck(deck);
+                            discardPile = [topCard];
+                            showNotification('Dek dikocok ulang!');
                         }
-                    });
-                }
-            }
-
-            function getBotMove(bot, topCard) {
-                const hand = bot.hand;
-                const playableCards = hand.filter(card => isValidMove(card, topCard));
-                if (playableCards.length === 0) return null;
-
-                switch (botDifficulty) {
-                    case 'easy':
-                        return playableCards[0];
-
-                    case 'medium':
-                        const numberCards = playableCards.filter(c => !isNaN(parseInt(c.value)));
-                        if (numberCards.length > 0) return numberCards[0];
-                        return playableCards[0];
-
-                    case 'hard':
-                        const nextPlayerPhysicalIndex = (players.findIndex(p => p.id === bot.id) + gameDirection + players.length) % players.length;
-                        const nextPlayer = players[nextPlayerPhysicalIndex];
-                        if (nextPlayer.hand.length <= 2) {
-                            const draw2Card = playableCards.find(c => c.value === 'draw2');
-                            if (draw2Card) return draw2Card;
-                            const skipCard = playableCards.find(c => c.value === 'skip');
-                            if (skipCard) return skipCard;
+                        if (deck.length > 0) {
+                            player.hand.push(deck.pop());
                         }
-                        const sortedByValue = playableCards
-                            .filter(c => !isNaN(parseInt(c.value)))
-                            .sort((a, b) => parseInt(b.value) - parseInt(a.value));
-                        if (sortedByValue.length > 0) return sortedByValue[0];
-                        return playableCards[0];
+                    }
+                }
 
-                    case 'expert':
-                        const opponentToBlock = players.find(p => p.hand.length <= 2 && !p.isBot); // Target human player
-                        if (opponentToBlock) {
-                            const wild4 = playableCards.find(c => c.value === 'wild4');
-                            if (wild4) return wild4;
-                            const draw2 = playableCards.find(c => c.value === 'draw2');
-                            if (draw2) return draw2;
-                            const skip = playableCards.find(c => c.value === 'skip');
-                            if (skip) return skip;
+                function triggerDraw(playerIndex, amount = 1, onCompleteAll) {
+                    let drawnCount = 0;
+                    function drawOne() {
+                        if (drawnCount >= amount) {
+                            renderAll();
+                            if (onCompleteAll) onCompleteAll();
+                            return;
                         }
-                        const highValueCards = playableCards
-                            .filter(c => !isNaN(parseInt(c.value)))
-                            .sort((a, b) => parseInt(b.value) - parseInt(a.value));
-                        if (highValueCards.length > 0) return highValueCards[0];
-                        return playableCards[0];
-                }
-            }
 
-            function playHumanAsBotTurn() {
-                if (!gameActive || isPaused || !isAutoMode) return;
+                        const player = players.find(p => p.id === playerIndex);
+                        if (!player) return;
+                        const endElemId = player.isBot ? `hand-bot-${player.id}` : 'player-hand';
+                        const endElem = document.getElementById(endElemId);
 
-                const humanPlayer = players.find(p => p.id === 0);
-                if (!humanPlayer || humanPlayer.isFinished) return;
-
-                const topCard = getTopCard();
-
-                // Gunakan logika bot "medium" untuk menentukan langkah terbaik
-                const tempDifficulty = botDifficulty;
-                botDifficulty = 'medium';
-                let cardToPlay = getBotMove(humanPlayer, topCard);
-                botDifficulty = tempDifficulty; // Kembalikan ke difficulty asli
-
-                // Otomatis tekan tombol "UNO!" jika perlu
-                if (humanPlayer.hand.length === 2 && cardToPlay) {
-                    unoCalledByPlayer = true;
-                    players[0].unoCalled = true;
-                    unoButton.classList.add('called');
-                    showNotification("UNO!");
+                        animateCardMove(deckPileElem, endElem, {}, () => {
+                            drawCardLogic(playerIndex, 1);
+                            renderAll();
+                            drawnCount++;
+                            setTimeout(drawOne, 100);
+                        });
+                    }
+                    drawOne();
                 }
 
-                if (cardToPlay) {
-                    // Animasikan kartu yang akan dimainkan
-                    const cardElemToAnimate = Array.from(playerHandElem.children).find(el => {
-                        try {
-                            const elData = JSON.parse(el.dataset.cardData);
-                            return elData.color === cardToPlay.color && elData.value === cardToPlay.value;
-                        } catch (e) { return false; }
-                    });
-                    animateCardMove(cardElemToAnimate || playerHandElem, discardPileContainer, cardToPlay, () => playCard(0, cardToPlay));
-                } else {
-                    // Jika tidak ada kartu, ambil satu
-                    triggerDraw(0, 1, () => {
-                        const newCard = humanPlayer.hand[humanPlayer.hand.length - 1];
-                        if (isValidMove(newCard, topCard)) {
-                            // Jika kartu baru bisa dimainkan, mainkan setelah jeda singkat
-                            setTimeout(() => {
-                                const cardElemToAnimate = playerHandElem.lastChild;
-                                animateCardMove(cardElemToAnimate, discardPileContainer, newCard, () => playCard(0, newCard));
-                            }, 1000);
-                        } else {
-                            nextTurn(); // Jika tidak bisa, lanjutkan ke giliran berikutnya
-                        }
-                    });
-                }
-            }
+                function playBotTurn() {
+                    const bot = players.find(p => p.id === currentPlayerIndex);
+                    if (!gameActive || isPaused || !bot || bot.isFinished) return;
 
-            // =========================================================================
-            //  TOUCH DRAG & DROP HANDLERS
-            // =========================================================================
-            function handleTouchStart(e) {
-                if (currentPlayerIndex !== 0 || !gameActive || isPaused || players[0].isFinished) return;
-                e.preventDefault();
+                    const topCard = getTopCard();
+                    let cardToPlay = getBotMove(bot, topCard);
 
-                const currentCard = e.target.closest('.card');
-                if (!currentCard) return;
+                    if (bot.hand.length === 2 && cardToPlay) {
+                        showNotification(`${bot.name} bilang UNO!`);
+                        bot.unoCalled = true;
+                    }
 
-                // Jika kartu yang sama disentuh lagi, mulai proses drag.
-                if (touchedCardElement === currentCard) {
-                    draggedElement = currentCard;
-                    draggedCardData = draggedElement.dataset.cardData;
-
-                    ghostCard = draggedElement.cloneNode(true);
-                    ghostCard.style.position = 'absolute';
-                    ghostCard.style.zIndex = '3000';
-                    ghostCard.style.pointerEvents = 'none';
-                    document.body.appendChild(ghostCard);
-                    updateGhostCardPosition(e.touches[0]);
-
-                    // Tambahkan listener HANYA saat drag dimulai.
-                    document.addEventListener('touchmove', handleTouchMove, { passive: false });
-                    document.addEventListener('touchend', handleTouchEnd);
-                    return;
+                    if (cardToPlay) {
+                        const botHandContainer = document.getElementById(`hand-bot-${bot.id}`);
+                        const startAnimationElem = botHandContainer.querySelector('.card:last-child') || botHandContainer;
+                        animateCardMove(startAnimationElem, discardPileContainer, cardToPlay, () => playCard(currentPlayerIndex, cardToPlay));
+                    } else {
+                        triggerDraw(currentPlayerIndex, 1, () => {
+                            const newCard = bot.hand[bot.hand.length - 1];
+                            if (isValidMove(newCard, topCard)) {
+                                setTimeout(() => {
+                                    const botHandContainer = document.getElementById(`hand-bot-${bot.id}`);
+                                    const startAnimationElem = botHandContainer.querySelector('.card:last-child') || botHandContainer;
+                                    animateCardMove(startAnimationElem, discardPileContainer, newCard, () => playCard(currentPlayerIndex, newCard));
+                                }, 500);
+                            } else {
+                                nextTurn();
+                            }
+                        });
+                    }
                 }
 
-                // Jika ada kartu lain yang sedang dipilih, batalkan pilihan itu.
-                if (touchedCardElement) {
-                    touchedCardElement.classList.remove('selected');
+                function getBotMove(bot, topCard) {
+                    const hand = bot.hand;
+                    const playableCards = hand.filter(card => isValidMove(card, topCard));
+                    if (playableCards.length === 0) return null;
+
+                    switch (botDifficulty) {
+                        case 'easy':
+                            return playableCards[0];
+
+                        case 'medium':
+                            const numberCards = playableCards.filter(c => !isNaN(parseInt(c.value)));
+                            if (numberCards.length > 0) return numberCards[0];
+                            return playableCards[0];
+
+                        case 'hard':
+                            const nextPlayerPhysicalIndex = (players.findIndex(p => p.id === bot.id) + gameDirection + players.length) % players.length;
+                            const nextPlayer = players[nextPlayerPhysicalIndex];
+                            if (nextPlayer.hand.length <= 2) {
+                                const draw2Card = playableCards.find(c => c.value === 'draw2');
+                                if (draw2Card) return draw2Card;
+                                const skipCard = playableCards.find(c => c.value === 'skip');
+                                if (skipCard) return skipCard;
+                            }
+                            const sortedByValue = playableCards
+                                .filter(c => !isNaN(parseInt(c.value)))
+                                .sort((a, b) => parseInt(b.value) - parseInt(a.value));
+                            if (sortedByValue.length > 0) return sortedByValue[0];
+                            return playableCards[0];
+
+                        case 'expert':
+                            const opponentToBlock = players.find(p => p.hand.length <= 2 && !p.isBot); // Target human player
+                            if (opponentToBlock) {
+                                const wild4 = playableCards.find(c => c.value === 'wild4');
+                                if (wild4) return wild4;
+                                const draw2 = playableCards.find(c => c.value === 'draw2');
+                                if (draw2) return draw2;
+                                const skip = playableCards.find(c => c.value === 'skip');
+                                if (skip) return skip;
+                            }
+                            const highValueCards = playableCards
+                                .filter(c => !isNaN(parseInt(c.value)))
+                                .sort((a, b) => parseInt(b.value) - parseInt(a.value));
+                            if (highValueCards.length > 0) return highValueCards[0];
+                            return playableCards[0];
+                    }
                 }
 
-                // Pilih kartu yang baru disentuh.
-                touchedCardElement = currentCard;
-                touchedCardElement.classList.add('selected');
-            }
+                function playHumanAsBotTurn() {
+                    if (!gameActive || isPaused || !isAutoMode) return;
 
-            function handleTouchMove(e) {
-                // Fungsi ini hanya aktif jika drag sudah dimulai dari handleTouchStart.
-                e.preventDefault();
-                if (!ghostCard) return;
+                    const humanPlayer = players.find(p => p.id === 0);
+                    if (!humanPlayer || humanPlayer.isFinished) return;
 
-                const touch = e.touches[0];
-                updateGhostCardPosition(touch);
-                const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
-                const dropZone = elementUnderTouch ? elementUnderTouch.closest('#discard-pile-container') : null;
-                discardPileContainer.classList.toggle('drag-over', !!dropZone);
-            }
+                    const topCard = getTopCard();
 
-            function handleTouchEnd(e) {
-                // Fungsi ini juga hanya aktif setelah drag dimulai.
-                if (!ghostCard) return;
+                    // Gunakan logika bot "medium" untuk menentukan langkah terbaik
+                    const tempDifficulty = botDifficulty;
+                    botDifficulty = 'medium';
+                    let cardToPlay = getBotMove(humanPlayer, topCard);
+                    botDifficulty = tempDifficulty; // Kembalikan ke difficulty asli
 
-                const touch = e.changedTouches[0];
-                const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
-                if (elementUnderTouch && elementUnderTouch.closest('#discard-pile-container')) {
-                    handleDropLogic(draggedCardData);
+                    // Otomatis tekan tombol "UNO!" jika perlu
+                    if (humanPlayer.hand.length === 2 && cardToPlay) {
+                        unoCalledByPlayer = true;
+                        players[0].unoCalled = true;
+                        unoButton.classList.add('called');
+                        showNotification("UNO!");
+                    }
+
+                    if (cardToPlay) {
+                        // Animasikan kartu yang akan dimainkan
+                        const cardElemToAnimate = Array.from(playerHandElem.children).find(el => {
+                            try {
+                                const elData = JSON.parse(el.dataset.cardData);
+                                return elData.color === cardToPlay.color && elData.value === cardToPlay.value;
+                            } catch (e) { return false; }
+                        });
+                        animateCardMove(cardElemToAnimate || playerHandElem, discardPileContainer, cardToPlay, () => playCard(0, cardToPlay));
+                    } else {
+                        // Jika tidak ada kartu, ambil satu
+                        triggerDraw(0, 1, () => {
+                            const newCard = humanPlayer.hand[humanPlayer.hand.length - 1];
+                            if (isValidMove(newCard, topCard)) {
+                                // Jika kartu baru bisa dimainkan, mainkan setelah jeda singkat
+                                setTimeout(() => {
+                                    const cardElemToAnimate = playerHandElem.lastChild;
+                                    animateCardMove(cardElemToAnimate, discardPileContainer, newCard, () => playCard(0, newCard));
+                                }, 1000);
+                            } else {
+                                nextTurn(); // Jika tidak bisa, lanjutkan ke giliran berikutnya
+                            }
+                        });
+                    }
                 }
 
-                // Hapus ghost card dan batalkan pilihan kartu setelah drop.
-                document.body.removeChild(ghostCard);
-                if (touchedCardElement) {
-                    touchedCardElement.classList.remove('selected');
-                }
-                discardPileContainer.classList.remove('drag-over');
+                // =========================================================================
+                //  TOUCH DRAG & DROP HANDLERS
+                // =========================================================================
+                function handleTouchStart(e) {
+                    if (currentPlayerIndex !== 0 || !gameActive || isPaused || players[0].isFinished) return;
+                    e.preventDefault();
 
-                // Hapus listener dan reset semua variabel terkait drag.
-                document.removeEventListener('touchmove', handleTouchMove);
-                document.removeEventListener('touchend', handleTouchEnd); // Menghapus dirinya sendiri
-                ghostCard = null;
-                draggedElement = null;
-                draggedCardData = null;
-                touchedCardElement = null; // Reset kartu yang dipilih
-            }
+                    const currentCard = e.target.closest('.card');
+                    if (!currentCard) return;
 
-            function updateGhostCardPosition(touch) {
-                if (!ghostCard) return;
-                ghostCard.style.left = `${touch.clientX - ghostCard.offsetWidth / 2}px`;
-                ghostCard.style.top = `${touch.clientY - ghostCard.offsetHeight / 2}px`;
-            }
+                    // Jika kartu yang sama disentuh lagi, mulai proses drag.
+                    if (touchedCardElement === currentCard) {
+                        draggedElement = currentCard;
+                        draggedCardData = draggedElement.dataset.cardData;
 
-            // =========================================================================
-            //  EVENT LISTENERS
-            // =========================================================================
-            deckPileElem.addEventListener('click', () => {
-                if (currentPlayerIndex === 0 && gameActive && !isPaused && !players[0].isFinished) {
-                    if (playerHasValidMove(0)) {
-                        showNotification("Anda memiliki kartu yang bisa dimainkan!");
+                        ghostCard = draggedElement.cloneNode(true);
+                        ghostCard.style.position = 'absolute';
+                        ghostCard.style.zIndex = '3000';
+                        ghostCard.style.pointerEvents = 'none';
+                        document.body.appendChild(ghostCard);
+                        updateGhostCardPosition(e.touches[0]);
+
+                        // Tambahkan listener HANYA saat drag dimulai.
+                        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+                        document.addEventListener('touchend', handleTouchEnd);
                         return;
                     }
-                    triggerDraw(0, 1, () => {
-                        const newCard = players[0].hand[players[0].hand.length - 1];
-                        if (!isValidMove(newCard, getTopCard())) {
-                            nextTurn();
-                        } else {
-                            showNotification("Anda bisa memainkan kartu yang baru diambil.");
-                        }
-                    });
-                }
-            });
 
-            discardPileContainer.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                if (currentPlayerIndex === 0 && gameActive && !isPaused && !players[0].isFinished) {
-                    discardPileContainer.classList.add('drag-over');
-                }
-            });
-
-            discardPileContainer.addEventListener('dragleave', () => {
-                discardPileContainer.classList.remove('drag-over');
-            });
-
-            function handleDropLogic(cardDataString) {
-                if (!cardDataString) return;
-                try {
-                    const card = JSON.parse(cardDataString);
-                    if (isValidMove(card, getTopCard())) {
-                        if (players[0].hand.length === 2 && !unoCalledByPlayer) {
-                            showNotification("Lupa tekan UNO! Ambil 2 kartu.");
-                            triggerDraw(0, 2);
-                        }
-                        playCard(0, card);
-                    } else {
-                        showNotification("Kartu tidak cocok!");
+                    // Jika ada kartu lain yang sedang dipilih, batalkan pilihan itu.
+                    if (touchedCardElement) {
+                        touchedCardElement.classList.remove('selected');
                     }
-                } catch (err) {
-                    console.error("Error parsing dropped card data:", err);
-                }
-            }
 
-            discardPileContainer.addEventListener('drop', (e) => {
-                e.preventDefault();
-                discardPileContainer.classList.remove('drag-over');
-                if (currentPlayerIndex !== 0 || !gameActive || isPaused || players[0].isFinished) return;
-                const cardData = e.dataTransfer.getData('text/plain');
-                handleDropLogic(cardData);
+                    // Pilih kartu yang baru disentuh.
+                    touchedCardElement = currentCard;
+                    touchedCardElement.classList.add('selected');
+                }
+
+                function handleTouchMove(e) {
+                    // Fungsi ini hanya aktif jika drag sudah dimulai dari handleTouchStart.
+                    e.preventDefault();
+                    if (!ghostCard) return;
+
+                    const touch = e.touches[0];
+                    updateGhostCardPosition(touch);
+                    const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+                    const dropZone = elementUnderTouch ? elementUnderTouch.closest('#discard-pile-container') : null;
+                    discardPileContainer.classList.toggle('drag-over', !!dropZone);
+                }
+
+                function handleTouchEnd(e) {
+                    // Fungsi ini juga hanya aktif setelah drag dimulai.
+                    if (!ghostCard) return;
+
+                    const touch = e.changedTouches[0];
+                    const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if (elementUnderTouch && elementUnderTouch.closest('#discard-pile-container')) {
+                        handleDropLogic(draggedCardData);
+                    }
+
+                    // Hapus ghost card dan batalkan pilihan kartu setelah drop.
+                    document.body.removeChild(ghostCard);
+                    if (touchedCardElement) {
+                        touchedCardElement.classList.remove('selected');
+                    }
+                    discardPileContainer.classList.remove('drag-over');
+
+                    // Hapus listener dan reset semua variabel terkait drag.
+                    document.removeEventListener('touchmove', handleTouchMove);
+                    document.removeEventListener('touchend', handleTouchEnd); // Menghapus dirinya sendiri
+                    ghostCard = null;
+                    draggedElement = null;
+                    draggedCardData = null;
+                    touchedCardElement = null; // Reset kartu yang dipilih
+                }
+
+                function updateGhostCardPosition(touch) {
+                    if (!ghostCard) return;
+                    ghostCard.style.left = `${touch.clientX - ghostCard.offsetWidth / 2}px`;
+                    ghostCard.style.top = `${touch.clientY - ghostCard.offsetHeight / 2}px`;
+                }
+
+                // =========================================================================
+                //  EVENT LISTENERS
+                // =========================================================================
+                deckPileElem.addEventListener('click', () => {
+                    if (currentPlayerIndex === 0 && gameActive && !isPaused && !players[0].isFinished) {
+                        if (playerHasValidMove(0)) {
+                            showNotification("Anda memiliki kartu yang bisa dimainkan!");
+                            return;
+                        }
+                        triggerDraw(0, 1, () => {
+                            const newCard = players[0].hand[players[0].hand.length - 1];
+                            if (!isValidMove(newCard, getTopCard())) {
+                                nextTurn();
+                            } else {
+                                showNotification("Anda bisa memainkan kartu yang baru diambil.");
+                            }
+                        });
+                    }
+                });
+
+                discardPileContainer.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (currentPlayerIndex === 0 && gameActive && !isPaused && !players[0].isFinished) {
+                        discardPileContainer.classList.add('drag-over');
+                    }
+                });
+
+                discardPileContainer.addEventListener('dragleave', () => {
+                    discardPileContainer.classList.remove('drag-over');
+                });
+
+                function handleDropLogic(cardDataString) {
+                    if (!cardDataString) return;
+                    try {
+                        const card = JSON.parse(cardDataString);
+                        if (isValidMove(card, getTopCard())) {
+                            if (players[0].hand.length === 2 && !unoCalledByPlayer) {
+                                showNotification("Lupa tekan UNO! Ambil 2 kartu.");
+                                triggerDraw(0, 2);
+                            }
+                            playCard(0, card);
+                        } else {
+                            showNotification("Kartu tidak cocok!");
+                        }
+                    } catch (err) {
+                        console.error("Error parsing dropped card data:", err);
+                    }
+                }
+
+                discardPileContainer.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    discardPileContainer.classList.remove('drag-over');
+                    if (currentPlayerIndex !== 0 || !gameActive || isPaused || players[0].isFinished) return;
+                    const cardData = e.dataTransfer.getData('text/plain');
+                    handleDropLogic(cardData);
+                });
+
+                unoButton.addEventListener('click', () => {
+                    if (gameActive && !isPaused && players.find(p => p.id === 0)?.hand.length === 2) {
+                        unoCalledByPlayer = true;
+                        players[0].unoCalled = true;
+                        unoButton.classList.add('called');
+                        showNotification("UNO!");
+                    }
+                });
+
+                screens.game.addEventListener('touchstart', (e) => {
+                    // Jika ada kartu yang dipilih DAN sentuhan terjadi di luar elemen .card
+                    if (touchedCardElement && !e.target.closest('.card')) {
+                        touchedCardElement.classList.remove('selected');
+                        touchedCardElement = null;
+                    }
+                }, true); // `true` menggunakan capture phase, lebih andal untuk kasus ini.
+
+                // =========================================================================
+                //  INISIALISASI GAME
+                // =========================================================================
+                initMenus();
+                startSplashAnimation();
             });
-
-            unoButton.addEventListener('click', () => {
-                if (gameActive && !isPaused && players.find(p => p.id === 0)?.hand.length === 2) {
-                    unoCalledByPlayer = true;
-                    players[0].unoCalled = true;
-                    unoButton.classList.add('called');
-                    showNotification("UNO!");
-                }
-            });
-
-            screens.game.addEventListener('touchstart', (e) => {
-                // Jika ada kartu yang dipilih DAN sentuhan terjadi di luar elemen .card
-                if (touchedCardElement && !e.target.closest('.card')) {
-                    touchedCardElement.classList.remove('selected');
-                    touchedCardElement = null;
-                }
-            }, true); // `true` menggunakan capture phase, lebih andal untuk kasus ini.
-
-            // =========================================================================
-            //  INISIALISASI GAME
-            // =========================================================================
-            initMenus();
-            showScreen('mainMenu');
-        });
-    </script>
+        </script>
 </body>
 
 </html>
