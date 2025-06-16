@@ -864,6 +864,29 @@
 
             .popup h3 { font-size: 1.5rem; }
             .popup-btn, .color-btn { transform: scale(0.9); }
+
+            /* --- Penyesuaian Semua Pop-up --- */
+            .popup {
+                width: 90%;
+            }
+            .popup h3 { 
+                font-size: 1.5rem; 
+            }
+            .popup-btn, .color-btn { 
+                transform: scale(0.9); 
+            }
+
+            /* --- (PERBAIKAN TERAKHIR) Penyesuaian Pop-up Tantangan +4 --- */
+            #challenge-popup .popup-options {
+                flex-direction: column; /* Tumpuk tombol secara vertikal */
+                width: 100%;
+                gap: 10px;
+            }
+            #challenge-popup .menu-btn {
+                width: 100%; /* Buat tombol selebar pop-up */
+                padding: 12px 10px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
@@ -960,6 +983,18 @@
             <p>Saat Anda hanya memiliki satu kartu tersisa, Anda harus menekan tombol "UNO!". Jika lupa dan pemain lain
                 menyadarinya, Anda harus mengambil 2 kartu sebagai penalti. Pemain pertama yang berhasil menghabiskan
                 kartunya adalah pemenangnya.</p>
+
+            <hr>
+
+            <h3>Kontrol</h3>
+            <p>Cukup drag and drop kartu yang udah dipilih ke bagian tengah kartu dilempar. Untuk mengambil kartu dalam dek
+                cukup dengan menekan kartu yang terbalik di bagian tengah.</p>
+
+            <hr>
+
+            <h3>Auto Mode</h3>
+            <p>Kalau kamu capek karena gamenya gak selesai-selesai, cukup tekan pause dan aktifkan Auto Mode, maka gameplaymu
+                akan berjalan secara otomatis.</p>
 
             <hr>
 
