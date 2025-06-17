@@ -91,8 +91,8 @@
         }
 
         .menu-btn {
-            padding: 15px 40px;
-            font-size: 1.5rem;
+            padding: 12px 35px;
+            font-size: 1.3rem;
             font-family: 'Poppins', sans-serif;
             font-weight: 700;
             border-radius: 50px;
@@ -123,6 +123,11 @@
 
         .menu-btn.blue {
             background-color: var(--blue);
+        }
+
+        .menu-btn.orange {
+            background-color: #f39c12;
+            /* Warna oranye */
         }
 
         /* --- Layar Nama & Skor --- */
@@ -313,6 +318,112 @@
 
         .credits-section p {
             margin: 2px 0;
+        }
+
+        /* (TAMBAHKAN INI) Styling untuk Pop-up Pengaturan */
+        #settings-popup .settings-container {
+            padding: 20px 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            width: 100%;
+        }
+
+        #settings-popup .setting-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #settings-popup .setting-label {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        #settings-popup .menu-btn {
+            margin-top: 15px;
+        }
+
+        /* Styling untuk Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+
+        input:checked+.slider {
+            background-color: var(--blue);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        /* Styling untuk Volume Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 50%;
+            background: transparent;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #555;
+            border-radius: 5px;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            border: 2px solid white;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: var(--yellow);
+            cursor: pointer;
+            margin-top: -8px;
         }
 
         /* --- Area Pemain --- */
@@ -1139,13 +1250,30 @@
 
             /* (TAMBAHKAN INI) Penyesuaian untuk Pop-up Menu Jeda di Mobile */
             #pause-menu {
-                width: 80%; /* Samakan lebarnya dengan pop-up lain */
+                width: 80%;
+                /* Samakan lebarnya dengan pop-up lain */
             }
+
             #pause-menu .popup-options {
-                gap: 10px; /* Kurangi jarak antar tombol */
+                gap: 10px;
+                /* Kurangi jarak antar tombol */
             }
+
             #pause-menu .menu-btn {
-                width: 100%; /* Buat tombol selebar pop-up */
+                width: 100%;
+                /* Buat tombol selebar pop-up */
+                padding: 12px 10px;
+                font-size: 1rem;
+            }
+
+            /* (TAMBAHKAN INI) Penyesuaian Pop-up Pengaturan di Mobile */
+            #settings-popup {
+                width: 90%;
+                /* Samakan lebarnya dengan pop-up lain */
+                max-width: 350px;
+            }
+
+            #settings-popup .menu-btn {
                 padding: 12px 10px;
                 font-size: 1rem;
             }
@@ -1154,6 +1282,9 @@
 </head>
 
 <body>
+
+    <audio id="audio-menu" loop src="audio/menu.mp3"></audio>
+    <audio id="audio-gameplay" loop src="audio/gameplay.mp3"></audio>
 
     <!-- (TAMBAHKAN INI) Layar Animasi Pembuka -->
     <div id="splash-screen" class="screen">
@@ -1172,6 +1303,7 @@
             <button id="start-game-btn" class="menu-btn green">Mulai Game</button>
             <button id="how-to-play-btn" class="menu-btn blue">Petunjuk Permainan</button>
             <button id="highscore-btn" class="menu-btn yellow">High Score</button>
+            <button id="settings-btn" class="menu-btn orange">Pengaturan</button>
             <button id="exit-btn" class="menu-btn red">Keluar</button>
         </div>
 
@@ -1276,7 +1408,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v1.5</p>
+                    <p><strong>UNO HTML VERSION v2.0</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
                     <p><strong>Youtube:</strong> RenaldiTV</p>
@@ -1362,6 +1494,10 @@
                 let isPaused = false;
                 let playerRanks = [];
                 let mainPlayerName = 'Pemain';
+                let audioMenu, audioGameplay;
+                let isMuted = false;
+                let musicVolume = 1.0; // UBAH: Default volume 100%
+                let userHasInteracted = false; // Penanda interaksi pertama
                 let botTurnTimeout;
                 let draggedElement = null; // Elemen yang sedang di-drag via sentuhan
                 let draggedCardData = null; // Data kartu yang di-drag
@@ -1437,6 +1573,10 @@
                 //  LOGIKA MENU & HIGH SCORE
                 // =========================================================================
                 function initMenus() {
+                    audioMenu = document.getElementById('audio-menu');
+                    audioGameplay = document.getElementById('audio-gameplay');
+                    const settingsBtn = document.getElementById('settings-btn');
+                    updateVolume(musicVolume);
                     // --- Tombol Menu Utama ---
                     document.getElementById('start-game-btn').onclick = () => showScreen('name');
                     document.getElementById('how-to-play-btn').onclick = () => showScreen('howToPlay');
@@ -1444,6 +1584,7 @@
                         displayHighScores();
                         showScreen('highscore');
                     };
+                    settingsBtn.onclick = showSettingsPopup;
                     document.getElementById('exit-btn').onclick = showExitConfirmation;
 
                     // --- Alur Layar Nama -> Pengaturan ---
@@ -1468,7 +1609,10 @@
                     document.getElementById('back-to-menu-from-hs').onclick = () => showScreen('mainMenu');
                     document.getElementById('back-to-menu-from-htp').onclick = () => showScreen('mainMenu');
                     document.getElementById('restart-game-btn').onclick = startPreGame;
-                    document.getElementById('back-to-menu-from-end').onclick = () => showScreen('mainMenu');
+                    document.getElementById('back-to-menu-from-end').onclick = () => {
+                        showScreen('mainMenu');
+                        playMusic('menu'); // <-- TAMBAHKAN INI
+                    };
                     document.getElementById('pause-btn').onclick = togglePause;
                 }
 
@@ -1544,6 +1688,9 @@
                         function proceedToMenu() {
                             splashScreen.removeEventListener('click', proceedToMenu);
                             splashScreen.removeEventListener('touchstart', proceedToMenu);
+
+                            userHasInteracted = true;
+                            playMusic('menu');
 
                             // Animasikan WADAH TULISAN agar keduanya hilang bersamaan
                             splashTextContainer.classList.add('fade-out');
@@ -1676,6 +1823,7 @@
                 }
 
                 function startPreGame() {
+                    playMusic('gameplay');
                     showScreen('game');
                     gameContainer.classList.add('hidden');
                     preGameInfoElem.classList.remove('hidden');
@@ -1770,6 +1918,7 @@
                 }
 
                 function endGame() {
+                    playMusic('gameplay');
                     gameActive = false;
                     clearTimeout(botTurnTimeout);
 
@@ -1814,6 +1963,7 @@
                         <div class="popup-options" style="flex-direction: column;">
                             <button id="auto-mode-btn" class="menu-btn"></button>
                             <button id="resume-btn" class="menu-btn green">Teruskan</button>
+                            <button id="settings-pause-btn" class="menu-btn orange">Pengaturan</button>
                             <button id="restart-pause-btn" class="menu-btn yellow">Restart</button>
                             <button id="exit-pause-btn" class="menu-btn red">Keluar</button>
                         </div>
@@ -1845,7 +1995,9 @@
                         pauseMenu.querySelector('#exit-pause-btn').onclick = () => {
                             screens.game.removeChild(pauseMenu); // Hapus menu sebelum keluar
                             showScreen('mainMenu');
+                            playMusic('menu');
                         };
+                        pauseMenu.querySelector('#settings-pause-btn').onclick = showSettingsPopup;
                     } else {
                         const currentPlayer = players.find(p => p.id === currentPlayerIndex);
                         if (isAutoMode && currentPlayer && !currentPlayer.isBot && !currentPlayer.isFinished) {
@@ -2614,6 +2766,84 @@
                     document.getElementById('exit-confirm-no').onclick = () => {
                         document.body.removeChild(popup);
                     };
+                }
+
+                // MUSIK
+                function playMusic(track) {
+                    // Jangan lakukan apa pun jika musik di-mute atau pengguna belum berinteraksi
+                    if (!userHasInteracted || isMuted) return;
+
+                    // 1. Hentikan kedua musik secara paksa, tanpa terkecuali.
+                    if (audioMenu) audioMenu.pause();
+                    if (audioGameplay) audioGameplay.pause();
+
+                    // 2. Putar trek yang diminta dari awal.
+                    if (track === 'menu') {
+                        if (audioMenu) {
+                            audioMenu.currentTime = 0;
+                            audioMenu.play().catch(e => console.error("Gagal memutar musik menu:", e));
+                        }
+                    } else if (track === 'gameplay') {
+                        if (audioGameplay) {
+                            audioGameplay.currentTime = 0;
+                            audioGameplay.play().catch(e => console.error("Gagal memutar musik gameplay:", e));
+                        }
+                    }
+                }
+
+                function toggleMute(mute) {
+                    isMuted = mute;
+                    if (isMuted) {
+                        if (audioMenu) audioMenu.pause();
+                        if (audioGameplay) audioGameplay.pause();
+                    } else {
+                        const isAnyMenuScreenActive = !screens.mainMenu.classList.contains('hidden') || !screens.name.classList.contains('hidden') || !screens.gameSetup.classList.contains('hidden') || !screens.highscore.classList.contains('hidden') || !screens.howToPlay.classList.contains('hidden');
+                        const isGameScreenActive = !screens.game.classList.contains('hidden');
+                        if (isAnyMenuScreenActive) {
+                            playMusic('menu');
+                        } else if (isGameScreenActive) {
+                            playMusic('gameplay');
+                        }
+                    }
+                }
+
+                function updateVolume(volume) {
+                    musicVolume = volume;
+                    if (audioMenu) audioMenu.volume = musicVolume;
+                    if (audioGameplay) audioGameplay.volume = musicVolume;
+                }
+
+                function showSettingsPopup() {
+                    if (document.getElementById('settings-popup')) return;
+                    const popup = document.createElement('div');
+                    popup.id = 'settings-popup';
+                    popup.className = 'popup';
+                    popup.innerHTML = `
+                    <h3>Pengaturan</h3>
+                    <div class="settings-container">
+                        <div class="setting-option">
+                            <label for="music-toggle-popup" class="setting-label">Musik</label>
+                            <label class="switch">
+                                <input type="checkbox" id="music-toggle-popup">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="setting-option">
+                            <label for="volume-slider-popup" class="setting-label">Volume</label>
+                            <input type="range" min="0" max="1" step="0.01" id="volume-slider-popup">
+                        </div>
+                    </div>
+                    <button id="close-settings-popup" class="menu-btn red">Kembali</button>
+                `;
+                    document.body.appendChild(popup);
+                    const musicToggle = document.getElementById('music-toggle-popup');
+                    const volumeSlider = document.getElementById('volume-slider-popup');
+                    const closeBtn = document.getElementById('close-settings-popup');
+                    musicToggle.checked = !isMuted;
+                    volumeSlider.value = musicVolume;
+                    musicToggle.onchange = (e) => toggleMute(!e.target.checked);
+                    volumeSlider.oninput = (e) => updateVolume(e.target.value);
+                    closeBtn.onclick = () => document.body.removeChild(popup);
                 }
 
                 // =========================================================================
