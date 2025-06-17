@@ -4,9 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1e6b52" />
     <title>UNO HTML VERSION by Renaldi Alfarasi</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* CSS untuk Layout dan Styling */
@@ -1260,7 +1262,7 @@
 
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
-                    
+
                     <p><strong>UNO HTML VERSION v1.5</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -2681,6 +2683,19 @@
                 initMenus();
                 startSplashAnimation();
             });
+
+            // (TAMBAHKAN KODE DARI PANDUAN DI SINI, DI LUAR DOMContentLoaded)
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('./sw.js')
+                        .then(registration => {
+                            console.log('Service Worker registered: ', registration);
+                        })
+                        .catch(registrationError => {
+                            console.log('Service Worker registration failed: ', registrationError);
+                        });
+                });
+            }
         </script>
 </body>
 
