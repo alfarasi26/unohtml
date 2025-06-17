@@ -141,33 +141,40 @@
 
         #highscore-list {
             list-style: none;
-            padding: 0 10px 0 20px; /* Beri ruang untuk scrollbar */
+            padding: 0 10px 0 20px;
+            /* Beri ruang untuk scrollbar */
             margin: 0;
             font-size: 1.2rem;
-            text-align: left; /* Ubah ke kiri agar lebih rapi */
+            text-align: left;
+            /* Ubah ke kiri agar lebih rapi */
             background: rgba(0, 0, 0, 0.2);
             border-radius: 10px;
             width: 80%;
             max-width: 400px;
             /* --- PERUBAHAN UTAMA DIMULAI DI SINI --- */
-            max-height: 40vh; /* Batasi tinggi maksimum (misalnya, 40% dari tinggi layar) */
-            overflow-y: auto; /* Tambahkan scrollbar vertikal jika konten melebihi batas */
+            max-height: 40vh;
+            /* Batasi tinggi maksimum (misalnya, 40% dari tinggi layar) */
+            overflow-y: auto;
+            /* Tambahkan scrollbar vertikal jika konten melebihi batas */
         }
 
         /* Styling agar scrollbar terlihat bagus */
         #highscore-list::-webkit-scrollbar {
             width: 10px;
         }
+
         #highscore-list::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.1);
+            background: rgba(0, 0, 0, 0.1);
             border-radius: 10px;
         }
+
         #highscore-list::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.4);
+            background: rgba(255, 255, 255, 0.4);
             border-radius: 10px;
         }
+
         #highscore-list::-webkit-scrollbar-thumb:hover {
-            background: rgba(255,255,255,0.6);
+            background: rgba(255, 255, 255, 0.6);
         }
 
         #highscore-list li {
@@ -829,6 +836,36 @@
             text-align: center;
         }
 
+        /* ========================================================================= */
+        /* (PERBAIKAN DEFINITIF) Pengaturan Kursor di Seluruh Game                   */
+        /* ========================================================================= */
+
+        /* Langkah 1: Paksa kursor default untuk semua elemen dasar */
+        body,
+        .screen,
+        #game-container,
+        #game-wrapper,
+        #center-area {
+            cursor: default !important;
+        }
+
+        /* Langkah 2: Beri kursor pointer HANYA pada elemen yang benar-benar bisa diklik */
+        .menu-btn,
+        #player-hand .card,
+        #deck-pile,
+        #uno-button,
+        #pause-btn,
+        .popup-btn,
+        .color-btn,
+        .setup-select {
+            cursor: pointer;
+        }
+
+        /* Langkah 3: Kasus khusus untuk layar pembuka yang bisa diklik di mana saja */
+        #splash-screen {
+            cursor: pointer;
+        }
+
         /* Penyesuaian untuk layar mobile yang lebih kecil */
         @media (max-width: 480px) {
             .splash-card {
@@ -1084,6 +1121,19 @@
                 padding: 12px 10px;
                 font-size: 1rem;
             }
+
+            /* (TAMBAHKAN INI) Penyesuaian Pop-up Konfirmasi Keluar di Mobile */
+            #exit-confirmation-popup .popup-options {
+                flex-direction: row;
+                /* Pastikan tombol berdampingan di mobile juga */
+                justify-content: center;
+            }
+
+            #exit-confirmation-popup .menu-btn {
+                padding: 10px 30px;
+                /* Sesuaikan ukuran tombol agar muat */
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
@@ -1197,15 +1247,9 @@
                     menghabiskan
                     kartunya adalah pemenangnya.</p>
 
-                <hr>
-
                 <h3>Kontrol</h3>
-                <p>Cukup drag and drop kartu yang udah dipilih ke bagian tengah kartu dilempar. Untuk mengambil kartu
-                    dalam
-                    dek
-                    cukup dengan menekan kartu yang terbalik di bagian tengah.</p>
-
-                <hr>
+                <p>Cukup drag and drop kartu yang udah dipilih ke bagian tumpukan buang. Untuk mengambil kartu
+                    dalam dek cukup dengan menekan kartu yang terbalik di bagian tengah.</p>
 
                 <h3>Auto Mode</h3>
                 <p>Kalau kamu capek karena gamenya gak selesai-selesai, cukup tekan pause dan aktifkan Auto Mode, maka
@@ -1215,6 +1259,8 @@
                 <hr>
 
                 <div class="credits-section">
+                    <p><strong>CREDITS:</p>
+                    
                     <p><strong>UNO HTML VERSION v1.5</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -1383,7 +1429,7 @@
                         displayHighScores();
                         showScreen('highscore');
                     };
-                    document.getElementById('exit-btn').onclick = () => window.close() || alert("Tutup tab ini untuk keluar.");
+                    document.getElementById('exit-btn').onclick = showExitConfirmation;
 
                     // --- Alur Layar Nama -> Pengaturan ---
                     document.getElementById('player-name-form').onsubmit = (e) => {
@@ -2517,6 +2563,42 @@
                     if (!ghostCard) return;
                     ghostCard.style.left = `${touch.clientX - ghostCard.offsetWidth / 2}px`;
                     ghostCard.style.top = `${touch.clientY - ghostCard.offsetHeight / 2}px`;
+                }
+
+                // (GANTI DENGAN INI) Fungsi untuk menampilkan pop-up konfirmasi keluar (VERSI FINAL)
+                function showExitConfirmation() {
+                    // Mencegah pop-up ganda jika tombol diklik berkali-kali
+                    if (document.getElementById('exit-confirmation-popup')) return;
+
+                    const popup = document.createElement('div');
+                    popup.id = 'exit-confirmation-popup';
+                    // Gunakan class .popup yang sudah ada agar stylenya sama
+                    popup.className = 'popup';
+                    popup.innerHTML = `
+            <h3>Konfirmasi Keluar</h3>
+            <p style="margin-bottom: 20px; font-size: 1rem; text-align: center;">Apakah yakin ingin keluar?</p>
+            <div class="popup-options">
+                <button id="exit-confirm-yes" class="menu-btn red">Ya</button>
+                <button id="exit-confirm-no" class="menu-btn green">Tidak</button>
+            </div>`;
+
+                    // (PERBAIKAN UTAMA) Tampilkan pop-up di atas BODY agar selalu terlihat
+                    document.body.appendChild(popup);
+
+                    // Tambahkan fungsi untuk tombol "Ya"
+                    document.getElementById('exit-confirm-yes').onclick = () => {
+                        // Perintah ini akan mencoba menutup tab/jendela
+                        window.close();
+                        // Jika window.close() gagal (karena diblokir browser), hapus pop-up
+                        if (document.body.contains(popup)) {
+                            document.body.removeChild(popup);
+                        }
+                    };
+
+                    // Tambahkan fungsi untuk tombol "Tidak"
+                    document.getElementById('exit-confirm-no').onclick = () => {
+                        document.body.removeChild(popup);
+                    };
                 }
 
                 // =========================================================================
