@@ -457,6 +457,9 @@
             position: absolute;
             z-index: 999;
             transition: all 0.2s ease-in-out;
+            /* (PERBAIKAN) Paksa hardware acceleration untuk animasi mulus */
+            transform: translateZ(0);
+            will-change: transform, top, left;
         }
 
         #action-indicator {
