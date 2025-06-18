@@ -193,16 +193,23 @@
             border-bottom: none;
         }
 
-        #highscore-list .score {
+        #highscore-list .score,
+        .rank-item .score,
+        #highscore-list .time,
+        .rank-item .time {
             float: right;
             font-weight: 700;
         }
 
-        #highscore-list .time {
-            float: right;
-            margin-left: 25px;
+        #highscore-list .score,
+        .rank-item .score {
+            /* Memberi jarak antara skor dan waktu */
+            margin-left: 20px;
+        }
+
+        #highscore-list .time,
+        .rank-item .time {
             color: #f6d83a;
-            /* Warna kuning agar menonjol */
         }
 
         /* --- Layar Pengaturan Permainan (BARU) --- */
@@ -1473,7 +1480,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.1</p>
+                    <p><strong>UNO HTML VERSION v2.11</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
                     <p><strong>Youtube:</strong> RenaldiTV</p>
@@ -1748,6 +1755,7 @@
                         scores.forEach((s, i) => {
                             const li = document.createElement('li');
                             // Tampilkan Peringkat, Nama, Waktu, dan Skor
+                            // (UBAH BARIS INI)
                             li.innerHTML = `<span>#${i + 1} ${s.name}</span> <span style="float:right;"><span class="score">${s.score}</span><span class="time">${formatTime(s.time)}</span></span>`;
                             list.appendChild(li);
                         });
@@ -2060,7 +2068,8 @@
                         }
                         const rankDiv = document.createElement('div');
                         rankDiv.className = 'rank-item';
-                        rankDiv.innerHTML = `<span>#${i + 1} <span class="math-inline">\{p\.name\}</span\> <span style\="float\:right;"\><span class\="time"\></span>{formatTime(p.time)}</span><span class="score">${score} Poin</span></span>`;
+                        // (UBAH BARIS INI)
+                        rankDiv.innerHTML = `<span>#${i + 1} ${p.name}</span> <span style="float:right;"><span class="time">${formatTime(p.time)}</span><span class="score">${score} Poin</span></span>`;
                         ranksContainer.appendChild(rankDiv);
                     });
                     showScreen('endGame');
@@ -2296,8 +2305,14 @@
                         if (infoElem) {
                             if (p.isFinished) {
                                 const rankIndex = playerRanks.findIndex(rank => rank.id === p.id);
-                                infoElem.textContent = (rankIndex !== -1) ? `#${rankIndex + 1} ${p.name}` : `${p.name} (Selesai)`;
+                                if (rankIndex !== -1) {
+                                    // (PERBAIKAN UTAMA ADA DI SINI - Menggunakan backtick dan ${})
+                                    infoElem.textContent = `#${rankIndex + 1} ${p.name} (${formatTime(playerRanks[rankIndex].time)})`;
+                                } else {
+                                    infoElem.textContent = `${p.name} (Selesai)`;
+                                }
                             } else {
+                                // (PERBAIKAN UTAMA ADA DI SINI - Menggunakan backtick dan ${})
                                 infoElem.textContent = `${p.name} (${p.hand.length})`;
                             }
                         }
@@ -3115,6 +3130,29 @@
                     });
                 }
             });
+
+            function debugEndGame() {
+                console.log("DEBUG: Memaksa ke layar akhir permainan...");
+
+                // 1. Hentikan semua proses game yang mungkin berjalan
+                gameActive = false;
+                stopTimer(); // Asumsi fungsi ini ada
+                clearTimeout(botTurnTimeout);
+
+                // 2. Buat data peringkat palsu untuk pengujian
+                playerRanks = [
+                    { id: 2, name: 'Bot 2', time: 74 },
+                    { id: 1, name: 'Bot 1', time: 88 },
+                    { id: 0, name: 'Emily', time: 105 },
+                    { id: 3, name: 'Bot 3', time: 110 }
+                ];
+
+                // 3. Set waktu total permainan palsu
+                gameSeconds = 110;
+
+                // 4. Langsung panggil fungsi endGame untuk menampilkan layarnya
+                endGame();
+            }
 
         </script>
 </body>
