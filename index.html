@@ -198,12 +198,6 @@
             font-weight: 700;
         }
 
-        #highscore-list .time {
-            margin-right: 25px;
-            color: #f6d83a;
-            /* Warna kuning agar menonjol */
-        }
-
         /* --- Layar Pengaturan Permainan (BARU) --- */
         .setup-options {
             background: rgba(0, 0, 0, 0.2);
@@ -405,7 +399,6 @@
         /* Styling untuk Volume Slider */
         input[type=range] {
             -webkit-appearance: none;
-            appearance: none;
             width: 50%;
             background: transparent;
         }
@@ -818,20 +811,6 @@
             transition: transform 0.2s ease;
         }
 
-        /* (PERBAIKAN) Styling untuk Timer di Pojok Kiri Bawah */
-        #game-timer {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            transform: none;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            z-index: 1000;
-        }
-
         #direction-indicator {
             position: absolute;
             top: 20px;
@@ -999,35 +978,6 @@
         #splash-screen {
             cursor: pointer;
         }
-
-        /* (TAMBAHKAN INI) Styling untuk Layar Pengecekan Update */
-        #update-check-screen {
-            gap: 30px;
-            /* Beri jarak antara spinner dan teks */
-        }
-
-        #update-check-status {
-            font-size: 1.5rem;
-            font-weight: 700;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border: 7px solid rgba(255, 255, 255, 0.2);
-            border-top-color: #ffffff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
 
         /* Penyesuaian untuk layar mobile yang lebih kecil */
         @media (max-width: 480px) {
@@ -1327,31 +1277,17 @@
                 padding: 12px 10px;
                 font-size: 1rem;
             }
-
-            #game-timer {
-                top: 20%; /* <-- UBAH NILAI PERSENTASE INI */
-                left: 50%;
-                transform: translateX(-50%);
-                bottom: auto; /* Hapus posisi dari bawah */
-                font-size: 1rem;
-                padding: 8px 15px;
-            }
         }
     </style>
 </head>
 
 <body>
 
-    <div id="update-check-screen" class="screen">
-        <div class="spinner"></div>
-        <h2 id="update-check-status">Memeriksa Pembaharuan...</h2>
-    </div>
-
     <audio id="audio-menu" loop src="audio/menu.mp3"></audio>
     <audio id="audio-gameplay" loop src="audio/gameplay.mp3"></audio>
 
     <!-- (TAMBAHKAN INI) Layar Animasi Pembuka -->
-    <div id="splash-screen" class="screen hidden">
+    <div id="splash-screen" class="screen">
         <div id="splash-cards-container">
             <!-- Kartu akan dibuat oleh JavaScript -->
         </div>
@@ -1472,7 +1408,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.1</p>
+                    <p><strong>UNO HTML VERSION v2.0</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
                     <p><strong>Youtube:</strong> RenaldiTV</p>
@@ -1489,7 +1425,6 @@
             <div id="pre-game-info" class="hidden"></div>
             <div id="game-container" class="hidden">
                 <button id="pause-btn">||</button>
-                <div id="game-timer">00:00</div>
                 <div id="direction-indicator">
                     <span id="direction-text"></span>
                     <span id="direction-arrow"></span>
@@ -1536,10 +1471,7 @@
             </div>
         </div>
 
-        <script type=Module>
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-            import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-            import { getFirestore, collection, query, orderBy, limit, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        <script>
             document.addEventListener('DOMContentLoaded', () => {
                 // =========================================================================
                 //  KONSTANTA & STATE GAME
@@ -1550,10 +1482,8 @@
                 let NUM_PLAYERS = 4; // Diubah dari const menjadi let
                 const CARDS_PER_PLAYER = 7;
                 let botDifficulty = 'medium'; // Variabel baru untuk kesulitan
-                let db, auth;
-                let highscores = []; // Untuk menyimpan data dari Firestore
-                let gameTimerInterval;
-                let gameSeconds = 0;
+                const HIGHSCORE_KEY = 'unoHighScores';
+
                 let deck = [];
                 let discardPile = [];
                 let players = [];
@@ -1639,33 +1569,6 @@
                     return player.hand.some(card => isValidMove(card, topCard));
                 };
 
-                // (TAMBAHKAN SEMUA FUNGSI INI)
-                function formatTime(seconds) {
-                    const minutes = Math.floor(seconds / 60);
-                    const remainingSeconds = seconds % 60;
-                    const formattedMinutes = String(minutes).padStart(2, '0');
-                    const formattedSeconds = String(remainingSeconds).padStart(2, '0');
-                    return `${formattedMinutes}:${formattedSeconds}`;
-                }
-
-                function startTimer() {
-                    if (gameTimerInterval) clearInterval(gameTimerInterval); // Hentikan timer lama jika ada
-                    gameTimerInterval = setInterval(() => {
-                        gameSeconds++;
-                        document.getElementById('game-timer').textContent = formatTime(gameSeconds);
-                    }, 1000);
-                }
-
-                function stopTimer() {
-                    clearInterval(gameTimerInterval);
-                }
-
-                function resetTimer() {
-                    stopTimer();
-                    gameSeconds = 0;
-                    document.getElementById('game-timer').textContent = '00:00';
-                }
-
                 // =========================================================================
                 //  LOGIKA MENU & HIGH SCORE
                 // =========================================================================
@@ -1732,32 +1635,13 @@
                 }
 
                 function displayHighScores() {
+                    const scores = getHighScores();
                     const list = document.getElementById('highscore-list');
-                    list.innerHTML = ''; // Kosongkan daftar terlebih dahulu
-
-                    if (highscores.length > 0) {
-                        highscores.forEach((s, i) => {
-                            const timeStr = s.time ? formatTime(s.time) : 'N/A';
-                            const scoreStr = s.score !== undefined ? s.score : 'N/A';
-
-                            const li = document.createElement('li');
-                            li.innerHTML = `<span>#${i + 1} ${s.name}</span> <span style="float:right;"><span class="time">${timeStr}</span><span class="score">${scoreStr}</span></span>`;
-                            list.appendChild(li);
-                        });
+                    if (scores.length > 0) {
+                        list.innerHTML = scores.map((s, i) => `<li>#${i + 1} ${s.name} <span class="score">${s.score}</span></li>`).join('');
                     } else {
-                        list.innerHTML = '<li>Belum ada skor tinggi. Mainkan satu game!</li>';
+                        list.innerHTML = '<li>Belum ada skor tinggi.</li>';
                     }
-                }
-
-                function addHighScore(name, score, time) {
-                    if (!db) return;
-                    const highscoresCol = collection(db, "highscores");
-                    addDoc(highscoresCol, {
-                        name: name,
-                        score: score,
-                        time: time,
-                        createdAt: new Date()
-                    }).catch(e => console.error("Error adding document: ", e));
                 }
 
                 function startSplashAnimation() {
@@ -1878,7 +1762,6 @@
                  * (1=kiri, 2=atas, 3=kanan), yang memperbaiki bug animasi.
                  */
                 function resetGameState() {
-                    resetTimer();
                     deck = [];
                     discardPile = [];
                     gameActive = false;
@@ -2030,13 +1913,11 @@
                 }
 
                 function beginFirstTurn(firstCard) {
-                    startTimer();
                     gameActive = true;
                     handleCardEffect(firstCard, currentPlayerIndex, true);
                 }
 
                 function endGame() {
-                    stopTimer();
                     playMusic('gameplay');
                     gameActive = false;
                     clearTimeout(botTurnTimeout);
@@ -2048,19 +1929,11 @@
 
                     const ranksContainer = document.getElementById('end-game-ranks');
                     ranksContainer.innerHTML = '<h3>Peringkat Akhir</h3>';
-                    const totalTimeElem = document.createElement('p');
-                    totalTimeElem.style.fontSize = '1.2rem';
-                    totalTimeElem.style.marginBottom = '15px';
-                    totalTimeElem.textContent = `Total waktu permainan: ${formatTime(gameSeconds)}`;
-                    ranksContainer.appendChild(totalTimeElem);
                     const scorePoints = [100, 50, 25, 10];
                     playerRanks.forEach((p, i) => {
                         const score = scorePoints[i] || 0;
                         if (p.id === 0) {
-                            const rankData = playerRanks.find(r => r.id === p.id);
-                            if (rankData) {
-                                addHighScore(p.name, score, rankData.time);
-                            }
+                            saveHighScore(p.name, score);
                         }
                         const rankDiv = document.createElement('div');
                         rankDiv.className = 'rank-item';
@@ -2081,7 +1954,6 @@
                     if (existingPauseMenu) existingPauseMenu.remove();
 
                     if (isPaused) {
-                        stopTimer();
                         clearTimeout(botTurnTimeout);
                         const pauseMenu = document.createElement('div');
                         pauseMenu.id = 'pause-menu';
@@ -2127,7 +1999,6 @@
                         };
                         pauseMenu.querySelector('#settings-pause-btn').onclick = showSettingsPopup;
                     } else {
-                        startTimer();
                         const currentPlayer = players.find(p => p.id === currentPlayerIndex);
                         if (isAutoMode && currentPlayer && !currentPlayer.isBot && !currentPlayer.isFinished) {
                             botTurnTimeout = setTimeout(playHumanAsBotTurn, 1000);
@@ -2394,7 +2265,7 @@
 
                     if (player.hand.length === 0) {
                         player.isFinished = true;
-                        playerRanks.push({ id: player.id, name: player.name, time: gameSeconds });
+                        playerRanks.push({ id: player.id, name: player.name });
                         showNotification(`${player.name} selesai! (Peringkat #${playerRanks.length})`);
                         renderAll();
 
@@ -3053,128 +2924,21 @@
                 //  INISIALISASI GAME
                 // =========================================================================
                 initMenus();
-
-                // =========================================================================
-                //  LOGIKA STARTUP DAN UPDATE PWA (VERSI BARU & TERUJI)
-                // =========================================================================
-                const updateCheckScreen = document.getElementById('update-check-screen');
-                const updateStatusText = document.getElementById('update-check-status');
-
-                function proceedToGame() {
-                    // Sembunyikan layar pengecekan dan mulai animasi game
-                    updateCheckScreen.classList.add('hidden');
-                    startSplashAnimation(); // Jalankan animasi kartu 1234
-                }
-
-                // Timer untuk memastikan layar loading terlihat minimal 3 detik
-                const minLoadingTime = new Promise(resolve => setTimeout(resolve, 3500));
-
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('./sw.js').then(reg => {
-                        // Event listener ini akan terpicu jika ada service worker baru yang sedang diinstal
-                        reg.onupdatefound = () => {
-                            const newWorker = reg.installing;
-                            newWorker.onstatechange = () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // Update ditemukan dan sudah siap
-                                    updateStatusText.textContent = 'Update baru tersedia!';
-                                    setTimeout(() => {
-                                        newWorker.postMessage({ action: 'skipWaiting' });
-                                    }, 1000); // Tunggu 1 detik lalu reload
-                                }
-                            };
-                        };
-
-                        // Setelah waktu loading minimal selesai, periksa apakah ada update yang sedang menunggu
-                        // Ini menangani kasus "tidak ada update"
-                        minLoadingTime.then(() => {
-                            if (!reg.installing) { // Jika tidak ada worker baru yang sedang diinstal
-                                updateStatusText.textContent = 'Anda sudah di versi terbaru';
-                                setTimeout(proceedToGame, 1000); // Tunggu 1 detik lalu lanjutkan ke game
-                            }
-                        });
-
-                    }).catch(error => {
-                        // Ini akan berjalan jika pendaftaran gagal (misalnya, saat offline tanpa cache atau di file://)
-                        console.error('Registrasi Service Worker gagal:', error);
-                        minLoadingTime.then(() => {
-                            updateStatusText.textContent = 'Gagal memeriksa update. Memulai game...';
-                            setTimeout(proceedToGame, 1000);
-                        });
-                    });
-
-                    // Listener untuk reload halaman setelah worker baru aktif
-                    let refreshing;
-                    navigator.serviceWorker.addEventListener('controllerchange', () => {
-                        if (refreshing) return;
-                        window.location.reload();
-                        refreshing = true;
-                    });
-
-                } else {
-                    // Jika browser tidak mendukung Service Worker
-                    console.log('Service Worker tidak didukung.');
-                    minLoadingTime.then(() => {
-                        setTimeout(proceedToGame, 1000);
-                    });
-                }
-
-                // =========================================================================
-                //  INISIALISASI FIREBASE DAN PWA
-                // =========================================================================
-                const firebaseConfig = {
-                    apiKey: "AIzaSyDgO645Sv-1jGgcPIahTiiRQ_hrrR9PyEw",
-                    authDomain: "uno-html-86c3d.firebaseapp.com",
-                    projectId: "uno-html-86c3d",
-                    storageBucket: "uno-html-86c3d.firebasestorage.app",
-                    messagingSenderId: "236884999143",
-                    appId: "1:236884999143:web:1712f8c632a2fe51c75b42"
-                };
-
-                try {
-                    const app = initializeApp(firebaseConfig);
-                    db = getFirestore(app);
-                    auth = getAuth(app);
-
-                    onAuthStateChanged(auth, (user) => {
-                        if (!user) {
-                            signInAnonymously(auth).catch(e => console.error("Anonymous sign-in failed", e));
-                        }
-                        // Setelah otentikasi siap, pasang listener ke Firestore
-                        listenToHighscores();
-                    });
-                } catch(e) {
-                    console.error("Firebase initialization failed. Highscores will be disabled.", e);
-                }
-
-                function listenToHighscores() {
-                    const highscoresCol = collection(db, "highscores");
-                    const q = query(highscoresCol, orderBy("score", "desc"), orderBy("time", "asc"), limit(20));
-
-                    onSnapshot(q, (snapshot) => {
-                        const newScores = [];
-                        snapshot.forEach((doc) => {
-                            newScores.push(doc.data());
-                        });
-                        highscores = newScores; // Update data global
-
-                        // Jika layar highscore sedang terbuka, perbarui tampilannya secara real-time
-                        if (!screens.highscore.classList.contains('hidden')) {
-                            displayHighScores();
-                        }
-                    }, (error) => {
-                        console.error("Error listening to highscores:", error);
-                    });
-                }
-
-                // Kode Pendaftaran PWA
-                if ('serviceWorker' in navigator) {
-                    window.addEventListener('load', () => {
-                        navigator.serviceWorker.register('./sw.js').then(/* ... */).catch(/* ... */);
-                    });
-                }
+                startSplashAnimation();
             });
 
+            // (TAMBAHKAN KODE DARI PANDUAN DI SINI, DI LUAR DOMContentLoaded)
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('./sw.js')
+                        .then(registration => {
+                            console.log('Service Worker registered: ', registration);
+                        })
+                        .catch(registrationError => {
+                            console.log('Service Worker registration failed: ', registrationError);
+                        });
+                });
+            }
         </script>
 </body>
 
