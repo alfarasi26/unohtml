@@ -1,5 +1,5 @@
 // Nama cache unik untuk game Anda
-const CACHE_NAME = 'uno-game-cache-v1';
+const CACHE_NAME = 'uno-game-cache-v2.03';
 
 // Daftar file yang perlu disimpan agar game bisa berjalan offline
 // Ganti 'index.html' jika nama file utama Anda berbeda
@@ -38,34 +38,36 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Event 'fetch': Menyajikan file dari cache jika tersedia (untuk offline)
-self.addEventListener('fetch', (event) => {
-  // Hanya proses request GET
-  if (event.request.method !== 'GET') {
-      return;
+// (GANTI BLOK FETCH LAMA DENGAN INI)
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') { return; }
+
+  // STRATEGI 1: Network-First untuk halaman utama
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      // Selalu coba ambil dari INTERNET DULU
+      fetch(event.request).catch(() => {
+        // Jika internet gagal, baru ambil dari CACHE
+        return caches.match(event.request);
+      })
+    );
+    return;
   }
-  
+
+  // STRATEGI 2: Cache-First untuk aset lain
   event.respondWith(
-    caches.open(CACHE_NAME).then(async (cache) => {
-      const cachedResponse = await cache.match(event.request);
+    caches.match(event.request).then(cachedResponse => {
       if (cachedResponse) {
-        // Jika ada di cache, langsung berikan dari cache
         return cachedResponse;
       }
-      
-      // Jika tidak ada di cache, ambil dari internet, lalu simpan ke cache
-      try {
-        const networkResponse = await fetch(event.request);
-        // Pastikan response valid sebelum di-cache
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-          cache.put(event.request, networkResponse.clone());
-        }
-        return networkResponse;
-      } catch (error) {
-        // Gagal mengambil dari internet (offline)
-        console.error('[ServiceWorker] Fetch failed; returning offline page instead.', error);
-        // Anda bisa mengembalikan halaman offline custom di sini jika mau
-      }
+      return fetch(event.request);
     })
   );
+});
+
+// (TAMBAHKAN INI DI AKHIR FILE sw.js)
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.action === 'skipWaiting') {
+    self.skipWaiting();
+  }
 });

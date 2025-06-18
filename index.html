@@ -979,6 +979,35 @@
             cursor: pointer;
         }
 
+        /* (TAMBAHKAN INI) Styling untuk Layar Pengecekan Update */
+        #update-check-screen {
+            gap: 30px;
+            /* Beri jarak antara spinner dan teks */
+        }
+
+        #update-check-status {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 7px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+
         /* Penyesuaian untuk layar mobile yang lebih kecil */
         @media (max-width: 480px) {
             .splash-card {
@@ -1283,11 +1312,16 @@
 
 <body>
 
+    <div id="update-check-screen" class="screen">
+        <div class="spinner"></div>
+        <h2 id="update-check-status">Memeriksa Pembaharuan...</h2>
+    </div>
+
     <audio id="audio-menu" loop src="audio/menu.mp3"></audio>
     <audio id="audio-gameplay" loop src="audio/gameplay.mp3"></audio>
 
     <!-- (TAMBAHKAN INI) Layar Animasi Pembuka -->
-    <div id="splash-screen" class="screen">
+    <div id="splash-screen" class="screen hidden">
         <div id="splash-cards-container">
             <!-- Kartu akan dibuat oleh JavaScript -->
         </div>
@@ -1408,7 +1442,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.0</p>
+                    <p><strong>UNO HTML VERSION v2.03</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
                     <p><strong>Youtube:</strong> RenaldiTV</p>
@@ -2924,21 +2958,73 @@
                 //  INISIALISASI GAME
                 // =========================================================================
                 initMenus();
-                startSplashAnimation();
+                
+                // =========================================================================
+                //  LOGIKA STARTUP DAN UPDATE PWA (VERSI BARU & TERUJI)
+                // =========================================================================
+                const updateCheckScreen = document.getElementById('update-check-screen');
+                const updateStatusText = document.getElementById('update-check-status');
+
+                function proceedToGame() {
+                    // Sembunyikan layar pengecekan dan mulai animasi game
+                    updateCheckScreen.classList.add('hidden');
+                    startSplashAnimation(); // Jalankan animasi kartu 1234
+                }
+
+                // Timer untuk memastikan layar loading terlihat minimal 3 detik
+                const minLoadingTime = new Promise(resolve => setTimeout(resolve, 3500));
+
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('./sw.js').then(reg => {
+                        // Event listener ini akan terpicu jika ada service worker baru yang sedang diinstal
+                        reg.onupdatefound = () => {
+                            const newWorker = reg.installing;
+                            newWorker.onstatechange = () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // Update ditemukan dan sudah siap
+                                    updateStatusText.textContent = 'Update baru tersedia!';
+                                    setTimeout(() => {
+                                        newWorker.postMessage({ action: 'skipWaiting' });
+                                    }, 1000); // Tunggu 1 detik lalu reload
+                                }
+                            };
+                        };
+
+                        // Setelah waktu loading minimal selesai, periksa apakah ada update yang sedang menunggu
+                        // Ini menangani kasus "tidak ada update"
+                        minLoadingTime.then(() => {
+                            if (!reg.installing) { // Jika tidak ada worker baru yang sedang diinstal
+                                updateStatusText.textContent = 'Anda sudah di versi terbaru';
+                                setTimeout(proceedToGame, 1000); // Tunggu 1 detik lalu lanjutkan ke game
+                            }
+                        });
+
+                    }).catch(error => {
+                        // Ini akan berjalan jika pendaftaran gagal (misalnya, saat offline tanpa cache atau di file://)
+                        console.error('Registrasi Service Worker gagal:', error);
+                        minLoadingTime.then(() => {
+                            updateStatusText.textContent = 'Gagal memeriksa update. Memulai game...';
+                            setTimeout(proceedToGame, 1000);
+                        });
+                    });
+
+                    // Listener untuk reload halaman setelah worker baru aktif
+                    let refreshing;
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        if (refreshing) return;
+                        window.location.reload();
+                        refreshing = true;
+                    });
+
+                } else {
+                    // Jika browser tidak mendukung Service Worker
+                    console.log('Service Worker tidak didukung.');
+                    minLoadingTime.then(() => {
+                        setTimeout(proceedToGame, 1000);
+                    });
+                }
             });
 
-            // (TAMBAHKAN KODE DARI PANDUAN DI SINI, DI LUAR DOMContentLoaded)
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('./sw.js')
-                        .then(registration => {
-                            console.log('Service Worker registered: ', registration);
-                        })
-                        .catch(registrationError => {
-                            console.log('Service Worker registration failed: ', registrationError);
-                        });
-                });
-            }
         </script>
 </body>
 
