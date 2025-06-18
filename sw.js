@@ -1,5 +1,5 @@
 // Nama cache unik untuk game Anda
-const CACHE_NAME = 'uno-game-cache-v2.01';
+const CACHE_NAME = 'uno-game-cache-v2.02';
 
 // Daftar file yang perlu disimpan agar game bisa berjalan offline
 // Ganti 'index.html' jika nama file utama Anda berbeda
@@ -42,9 +42,9 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   // Hanya proses request GET
   if (event.request.method !== 'GET') {
-      return;
+    return;
   }
-  
+
   event.respondWith(
     caches.open(CACHE_NAME).then(async (cache) => {
       const cachedResponse = await cache.match(event.request);
@@ -52,7 +52,7 @@ self.addEventListener('fetch', (event) => {
         // Jika ada di cache, langsung berikan dari cache
         return cachedResponse;
       }
-      
+
       // Jika tidak ada di cache, ambil dari internet, lalu simpan ke cache
       try {
         const networkResponse = await fetch(event.request);
@@ -69,3 +69,10 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
+  // (TAMBAHKAN INI DI AKHIR FILE sw.js)
+  self.addEventListener('message', (event) => {
+    if (event.data && event.data.action === 'skipWaiting') {
+      self.skipWaiting();
+    }
+  });
