@@ -1442,7 +1442,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.022</p>
+                    <p><strong>UNO HTML VERSION v2.023</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
                     <p><strong>Youtube:</strong> RenaldiTV</p>
@@ -2971,8 +2971,8 @@
                     startSplashAnimation(); // Jalankan animasi kartu 1234
                 }
 
-                // Timer untuk memastikan layar loading terlihat minimal 2 detik, tidak 3 detik
-                const minLoadingTime = new Promise(resolve => setTimeout(resolve, 2000));
+                // Timer untuk memastikan layar loading terlihat minimal 3 detik
+                const minLoadingTime = new Promise(resolve => setTimeout(resolve, 3500));
 
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.register('./sw.js').then(reg => {
