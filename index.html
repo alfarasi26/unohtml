@@ -979,6 +979,41 @@
             cursor: pointer;
         }
 
+        /* (TAMBAHKAN INI) Styling untuk Pop-up Notifikasi Update */
+        #update-notification {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--orange);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+
+        #update-notification.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #update-notification button {
+            background-color: white;
+            color: black;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
         /* Penyesuaian untuk layar mobile yang lebih kecil */
         @media (max-width: 480px) {
             .splash-card {
@@ -2929,14 +2964,50 @@
 
             // (TAMBAHKAN KODE DARI PANDUAN DI SINI, DI LUAR DOMContentLoaded)
             if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('./sw.js')
-                        .then(registration => {
-                            console.log('Service Worker registered: ', registration);
-                        })
-                        .catch(registrationError => {
-                            console.log('Service Worker registration failed: ', registrationError);
+                let newWorker;
+
+                function showUpdateNotification() {
+                    // Jangan tampilkan notifikasi jika sudah ada
+                    if (document.getElementById('update-notification')) return;
+
+                    const notification = document.createElement('div');
+                    notification.id = 'update-notification';
+                    notification.innerHTML = `
+                <span>Update baru tersedia!</span>
+                <button id="reload-button">Muat Ulang</button>
+            `;
+                    document.body.appendChild(notification);
+
+                    document.getElementById('reload-button').onclick = () => {
+                        newWorker.postMessage({ action: 'skipWaiting' });
+                    };
+
+                    setTimeout(() => notification.classList.add('show'), 100);
+                }
+
+                navigator.serviceWorker.register('./sw.js').then(reg => {
+                    reg.addEventListener('updatefound', () => {
+                        // Terdeteksi ada service worker baru yang sedang diinstal
+                        newWorker = reg.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            // Tunggu sampai worker baru selesai diinstal
+                            if (newWorker.state === 'installed') {
+                                // Cek apakah sudah ada worker lama yang aktif
+                                if (navigator.serviceWorker.controller) {
+                                    // Tampilkan pop-up "Update tersedia"
+                                    showUpdateNotification();
+                                }
+                            }
                         });
+                    });
+                });
+
+                // Listener untuk memuat ulang halaman setelah worker baru aktif
+                let refreshing;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (refreshing) return;
+                    window.location.reload();
+                    refreshing = true;
                 });
             }
         </script>
