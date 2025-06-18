@@ -1,5 +1,5 @@
 // Nama cache unik untuk game Anda
-const CACHE_NAME = 'uno-game-cache-v2.03';
+const CACHE_NAME = 'uno-game-cache-v2.04';
 
 // Daftar file yang perlu disimpan agar game bisa berjalan offline
 // Ganti 'index.html' jika nama file utama Anda berbeda
