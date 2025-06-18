@@ -198,6 +198,13 @@
             font-weight: 700;
         }
 
+        #highscore-list .time {
+            float: right;
+            margin-left: 25px;
+            color: #f6d83a;
+            /* Warna kuning agar menonjol */
+        }
+
         /* --- Layar Pengaturan Permainan (BARU) --- */
         .setup-options {
             background: rgba(0, 0, 0, 0.2);
@@ -812,6 +819,7 @@
             transition: transform 0.2s ease;
         }
 
+
         #direction-indicator {
             position: absolute;
             top: 20px;
@@ -823,6 +831,19 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            z-index: 1000;
+        }
+
+        /* (TAMBAHKAN INI) Styling untuk Timer */
+        #game-timer {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
             z-index: 1000;
         }
 
@@ -1307,6 +1328,15 @@
                 padding: 12px 10px;
                 font-size: 1rem;
             }
+
+            #game-timer {
+                top: 20%;
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: auto;
+                font-size: 1rem;
+                padding: 8px 15px;
+            }
         }
     </style>
 </head>
@@ -1443,7 +1473,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.04</p>
+                    <p><strong>UNO HTML VERSION v2.1</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
                     <p><strong>Youtube:</strong> RenaldiTV</p>
@@ -1460,6 +1490,7 @@
             <div id="pre-game-info" class="hidden"></div>
             <div id="game-container" class="hidden">
                 <button id="pause-btn">||</button>
+                <div id="game-timer">00:00</div>
                 <div id="direction-indicator">
                     <span id="direction-text"></span>
                     <span id="direction-arrow"></span>
@@ -1518,7 +1549,8 @@
                 const CARDS_PER_PLAYER = 7;
                 let botDifficulty = 'medium'; // Variabel baru untuk kesulitan
                 const HIGHSCORE_KEY = 'unoHighScores';
-
+                let gameTimerInterval;
+                let gameSeconds = 0;
                 let deck = [];
                 let discardPile = [];
                 let players = [];
@@ -1604,6 +1636,35 @@
                     return player.hand.some(card => isValidMove(card, topCard));
                 };
 
+                function formatTime(seconds) {
+                    if (seconds === undefined || seconds === null) return '--:--';
+                    const minutes = Math.floor(seconds / 60);
+                    const remainingSeconds = seconds % 60;
+                    const formattedMinutes = String(minutes).padStart(2, '0');
+                    const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+                    return `${formattedMinutes}:${formattedSeconds}`;
+                }
+
+                function startTimer() {
+                    if (gameTimerInterval) clearInterval(gameTimerInterval);
+                    gameTimerInterval = setInterval(() => {
+                        gameSeconds++;
+                        document.getElementById('game-timer').textContent = formatTime(gameSeconds);
+                    }, 1000);
+                }
+
+                function stopTimer() {
+                    clearInterval(gameTimerInterval);
+                }
+
+                function resetTimer() {
+                    stopTimer();
+                    gameSeconds = 0;
+                    if (document.getElementById('game-timer')) {
+                        document.getElementById('game-timer').textContent = '00:00';
+                    }
+                }
+
                 // =========================================================================
                 //  LOGIKA MENU & HIGH SCORE
                 // =========================================================================
@@ -1661,19 +1722,35 @@
                     }
                 }
 
-                function saveHighScore(name, score) {
+                function saveHighScore(name, score, time) {
                     let scores = getHighScores();
-                    scores.push({ name, score });
-                    scores.sort((a, b) => b.score - a.score);
-                    scores = scores.slice(0, 10); // Keep only top 10
+                    scores.push({ name, score, time });
+
+                    // Logika pengurutan: skor tertinggi, lalu waktu tercepat
+                    scores.sort((a, b) => {
+                        if (b.score !== a.score) {
+                            return b.score - a.score;
+                        }
+                        return a.time - b.time; // Waktu lebih kecil lebih baik
+                    });
+
+                    // Batasi hingga 20 skor teratas
+                    scores = scores.slice(0, 20);
                     localStorage.setItem(HIGHSCORE_KEY, JSON.stringify(scores));
                 }
 
                 function displayHighScores() {
                     const scores = getHighScores();
                     const list = document.getElementById('highscore-list');
+                    list.innerHTML = ''; // Kosongkan daftar
+
                     if (scores.length > 0) {
-                        list.innerHTML = scores.map((s, i) => `<li>#${i + 1} ${s.name} <span class="score">${s.score}</span></li>`).join('');
+                        scores.forEach((s, i) => {
+                            const li = document.createElement('li');
+                            // Tampilkan Peringkat, Nama, Waktu, dan Skor
+                            li.innerHTML = `<span>#${i + 1} ${s.name}</span> <span style="float:right;"><span class="score">${s.score}</span><span class="time">${formatTime(s.time)}</span></span>`;
+                            list.appendChild(li);
+                        });
                     } else {
                         list.innerHTML = '<li>Belum ada skor tinggi.</li>';
                     }
@@ -1797,6 +1874,7 @@
                  * (1=kiri, 2=atas, 3=kanan), yang memperbaiki bug animasi.
                  */
                 function resetGameState() {
+                    resetTimer();
                     deck = [];
                     discardPile = [];
                     gameActive = false;
@@ -1948,11 +2026,13 @@
                 }
 
                 function beginFirstTurn(firstCard) {
+                    startTimer();
                     gameActive = true;
                     handleCardEffect(firstCard, currentPlayerIndex, true);
                 }
 
                 function endGame() {
+                    stopTimer();
                     playMusic('gameplay');
                     gameActive = false;
                     clearTimeout(botTurnTimeout);
@@ -1964,15 +2044,23 @@
 
                     const ranksContainer = document.getElementById('end-game-ranks');
                     ranksContainer.innerHTML = '<h3>Peringkat Akhir</h3>';
+                    const totalTimeElem = document.createElement('p');
+                    totalTimeElem.style.fontSize = '1.2rem';
+                    totalTimeElem.style.marginBottom = '15px';
+                    totalTimeElem.textContent = `Total waktu permainan: ${formatTime(gameSeconds)}`;
+                    ranksContainer.appendChild(totalTimeElem);
                     const scorePoints = [100, 50, 25, 10];
                     playerRanks.forEach((p, i) => {
                         const score = scorePoints[i] || 0;
                         if (p.id === 0) {
-                            saveHighScore(p.name, score);
+                            const rankData = playerRanks.find(r => r.id === p.id);
+                            if (rankData) {
+                                saveHighScore(p.name, score, rankData.time);
+                            }
                         }
                         const rankDiv = document.createElement('div');
                         rankDiv.className = 'rank-item';
-                        rankDiv.innerHTML = `<span class="rank-pos">#${i + 1}</span> <span>${p.name}</span> <span class="score">${score} Poin</span>`;
+                        rankDiv.innerHTML = `<span>#${i + 1} <span class="math-inline">\{p\.name\}</span\> <span style\="float\:right;"\><span class\="time"\></span>{formatTime(p.time)}</span><span class="score">${score} Poin</span></span>`;
                         ranksContainer.appendChild(rankDiv);
                     });
                     showScreen('endGame');
@@ -1989,6 +2077,7 @@
                     if (existingPauseMenu) existingPauseMenu.remove();
 
                     if (isPaused) {
+                        stopTimer();
                         clearTimeout(botTurnTimeout);
                         const pauseMenu = document.createElement('div');
                         pauseMenu.id = 'pause-menu';
@@ -2034,6 +2123,7 @@
                         };
                         pauseMenu.querySelector('#settings-pause-btn').onclick = showSettingsPopup;
                     } else {
+                        startTimer();
                         const currentPlayer = players.find(p => p.id === currentPlayerIndex);
                         if (isAutoMode && currentPlayer && !currentPlayer.isBot && !currentPlayer.isFinished) {
                             botTurnTimeout = setTimeout(playHumanAsBotTurn, 1000);
@@ -2300,7 +2390,7 @@
 
                     if (player.hand.length === 0) {
                         player.isFinished = true;
-                        playerRanks.push({ id: player.id, name: player.name });
+                        playerRanks.push({ id: player.id, name: player.name, time: gameSeconds });
                         showNotification(`${player.name} selesai! (Peringkat #${playerRanks.length})`);
                         renderAll();
 
@@ -2959,7 +3049,7 @@
                 //  INISIALISASI GAME
                 // =========================================================================
                 initMenus();
-                
+
                 // =========================================================================
                 //  LOGIKA STARTUP DAN UPDATE PWA (VERSI BARU & TERUJI)
                 // =========================================================================
