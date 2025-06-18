@@ -198,6 +198,12 @@
             font-weight: 700;
         }
 
+        #highscore-list .time {
+            margin-right: 25px;
+            color: #f6d83a;
+            /* Warna kuning agar menonjol */
+        }
+
         /* --- Layar Pengaturan Permainan (BARU) --- */
         .setup-options {
             background: rgba(0, 0, 0, 0.2);
@@ -399,6 +405,7 @@
         /* Styling untuk Volume Slider */
         input[type=range] {
             -webkit-appearance: none;
+            appearance: none;
             width: 50%;
             background: transparent;
         }
@@ -809,6 +816,20 @@
             border-radius: 50%;
             cursor: pointer;
             transition: transform 0.2s ease;
+        }
+
+        /* (PERBAIKAN) Styling untuk Timer di Pojok Kiri Bawah */
+        #game-timer {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            transform: none;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            z-index: 1000;
         }
 
         #direction-indicator {
@@ -1306,6 +1327,15 @@
                 padding: 12px 10px;
                 font-size: 1rem;
             }
+
+            #game-timer {
+                top: 20%; /* <-- UBAH NILAI PERSENTASE INI */
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: auto; /* Hapus posisi dari bawah */
+                font-size: 1rem;
+                padding: 8px 15px;
+            }
         }
     </style>
 </head>
@@ -1442,7 +1472,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.03</p>
+                    <p><strong>UNO HTML VERSION v2.1</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
                     <p><strong>Youtube:</strong> RenaldiTV</p>
@@ -1459,6 +1489,7 @@
             <div id="pre-game-info" class="hidden"></div>
             <div id="game-container" class="hidden">
                 <button id="pause-btn">||</button>
+                <div id="game-timer">00:00</div>
                 <div id="direction-indicator">
                     <span id="direction-text"></span>
                     <span id="direction-arrow"></span>
@@ -1505,7 +1536,10 @@
             </div>
         </div>
 
-        <script>
+        <script type=Module>
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+            import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+            import { getFirestore, collection, query, orderBy, limit, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
             document.addEventListener('DOMContentLoaded', () => {
                 // =========================================================================
                 //  KONSTANTA & STATE GAME
@@ -1516,8 +1550,10 @@
                 let NUM_PLAYERS = 4; // Diubah dari const menjadi let
                 const CARDS_PER_PLAYER = 7;
                 let botDifficulty = 'medium'; // Variabel baru untuk kesulitan
-                const HIGHSCORE_KEY = 'unoHighScores';
-
+                let db, auth;
+                let highscores = []; // Untuk menyimpan data dari Firestore
+                let gameTimerInterval;
+                let gameSeconds = 0;
                 let deck = [];
                 let discardPile = [];
                 let players = [];
@@ -1603,6 +1639,33 @@
                     return player.hand.some(card => isValidMove(card, topCard));
                 };
 
+                // (TAMBAHKAN SEMUA FUNGSI INI)
+                function formatTime(seconds) {
+                    const minutes = Math.floor(seconds / 60);
+                    const remainingSeconds = seconds % 60;
+                    const formattedMinutes = String(minutes).padStart(2, '0');
+                    const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+                    return `${formattedMinutes}:${formattedSeconds}`;
+                }
+
+                function startTimer() {
+                    if (gameTimerInterval) clearInterval(gameTimerInterval); // Hentikan timer lama jika ada
+                    gameTimerInterval = setInterval(() => {
+                        gameSeconds++;
+                        document.getElementById('game-timer').textContent = formatTime(gameSeconds);
+                    }, 1000);
+                }
+
+                function stopTimer() {
+                    clearInterval(gameTimerInterval);
+                }
+
+                function resetTimer() {
+                    stopTimer();
+                    gameSeconds = 0;
+                    document.getElementById('game-timer').textContent = '00:00';
+                }
+
                 // =========================================================================
                 //  LOGIKA MENU & HIGH SCORE
                 // =========================================================================
@@ -1669,13 +1732,32 @@
                 }
 
                 function displayHighScores() {
-                    const scores = getHighScores();
                     const list = document.getElementById('highscore-list');
-                    if (scores.length > 0) {
-                        list.innerHTML = scores.map((s, i) => `<li>#${i + 1} ${s.name} <span class="score">${s.score}</span></li>`).join('');
+                    list.innerHTML = ''; // Kosongkan daftar terlebih dahulu
+
+                    if (highscores.length > 0) {
+                        highscores.forEach((s, i) => {
+                            const timeStr = s.time ? formatTime(s.time) : 'N/A';
+                            const scoreStr = s.score !== undefined ? s.score : 'N/A';
+
+                            const li = document.createElement('li');
+                            li.innerHTML = `<span>#${i + 1} ${s.name}</span> <span style="float:right;"><span class="time">${timeStr}</span><span class="score">${scoreStr}</span></span>`;
+                            list.appendChild(li);
+                        });
                     } else {
-                        list.innerHTML = '<li>Belum ada skor tinggi.</li>';
+                        list.innerHTML = '<li>Belum ada skor tinggi. Mainkan satu game!</li>';
                     }
+                }
+
+                function addHighScore(name, score, time) {
+                    if (!db) return;
+                    const highscoresCol = collection(db, "highscores");
+                    addDoc(highscoresCol, {
+                        name: name,
+                        score: score,
+                        time: time,
+                        createdAt: new Date()
+                    }).catch(e => console.error("Error adding document: ", e));
                 }
 
                 function startSplashAnimation() {
@@ -1796,6 +1878,7 @@
                  * (1=kiri, 2=atas, 3=kanan), yang memperbaiki bug animasi.
                  */
                 function resetGameState() {
+                    resetTimer();
                     deck = [];
                     discardPile = [];
                     gameActive = false;
@@ -1947,11 +2030,13 @@
                 }
 
                 function beginFirstTurn(firstCard) {
+                    startTimer();
                     gameActive = true;
                     handleCardEffect(firstCard, currentPlayerIndex, true);
                 }
 
                 function endGame() {
+                    stopTimer();
                     playMusic('gameplay');
                     gameActive = false;
                     clearTimeout(botTurnTimeout);
@@ -1963,11 +2048,19 @@
 
                     const ranksContainer = document.getElementById('end-game-ranks');
                     ranksContainer.innerHTML = '<h3>Peringkat Akhir</h3>';
+                    const totalTimeElem = document.createElement('p');
+                    totalTimeElem.style.fontSize = '1.2rem';
+                    totalTimeElem.style.marginBottom = '15px';
+                    totalTimeElem.textContent = `Total waktu permainan: ${formatTime(gameSeconds)}`;
+                    ranksContainer.appendChild(totalTimeElem);
                     const scorePoints = [100, 50, 25, 10];
                     playerRanks.forEach((p, i) => {
                         const score = scorePoints[i] || 0;
                         if (p.id === 0) {
-                            saveHighScore(p.name, score);
+                            const rankData = playerRanks.find(r => r.id === p.id);
+                            if (rankData) {
+                                addHighScore(p.name, score, rankData.time);
+                            }
                         }
                         const rankDiv = document.createElement('div');
                         rankDiv.className = 'rank-item';
@@ -1988,6 +2081,7 @@
                     if (existingPauseMenu) existingPauseMenu.remove();
 
                     if (isPaused) {
+                        stopTimer();
                         clearTimeout(botTurnTimeout);
                         const pauseMenu = document.createElement('div');
                         pauseMenu.id = 'pause-menu';
@@ -2033,6 +2127,7 @@
                         };
                         pauseMenu.querySelector('#settings-pause-btn').onclick = showSettingsPopup;
                     } else {
+                        startTimer();
                         const currentPlayer = players.find(p => p.id === currentPlayerIndex);
                         if (isAutoMode && currentPlayer && !currentPlayer.isBot && !currentPlayer.isFinished) {
                             botTurnTimeout = setTimeout(playHumanAsBotTurn, 1000);
@@ -2299,7 +2394,7 @@
 
                     if (player.hand.length === 0) {
                         player.isFinished = true;
-                        playerRanks.push({ id: player.id, name: player.name });
+                        playerRanks.push({ id: player.id, name: player.name, time: gameSeconds });
                         showNotification(`${player.name} selesai! (Peringkat #${playerRanks.length})`);
                         renderAll();
 
@@ -2958,7 +3053,7 @@
                 //  INISIALISASI GAME
                 // =========================================================================
                 initMenus();
-                
+
                 // =========================================================================
                 //  LOGIKA STARTUP DAN UPDATE PWA (VERSI BARU & TERUJI)
                 // =========================================================================
@@ -3021,6 +3116,61 @@
                     console.log('Service Worker tidak didukung.');
                     minLoadingTime.then(() => {
                         setTimeout(proceedToGame, 1000);
+                    });
+                }
+
+                // =========================================================================
+                //  INISIALISASI FIREBASE DAN PWA
+                // =========================================================================
+                const firebaseConfig = {
+                    apiKey: "AIzaSyDgO645Sv-1jGgcPIahTiiRQ_hrrR9PyEw",
+                    authDomain: "uno-html-86c3d.firebaseapp.com",
+                    projectId: "uno-html-86c3d",
+                    storageBucket: "uno-html-86c3d.firebasestorage.app",
+                    messagingSenderId: "236884999143",
+                    appId: "1:236884999143:web:1712f8c632a2fe51c75b42"
+                };
+
+                try {
+                    const app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+
+                    onAuthStateChanged(auth, (user) => {
+                        if (!user) {
+                            signInAnonymously(auth).catch(e => console.error("Anonymous sign-in failed", e));
+                        }
+                        // Setelah otentikasi siap, pasang listener ke Firestore
+                        listenToHighscores();
+                    });
+                } catch(e) {
+                    console.error("Firebase initialization failed. Highscores will be disabled.", e);
+                }
+
+                function listenToHighscores() {
+                    const highscoresCol = collection(db, "highscores");
+                    const q = query(highscoresCol, orderBy("score", "desc"), orderBy("time", "asc"), limit(20));
+
+                    onSnapshot(q, (snapshot) => {
+                        const newScores = [];
+                        snapshot.forEach((doc) => {
+                            newScores.push(doc.data());
+                        });
+                        highscores = newScores; // Update data global
+
+                        // Jika layar highscore sedang terbuka, perbarui tampilannya secara real-time
+                        if (!screens.highscore.classList.contains('hidden')) {
+                            displayHighScores();
+                        }
+                    }, (error) => {
+                        console.error("Error listening to highscores:", error);
+                    });
+                }
+
+                // Kode Pendaftaran PWA
+                if ('serviceWorker' in navigator) {
+                    window.addEventListener('load', () => {
+                        navigator.serviceWorker.register('./sw.js').then(/* ... */).catch(/* ... */);
                     });
                 }
             });
