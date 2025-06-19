@@ -1471,7 +1471,7 @@
             }
 
             #player-area-bottom {
-                bottom: -15px;
+                bottom: -18px;
                 transform: scale(0.85);
             }
 
@@ -1559,10 +1559,12 @@
 
             /* 9. Layar Permainan Selesai */
             #end-game-screen {
-                transform: scale(0.85); /* <-- UBAH NILAI INI untuk memperkecil/membesarkan seluruh layar */
-                gap: 10px; /* <-- UBAH NILAI INI untuk mengatur jarak vertikal */
+                transform: scale(0.85);
+                /* <-- UBAH NILAI INI untuk memperkecil/membesarkan seluruh layar */
+                gap: 10px;
+                /* <-- UBAH NILAI INI untuk mengatur jarak vertikal */
             }
-            
+
             #end-game-screen .menu-title {
                 font-size: 1.8rem;
                 /* Perkecil judul */
@@ -1733,7 +1735,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.2</p>
+                    <p><strong>UNO HTML VERSION v2.21</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
                     <p><strong>Youtube:</strong> RenaldiTV</p>
@@ -1831,6 +1833,7 @@
                 let ghostCard = null; // Kartu "hantu" yang mengikuti jari
                 let isAutoMode = false;
                 let touchedCardElement = null; // Kartu yang sedang disentuh/dipilih
+                let screenWakeLock = null; // Untuk menyimpan objek kunci layar
 
                 // =========================================================================
                 //  SELEKTOR ELEMEN DOM
@@ -1925,6 +1928,39 @@
                     }
                 }
 
+                // (TAMBAHKAN SELURUH FUNGSI INI)
+                async function manageWakeLock(action) {
+                    // Pertama, cek apakah browser mendukung API ini
+                    if (!('wakeLock' in navigator)) {
+                        console.log('Screen Wake Lock API tidak didukung.');
+                        return;
+                    }
+
+                    if (action === 'request') {
+                        try {
+                            // Minta kunci layar dan simpan objeknya
+                            screenWakeLock = await navigator.wakeLock.request('screen');
+                            console.log('Kunci layar diaktifkan.');
+
+                            // Listener jika kunci dilepaskan (misalnya, saat pindah tab)
+                            screenWakeLock.addEventListener('release', () => {
+                                console.log('Kunci layar dilepaskan secara otomatis.');
+                                screenWakeLock = null;
+                            });
+                        } catch (err) {
+                            console.error(`${err.name}, ${err.message}`);
+                        }
+                    } else if (action === 'release') {
+                        if (screenWakeLock !== null) {
+                            // Lepaskan kunci layar
+                            await screenWakeLock.release();
+                            screenWakeLock = null;
+                            console.log('Kunci layar dilepaskan.');
+                        }
+                    }
+                }
+
+
                 // =========================================================================
                 //  LOGIKA MENU & HIGH SCORE
                 // =========================================================================
@@ -1966,6 +2002,7 @@
                     document.getElementById('back-to-menu-from-htp').onclick = () => showScreen('mainMenu');
                     document.getElementById('restart-game-btn').onclick = startPreGame;
                     document.getElementById('back-to-menu-from-end').onclick = () => {
+                        manageWakeLock('release');
                         showScreen('mainMenu');
                         playMusic('menu'); // <-- TAMBAHKAN INI
                     };
@@ -2287,12 +2324,14 @@
                 }
 
                 function beginFirstTurn(firstCard) {
+                    manageWakeLock('request');
                     startTimer();
                     gameActive = true;
                     handleCardEffect(firstCard, currentPlayerIndex, true);
                 }
 
                 function endGame() {
+                    manageWakeLock('release');
                     stopTimer();
                     playMusic('gameplay');
                     gameActive = false;
@@ -2339,6 +2378,7 @@
                     if (existingPauseMenu) existingPauseMenu.remove();
 
                     if (isPaused) {
+                        manageWakeLock('release');
                         stopTimer();
                         clearTimeout(botTurnTimeout);
                         const pauseMenu = document.createElement('div');
@@ -2380,11 +2420,13 @@
                         };
                         pauseMenu.querySelector('#exit-pause-btn').onclick = () => {
                             screens.game.removeChild(pauseMenu); // Hapus menu sebelum keluar
+                            manageWakeLock('release');
                             showScreen('mainMenu');
                             playMusic('menu');
                         };
                         pauseMenu.querySelector('#settings-pause-btn').onclick = showSettingsPopup;
                     } else {
+                        manageWakeLock('request');
                         startTimer();
                         const currentPlayer = players.find(p => p.id === currentPlayerIndex);
                         if (isAutoMode && currentPlayer && !currentPlayer.isBot && !currentPlayer.isFinished) {
