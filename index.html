@@ -1471,7 +1471,7 @@
             }
 
             #player-area-bottom {
-                bottom: -18px;
+                bottom: -20px;
                 transform: scale(0.85);
             }
 
@@ -1598,6 +1598,55 @@
             #exit-confirmation-popup .popup-options {
                 justify-content: center;
                 /* Memaksa tombol ke tengah */
+            }
+
+            #game-setup-screen {
+                gap: 5px;
+                /* Mengurangi jarak vertikal antara judul, kotak, dan tombol */
+                justify-content: center;
+                /* Memastikan konten tetap di tengah */
+                padding: 5px;
+                /* Memberi sedikit ruang di tepi layar */
+            }
+
+            #game-setup-screen .menu-title {
+                font-size: clamp(1.5rem, 7vh, 1.8rem);
+                /* Memperkecil ukuran judul secara signifikan */
+                margin-bottom: 0;
+                /* Menghapus margin bawah dari judul */
+                margin-top: 5px;
+            }
+
+            /* Target yang lebih spesifik untuk kotak opsi di layar ini */
+            #game-setup-screen .setup-options {
+                transform: scale(0.8);
+                /* Memperkecil lagi kotak opsi */
+                margin-bottom: 0;
+                /* Menghapus margin bawah dari kotak opsi */
+                padding: 10px 15px;
+                /* Mengurangi padding di dalam kotak */
+                gap: 8px;
+                /* Mengurangi jarak antar opsi di dalam kotak */
+            }
+
+            #game-setup-screen .setup-option label {
+                font-size: 0.9rem;
+                /* Memperkecil font label */
+            }
+
+            #game-setup-screen .setup-select {
+                font-size: 0.8rem;
+                /* Memperkecil font di dalam dropdown */
+                padding: 5px 10px;
+                /* Menyesuaikan padding dropdown */
+            }
+
+            /* Target yang lebih spesifik untuk tombol di layar ini */
+            #game-setup-screen .setup-buttons {
+                transform: scale(0.8);
+                /* Memperkecil juga tombol */
+                margin-top: -5px;
+                /* Menarik posisi tombol sedikit ke atas */
             }
         }
     </style>
@@ -1730,8 +1779,10 @@
                     kartunya adalah pemenangnya.</p>
 
                 <h3>Mode Express</h3>
-                <p>Mode singkat yang menghilangkan kartu +2 dan wild card +4, dan diganti dengan kartu +1 dan wild card +2,
-                    serta dimulai dengan 5 kartu pada saat awal permainan. Secara peraturan relatif sama dengan mode classic.
+                <p>Mode singkat yang menghilangkan kartu +2 dan wild card +4, dan diganti dengan kartu +1 dan wild card
+                    +2,
+                    serta dimulai dengan 5 kartu pada saat awal permainan. Secara peraturan relatif sama dengan mode
+                    classic.
                     Cocok untuk bermain dalam waktu singkat.
                 </p>
 
@@ -1749,7 +1800,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.51</p>
+                    <p><strong>UNO HTML VERSION v2.52</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
                     <p><strong>Youtube:</strong> RenaldiTV</p>
