@@ -1818,12 +1818,18 @@
                     gameplaymu
                     akan berjalan secara otomatis.</p>
 
+                <h3>Aplikasi Android (BETA)</h3>
+                <p>Sekarang game ini sudah tersedia untuk Android! Silakan download apk nya 
+                    <a href="https://drive.google.com/file/d/1wUcfbdy6xahks8sUvKTWPyFqTs7hF0ye/view?usp=sharing" download>disini</a>
+                </p>
+
                 <hr>
 
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.54 BETA 2</p>
+                    <p><strong>UNO HTML VERSION v2.6</p>
+                    <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
                     <p><strong>Youtube:</strong> RenaldiTV</p>
@@ -3333,9 +3339,18 @@
 
                     // Tambahkan fungsi untuk tombol "Ya"
                     document.getElementById('exit-confirm-yes').onclick = () => {
-                        // Perintah ini akan mencoba menutup tab/jendela
-                        window.close();
-                        // Jika window.close() gagal (karena diblokir browser), hapus pop-up
+                        if (window.AndroidBridge && typeof window.AndroidBridge.exitApp === 'function') {
+                            // Versi APK WebView (native)
+                            window.AndroidBridge.exitApp();
+                        } else if (window.opener) {
+                            // Jika dibuka lewat window.open()
+                            window.close();
+                        } else {
+                            // Jika tidak bisa tutup window
+                            alert("Untuk keluar dari aplikasi ini, silakan tutup tab secara manual.");
+                        }
+
+                        // Tetap tutup popup
                         if (document.body.contains(popup)) {
                             document.body.removeChild(popup);
                         }
