@@ -1649,51 +1649,7 @@
                 /* Menarik posisi tombol sedikit ke atas */
             }
         }
-
-        /* ========================================================================= */
-        /* (TAMBAHAN) CSS UNTUK MENANGANI PONI/NOTCH DI MODE FULLSCREEN NATIVE    */
-        /* ========================================================================= */
-        body {
-            /* Membuat padding default di seluruh sisi body */
-            /* Variabel env() akan berisi 0px jika tidak ada poni/notch */
-            padding-top: env(safe-area-inset-top);
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        /* Anda juga bisa menerapkannya ke elemen spesifik yang ada di pojok,
-        jika Anda tidak ingin seluruh body memiliki padding.
-        Ini adalah contoh untuk tombol pause dan indikator arah.
-        */
-
-        #pause-btn {
-            /* Geser posisi tombol dari kiri sebesar lebar poni kiri */
-            left: calc(20px + env(safe-area-inset-left));
-            /* Geser posisi tombol dari atas sebesar tinggi poni atas */
-            top: calc(20px + env(safe-area-inset-top));
-        }
-
-        #direction-indicator {
-            /* Geser posisi tombol dari kanan sebesar lebar poni kanan */
-            right: calc(20px + env(safe-area-inset-right));
-            /* Geser posisi tombol dari atas sebesar tinggi poni atas */
-            top: calc(20px + env(safe-area-inset-top));
-        }
-
-        #game-timer {
-            /* Geser posisi tombol dari kiri sebesar lebar poni kiri */
-            left: calc(20px + env(safe-area-inset-left));
-            /* Geser posisi tombol dari bawah sebesar tinggi poni bawah */
-            bottom: calc(20px + env(safe-area-inset-bottom));
-        }
-
-        #uno-button {
-            /* Geser posisi tombol dari kanan sebesar lebar poni kanan */
-            right: calc(20px + env(safe-area-inset-right));
-            /* Geser posisi tombol dari bawah sebesar tinggi poni bawah */
-            bottom: calc(20px + env(safe-area-inset-bottom));
-        }
+     
     </style>
 </head>
 
@@ -1845,7 +1801,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.53</p>
+                    <p><strong>UNO HTML VERSION v2.52</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
                     <p><strong>Youtube:</strong> RenaldiTV</p>
