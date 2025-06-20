@@ -2,10 +2,11 @@
   "name": "UNO HTML",
   "short_name": "UNO",
   "start_url": ".",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#0a5c3f",
   "theme_color": "#1e6b52",
   "description": "UNO HTML Version by Renaldi Alfarasi",
+  "orientation": "any",
   "icons": [
     {
       "src": "icons/icon-192x192.png",
