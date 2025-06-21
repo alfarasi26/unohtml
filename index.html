@@ -986,6 +986,12 @@
             }
         }
 
+        /* (TAMBAHKAN INI) CSS untuk highlight kartu yang bisa dimainkan */
+        .playable-card {
+            box-shadow: 0 0 15px #ffc107, 0 0 5px white;
+            transform: translateY(-10px)
+        }   
+
         /* (TAMBAHKAN INI) CSS untuk Wadah Teks yang Hilang */
         #splash-text-container {
             position: absolute;
@@ -1675,6 +1681,35 @@
                 margin-top: -5px;
                 /* Menarik posisi tombol sedikit ke atas */
             }
+            /* 10. Penyesuaian Pop-up Pengaturan (BARU) */
+            #settings-popup {
+                /* Perkecil skala keseluruhan pop-up agar tidak terlalu besar */
+                transform: translate(-50%, -50%) scale(0.85);
+                gap: 10px; /* Kurangi jarak antar elemen di dalamnya */
+            }
+
+            #settings-popup h3 {
+                font-size: 1.5rem; /* Perkecil ukuran judul pop-up */
+                margin-bottom: 0;
+            }
+
+            #settings-popup .settings-container {
+                gap: 15px; /* Kurangi jarak antar pilihan pengaturan */
+                padding: 10px 25px; /* Sesuaikan padding */
+            }
+
+            #settings-popup .setting-label {
+                font-size: 1rem; /* Perkecil font label */
+            }
+
+            /* Perkecil juga ukuran tombol switch */
+            #settings-popup .switch {
+                transform: scale(0.8);
+            }
+            
+            #settings-popup .menu-btn {
+                margin-top: 0; /* Hapus margin atas pada tombol 'Kembali' */
+            }
         }
     </style>
 </head>
@@ -1833,7 +1868,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.61</p>
+                    <p><strong>UNO HTML VERSION v2.62</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -1925,6 +1960,7 @@
                 let mainPlayerName = 'Pemain';
                 let audioMenu, audioGameplay;
                 let isMuted = false;
+                let isHighlightHintOn = true;
                 let musicVolume = 1.0; // UBAH: Default volume 100%
                 let userHasInteracted = false; // Penanda interaksi pertama
                 let botTurnTimeout;
@@ -2479,6 +2515,7 @@
                     startTimer();
                     gameActive = true;
                     handleCardEffect(firstCard, currentPlayerIndex, true);
+                    updatePlayableCards();
                 }
 
                 function endGame() {
@@ -2733,6 +2770,40 @@
                         unoCalledByPlayer = false;
                         unoButton.classList.remove('called');
                     }
+
+                    updatePlayableCards();
+
+                }
+
+                // TEMUKAN FUNGSI INI DAN GANTI SELURUHNYA
+                function updatePlayableCards() {
+                    const cardElements = playerHandElem.querySelectorAll('.card');
+
+                    // PERUBAHAN UTAMA: Cek apakah fitur hint ON dan apakah ini giliran pemain (index 0)
+                    if (!isHighlightHintOn || currentPlayerIndex !== 0) {
+                        // Jika tidak, hapus semua highlight dari semua kartu dan hentikan fungsi
+                        cardElements.forEach(cardElem => {
+                            cardElem.classList.remove('playable-card');
+                        });
+                        return;
+                    }
+
+                    // Jika lolos pengecekan di atas, berarti ini giliran Anda dan hint sedang ON
+                    // Maka, jalankan logika untuk menampilkan highlight
+                    const topCard = getTopCard();
+                    if (!topCard) return; 
+
+                    cardElements.forEach(cardElem => {
+                        try {
+                            const cardData = JSON.parse(cardElem.dataset.cardData);
+                            // Cek validitas kartu dan tambahkan/hapus kelas
+                            if (isValidMove(cardData, topCard)) {
+                                cardElem.classList.add('playable-card');
+                            } else {
+                                cardElem.classList.remove('playable-card');
+                            }
+                        } catch(e) { /* Abaikan jika ada error parsing */ }
+                    });
                 }
 
                 /**
@@ -2821,6 +2892,7 @@
                     }
 
                     currentPlayerIndex = nextPlayer.id;
+                    updatePlayableCards();
                     updateGameInfo();
                     updatePlayerInfos();
 
@@ -3443,6 +3515,13 @@
                     <h3>Pengaturan</h3>
                     <div class="settings-container">
                         <div class="setting-option">
+                            <label for="highlight-toggle-popup" class="setting-label">Highlight Hint</label>
+                            <label class="switch">
+                                <input type="checkbox" id="highlight-toggle-popup">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="setting-option">
                             <label for="music-toggle-popup" class="setting-label">Musik</label>
                             <label class="switch">
                                 <input type="checkbox" id="music-toggle-popup">
@@ -3457,11 +3536,18 @@
                     <button id="close-settings-popup" class="menu-btn red">Kembali</button>
                 `;
                     document.body.appendChild(popup);
+                    const highlightToggle = document.getElementById('highlight-toggle-popup');
                     const musicToggle = document.getElementById('music-toggle-popup');
                     const volumeSlider = document.getElementById('volume-slider-popup');
                     const closeBtn = document.getElementById('close-settings-popup');
+                    highlightToggle.checked = isHighlightHintOn;
                     musicToggle.checked = !isMuted;
                     volumeSlider.value = musicVolume;
+                    highlightToggle.onchange = (e) => {
+                        isHighlightHintOn = e.target.checked;
+                        // Langsung update tampilan kartu setelah di-toggle
+                        updatePlayableCards();
+                    };
                     musicToggle.onchange = (e) => toggleMute(!e.target.checked);
                     volumeSlider.oninput = (e) => updateVolume(e.target.value);
                     closeBtn.onclick = () => document.body.removeChild(popup);
