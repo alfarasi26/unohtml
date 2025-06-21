@@ -1868,7 +1868,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.62</p>
+                    <p><strong>UNO HTML VERSION v2.63</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -2900,6 +2900,7 @@
                         if (p.id !== currentPlayerIndex && p.hand.length === 1 && !p.unoCalled) {
                             showNotification(`${p.name} lupa bilang UNO! Ambil 2 kartu.`);
                             triggerDraw(p.id, 2);
+                            players[0].unoCalled = true; // 👉 Supaya nextTurn() tahu kamu sudah dihukum
                         }
                         if (p.hand.length > 1) p.unoCalled = false;
                     });
@@ -3592,6 +3593,7 @@
                             if (players[0].hand.length === 2 && !unoCalledByPlayer) {
                                 showNotification("Lupa tekan UNO! Ambil 2 kartu.");
                                 triggerDraw(0, 2);
+                                players[0].unoCalled = true; // 👉 Supaya nextTurn() tahu kamu sudah dihukum
                             }
                             playCard(0, card);
                         } else {
