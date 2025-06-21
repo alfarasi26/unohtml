@@ -990,7 +990,7 @@
         .playable-card {
             box-shadow: 0 0 15px #ffc107, 0 0 5px white;
             transform: translateY(-10px)
-        }   
+        }
 
         /* (TAMBAHKAN INI) CSS untuk Wadah Teks yang Hilang */
         #splash-text-container {
@@ -1681,34 +1681,41 @@
                 margin-top: -5px;
                 /* Menarik posisi tombol sedikit ke atas */
             }
+
             /* 10. Penyesuaian Pop-up Pengaturan (BARU) */
             #settings-popup {
                 /* Perkecil skala keseluruhan pop-up agar tidak terlalu besar */
                 transform: translate(-50%, -50%) scale(0.85);
-                gap: 10px; /* Kurangi jarak antar elemen di dalamnya */
+                gap: 10px;
+                /* Kurangi jarak antar elemen di dalamnya */
             }
 
             #settings-popup h3 {
-                font-size: 1.5rem; /* Perkecil ukuran judul pop-up */
+                font-size: 1.5rem;
+                /* Perkecil ukuran judul pop-up */
                 margin-bottom: 0;
             }
 
             #settings-popup .settings-container {
-                gap: 15px; /* Kurangi jarak antar pilihan pengaturan */
-                padding: 10px 25px; /* Sesuaikan padding */
+                gap: 15px;
+                /* Kurangi jarak antar pilihan pengaturan */
+                padding: 10px 25px;
+                /* Sesuaikan padding */
             }
 
             #settings-popup .setting-label {
-                font-size: 1rem; /* Perkecil font label */
+                font-size: 1rem;
+                /* Perkecil font label */
             }
 
             /* Perkecil juga ukuran tombol switch */
             #settings-popup .switch {
                 transform: scale(0.8);
             }
-            
+
             #settings-popup .menu-btn {
-                margin-top: 0; /* Hapus margin atas pada tombol 'Kembali' */
+                margin-top: 0;
+                /* Hapus margin atas pada tombol 'Kembali' */
             }
         }
     </style>
@@ -1868,7 +1875,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.63</p>
+                    <p><strong>UNO HTML VERSION v2.64</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -2616,11 +2623,18 @@
                     } else {
                         manageWakeLock('request');
                         startTimer();
+                        if (isAnimating) return;
                         const currentPlayer = players.find(p => p.id === currentPlayerIndex);
                         if (isAutoMode && currentPlayer && !currentPlayer.isBot && !currentPlayer.isFinished) {
-                            botTurnTimeout = setTimeout(playHumanAsBotTurn, 1000);
+                            botTurnTimeout = setTimeout(() => {
+                                if (isPaused) return; // 🔧 CEK: Jangan jalanin kalau masih di-pause
+                                playHumanAsBotTurn();
+                            }, 1000);
                         } else if (currentPlayer && currentPlayer.isBot) {
-                            botTurnTimeout = setTimeout(playBotTurn, 1000);
+                            botTurnTimeout = setTimeout(() => {
+                                if (isPaused) return; // 🔧 CEK: Jangan jalanin kalau masih di-pause
+                                playBotTurn();
+                            }, 1000);
                         }
                     }
                 }
@@ -2791,7 +2805,7 @@
                     // Jika lolos pengecekan di atas, berarti ini giliran Anda dan hint sedang ON
                     // Maka, jalankan logika untuk menampilkan highlight
                     const topCard = getTopCard();
-                    if (!topCard) return; 
+                    if (!topCard) return;
 
                     cardElements.forEach(cardElem => {
                         try {
@@ -2802,7 +2816,7 @@
                             } else {
                                 cardElem.classList.remove('playable-card');
                             }
-                        } catch(e) { /* Abaikan jika ada error parsing */ }
+                        } catch (e) { /* Abaikan jika ada error parsing */ }
                     });
                 }
 
@@ -3444,15 +3458,10 @@
                             window.AndroidBridge.exitApp();
                         } else if (window.opener) {
                             // Jika dibuka lewat window.open()
-                            window.close();
-                        } else {
-                            // Jika tidak bisa tutup window
-                            alert("Untuk keluar dari aplikasi ini, silakan tutup tab secara manual.");
-                        }
-
-                        // Tetap tutup popup
-                        if (document.body.contains(popup)) {
-                            document.body.removeChild(popup);
+                            if (document.body.contains(popup)) {
+                                document.body.removeChild(popup);
+                                window.close();
+                            }
                         }
                     };
 
