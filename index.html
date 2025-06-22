@@ -990,7 +990,7 @@
         .playable-card {
             box-shadow: 0 0 15px #ffc107, 0 0 5px white;
             transform: translateY(-10px)
-        }   
+        }
 
         /* (TAMBAHKAN INI) CSS untuk Wadah Teks yang Hilang */
         #splash-text-container {
@@ -1681,34 +1681,41 @@
                 margin-top: -5px;
                 /* Menarik posisi tombol sedikit ke atas */
             }
+
             /* 10. Penyesuaian Pop-up Pengaturan (BARU) */
             #settings-popup {
                 /* Perkecil skala keseluruhan pop-up agar tidak terlalu besar */
                 transform: translate(-50%, -50%) scale(0.85);
-                gap: 10px; /* Kurangi jarak antar elemen di dalamnya */
+                gap: 10px;
+                /* Kurangi jarak antar elemen di dalamnya */
             }
 
             #settings-popup h3 {
-                font-size: 1.5rem; /* Perkecil ukuran judul pop-up */
+                font-size: 1.5rem;
+                /* Perkecil ukuran judul pop-up */
                 margin-bottom: 0;
             }
 
             #settings-popup .settings-container {
-                gap: 15px; /* Kurangi jarak antar pilihan pengaturan */
-                padding: 10px 25px; /* Sesuaikan padding */
+                gap: 15px;
+                /* Kurangi jarak antar pilihan pengaturan */
+                padding: 10px 25px;
+                /* Sesuaikan padding */
             }
 
             #settings-popup .setting-label {
-                font-size: 1rem; /* Perkecil font label */
+                font-size: 1rem;
+                /* Perkecil font label */
             }
 
             /* Perkecil juga ukuran tombol switch */
             #settings-popup .switch {
                 transform: scale(0.8);
             }
-            
+
             #settings-popup .menu-btn {
-                margin-top: 0; /* Hapus margin atas pada tombol 'Kembali' */
+                margin-top: 0;
+                /* Hapus margin atas pada tombol 'Kembali' */
             }
         }
     </style>
@@ -1868,7 +1875,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.63</p>
+                    <p><strong>UNO HTML VERSION v2.64</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -1961,6 +1968,7 @@
                 let audioMenu, audioGameplay;
                 let isMuted = false;
                 let isHighlightHintOn = true;
+                let isAnimating = false;
                 let musicVolume = 1.0; // UBAH: Default volume 100%
                 let userHasInteracted = false; // Penanda interaksi pertama
                 let botTurnTimeout;
@@ -1968,6 +1976,8 @@
                 let draggedCardData = null; // Data kartu yang di-drag
                 let ghostCard = null; // Kartu "hantu" yang mengikuti jari
                 let isAutoMode = false;
+                let pendingBotResume = false;
+                let pendingDrawResume = null; // null atau { playerIndex, amount, callback }
                 let touchedCardElement = null; // Kartu yang sedang disentuh/dipilih
                 let screenWakeLock = null; // Untuk menyimpan objek kunci layar
 
@@ -2508,6 +2518,19 @@
                         renderAll();
                         setTimeout(() => beginFirstTurn(firstCard), 500);
                     });
+                    
+                    window.debugBridge = {
+                        get players() { return players; },
+                        get currentPlayerIndex() { return currentPlayerIndex; },
+                        get gameActive() { return gameActive; },
+                        get gameDirection() { return gameDirection; },
+                        get isPaused() { return isPaused; },
+                        triggerDraw,
+                        nextTurn,
+                        playBotTurn,
+                        playHumanAsBotTurn,
+                        updateDirectionIndicator
+                    };
                 }
 
                 function beginFirstTurn(firstCard) {
@@ -2569,6 +2592,9 @@
                         manageWakeLock('release');
                         stopTimer();
                         clearTimeout(botTurnTimeout);
+                        const currentPlayer = players.find(p => p.id === currentPlayerIndex);
+                        pendingBotResume = currentPlayer && (currentPlayer.isBot || (isAutoMode && !currentPlayer.isBot && !currentPlayer.isFinished));
+                        console.log("PAUSE — pendingBotResume:", pendingBotResume, "| Player ID:", currentPlayer.id, "| Bot?", currentPlayer.isBot);
                         const pauseMenu = document.createElement('div');
                         pauseMenu.id = 'pause-menu';
                         pauseMenu.className = 'popup';
@@ -2616,11 +2642,45 @@
                     } else {
                         manageWakeLock('request');
                         startTimer();
+                        if (isAnimating) return;
+                        console.log("Resume masuk, isAnimating:", isAnimating);
                         const currentPlayer = players.find(p => p.id === currentPlayerIndex);
+                        if (pendingDrawResume) {
+                            console.log("Resume: Lanjutkan draw yang tertunda");
+                            const { playerIndex, amount, callback } = pendingDrawResume;
+                            pendingDrawResume = null;
+                            setTimeout(() => {
+                                if (!isPaused) triggerDraw(playerIndex, amount, callback);
+                            }, 200);
+                            return;
+                        }
+
+                        if (pendingBotResume) {
+                            console.log("Resume: Deteksi pending bot resume");
+                            botTurnTimeout = setTimeout(() => {
+                                if (isPaused) return;
+                                if (isAutoMode && !currentPlayer.isBot && !currentPlayer.isFinished) {
+                                    playHumanAsBotTurn();
+                                } else if (currentPlayer.isBot) {
+                                    playBotTurn();
+                                }
+                            }, 500);
+                            pendingBotResume = false; // Reset flag
+                            return;
+                        }
+                        
                         if (isAutoMode && currentPlayer && !currentPlayer.isBot && !currentPlayer.isFinished) {
-                            botTurnTimeout = setTimeout(playHumanAsBotTurn, 1000);
+                            botTurnTimeout = setTimeout(() => {
+                                if (isPaused) return;
+                                console.log("AUTO MODE HUMAN jalan");
+                                playHumanAsBotTurn();
+                            }, 1000);
                         } else if (currentPlayer && currentPlayer.isBot) {
-                            botTurnTimeout = setTimeout(playBotTurn, 1000);
+                            botTurnTimeout = setTimeout(() => {
+                                if (isPaused) return;
+                                console.log("BOT jalan");
+                                playBotTurn();
+                            }, 1000);
                         }
                     }
                 }
@@ -2656,6 +2716,7 @@
                 }
 
                 function animateCardMove(startElem, endElem, cardData, onComplete) {
+                    isAnimating = true;
                     if (!startElem || !endElem) return; // Guard clause
                     const startRect = startElem.getBoundingClientRect();
                     const endRect = endElem.getBoundingClientRect();
@@ -2676,6 +2737,7 @@
                         if (screens.game.contains(movingCard)) {
                             screens.game.removeChild(movingCard);
                         }
+                        isAnimating = false;
                         if (onComplete) onComplete();
                     }, 200);
                 }
@@ -2791,7 +2853,7 @@
                     // Jika lolos pengecekan di atas, berarti ini giliran Anda dan hint sedang ON
                     // Maka, jalankan logika untuk menampilkan highlight
                     const topCard = getTopCard();
-                    if (!topCard) return; 
+                    if (!topCard) return;
 
                     cardElements.forEach(cardElem => {
                         try {
@@ -2802,7 +2864,7 @@
                             } else {
                                 cardElem.classList.remove('playable-card');
                             }
-                        } catch(e) { /* Abaikan jika ada error parsing */ }
+                        } catch (e) { /* Abaikan jika ada error parsing */ }
                     });
                 }
 
@@ -2874,6 +2936,7 @@
                  */
                 function nextTurn() {
                     if (isPaused) return;
+                    console.log("playBotTurn() dipanggil | isPaused:", isPaused);
 
                     let currentPhysicalIndex = players.findIndex(p => p.id === currentPlayerIndex);
                     if (currentPhysicalIndex === -1) return; // Player not found, abort
@@ -2914,11 +2977,14 @@
                 }
 
                 function playCard(playerIndex, card) {
+                    if (isPaused) {
+                        console.log("playCard diblok karena game di-pause");
+                        return;
+                    }
                     const player = players.find(p => p.id === playerIndex);
                     if (!player) return;
                     const cardIndex = player.hand.findIndex(c => c.color === card.color && c.value === card.value);
                     if (cardIndex === -1) return;
-
                     const playedCard = player.hand.splice(cardIndex, 1)[0];
                     discardPile.push(playedCard);
 
@@ -3181,9 +3247,15 @@
                 function triggerDraw(playerIndex, amount = 1, onCompleteAll) {
                     let drawnCount = 0;
                     function drawOne() {
+                        if (isPaused || !gameActive) {
+                            console.log("Draw tertunda karena pause");
+                            pendingDrawResume = { playerIndex, amount: amount - drawnCount, callback: onCompleteAll };
+                            return;
+                        }
                         if (drawnCount >= amount) {
                             renderAll();
                             if (onCompleteAll) onCompleteAll();
+                            pendingDrawResume = null;
                             return;
                         }
 
@@ -3214,21 +3286,50 @@
                         bot.unoCalled = true;
                     }
 
+                    if (isPaused) {
+                        console.log("Bot diblokir karena paused");
+                        return;
+                    }
+
+                    console.log("Bot berjalan:", currentPlayerIndex);
+
                     if (cardToPlay) {
                         const botHandContainer = document.getElementById(`hand-bot-${bot.id}`);
                         const startAnimationElem = botHandContainer.querySelector('.card:last-child') || botHandContainer;
-                        animateCardMove(startAnimationElem, discardPileContainer, cardToPlay, () => playCard(currentPlayerIndex, cardToPlay));
+                        animateCardMove(startAnimationElem, discardPileContainer, cardToPlay, () => {
+                            if (isPaused) {
+                                console.log("Bot batal playCard karena di-pause saat animasi");
+                                return;
+                            }
+                            playCard(currentPlayerIndex, cardToPlay);
+                        });
                     } else {
                         triggerDraw(currentPlayerIndex, 1, () => {
                             const newCard = bot.hand[bot.hand.length - 1];
                             if (isValidMove(newCard, topCard)) {
                                 setTimeout(() => {
+                                    if (isPaused) {
+                                        console.log("Bot batal playCard setelah draw karena di-pause");
+                                        return;
+                                    }
                                     const botHandContainer = document.getElementById(`hand-bot-${bot.id}`);
                                     const startAnimationElem = botHandContainer.querySelector('.card:last-child') || botHandContainer;
-                                    animateCardMove(startAnimationElem, discardPileContainer, newCard, () => playCard(currentPlayerIndex, newCard));
+                                    animateCardMove(startAnimationElem, discardPileContainer, newCard, () => {
+                                        if (isPaused) {
+                                            console.log("Bot batal playCard setelah animasi draw");
+                                            return;
+                                        }
+                                        playCard(currentPlayerIndex, newCard);
+                                    });
                                 }, 500);
                             } else {
-                                nextTurn();
+                                setTimeout(() => {
+                                    if (isPaused) {
+                                        console.log("Bot batal nextTurn setelah draw karena paused");
+                                        return;
+                                    }
+                                    nextTurn();
+                                }, 500);
                             }
                         });
                     }
@@ -3299,6 +3400,12 @@
                     let cardToPlay = getBotMove(humanPlayer, topCard);
                     botDifficulty = tempDifficulty; // Kembalikan ke difficulty asli
 
+                    if (isPaused) {
+                        console.log("Bot diblokir karena paused");
+                        return;
+                    }
+                    console.log("Bot berjalan:", currentPlayerIndex);
+
                     // Otomatis tekan tombol "UNO!" jika perlu
                     if (humanPlayer.hand.length === 2 && cardToPlay) {
                         unoCalledByPlayer = true;
@@ -3315,7 +3422,13 @@
                                 return elData.color === cardToPlay.color && elData.value === cardToPlay.value;
                             } catch (e) { return false; }
                         });
-                        animateCardMove(cardElemToAnimate || playerHandElem, discardPileContainer, cardToPlay, () => playCard(0, cardToPlay));
+                        animateCardMove(cardElemToAnimate || playerHandElem, discardPileContainer, cardToPlay, () => {
+                            if (isPaused || !gameActive) {
+                                console.log("Auto-human batal buang kartu karena pause");
+                                return;
+                            }
+                            playCard(0, cardToPlay);
+                        });
                     } else {
                         // Jika tidak ada kartu, ambil satu
                         triggerDraw(0, 1, () => {
@@ -3324,7 +3437,13 @@
                                 // Jika kartu baru bisa dimainkan, mainkan setelah jeda singkat
                                 setTimeout(() => {
                                     const cardElemToAnimate = playerHandElem.lastChild;
-                                    animateCardMove(cardElemToAnimate, discardPileContainer, newCard, () => playCard(0, newCard));
+                                    animateCardMove(cardElemToAnimate, discardPileContainer, newCard, () => {
+                                        if (isPaused || !gameActive) {
+                                            console.log("Auto-human batal buang kartu hasil draw karena pause");
+                                            return;
+                                        }
+                                        playCard(0, newCard);
+                                    });
                                 }, 1000);
                             } else {
                                 nextTurn(); // Jika tidak bisa, lanjutkan ke giliran berikutnya
@@ -3698,32 +3817,9 @@
                         setTimeout(proceedToGame, 1000);
                     });
                 };
-
-                window.debugEndGame = function () {
-                    console.log("End game debugging...");
-
-                    // 1. Hentikan semua proses game yang mungkin berjalan
-                    gameActive = false;
-                    stopTimer(); // Asumsi fungsi ini ada
-                    clearTimeout(botTurnTimeout);
-
-                    // 2. Buat data peringkat palsu untuk pengujian
-                    playerRanks = [
-                        { id: 2, name: 'Bot 2', time: 74 },
-                        { id: 1, name: 'Bot 1', time: 88 },
-                        { id: 0, name: 'Emily', time: 105 },
-                        { id: 3, name: 'Bot 3', time: 110 }
-                    ]; // <-- Kesalahan #2 diperbaiki
-
-                    // 3. Set waktu total permainan palsu
-                    gameSeconds = 110; // <-- Kesalahan #1 & #3 diperbaiki
-
-                    // 4. Langsung panggil fungsi endGame untuk menampilkan layarnya
-                    endGame(); // <-- Kesalahan #4 diperbaiki
-                };
             });
-
         </script>
+        <script src="debug.js"></script>
 </body>
 
 </html>
