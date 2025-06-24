@@ -1129,10 +1129,87 @@
                 gap: 10px;
             }
 
+            /* (TAMBAHAN BARU) Penyesuaian Layar Nama Bot di Mobile */
+            #bot-name-screen .menu-title {
+                font-size: clamp(1.8rem, 8vw, 2.5rem);
+                margin-top: 20px;
+                margin-bottom: 0;
+            }
+
+            #bot-name-form-container {
+                padding: 15px 20px;
+                gap: 10px;
+            }
+
+            #bot-name-screen .setup-buttons {
+                transform: scale(0.9);
+                gap: 10px;
+            }
+
             /* --- (PERBAIKAN) Perkecil tombol khusus di layar pengaturan --- */
             #game-setup-screen .menu-btn {
                 padding: 10px 25px;
                 font-size: 1.1rem;
+            }
+
+            /* ========================================================================= */
+            /* (PERBAIKAN TAMPILAN FINAL V2) Styling untuk Layar Pengaturan Nama Bot      */
+            /* ========================================================================= */
+
+            /* --- Default Styles (PC & sebagai dasar) --- */
+            #bot-name-screen .setup-options {
+                /* Gaya ini (background, padding, dll) akan otomatis diambil dari aturan .setup-options yang sudah ada */
+                display: flex;
+                flex-direction: column;
+                gap: 20px; /* Jarak antara form input dengan checkbox */
+                align-items: center; /* Memusatkan checkbox */
+            }
+
+            #bot-name-form-container {
+                width: 100%; /* Buat kontainer input mengisi lebar .setup-options */
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .bot-name-input-group {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .bot-name-input-group label {
+                font-size: 1rem;
+                font-weight: 700;
+                padding-left: 5px;
+            }
+
+            .bot-name-input {
+                width: 100%;
+                padding: 10px 15px;
+                font-size: 1.1rem;
+                border-radius: 8px;
+                border: 2px solid white;
+            }
+
+            .bot-name-input:disabled {
+                background-color: #aaa;
+                cursor: not-allowed;
+                opacity: 0.7;
+            }
+
+            .bot-name-option {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 1.1rem;
+            }
+
+            #default-bot-name-toggle {
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
             }
 
             /* --- (PERBAIKAN) Penyesuaian layar Pra-Game --- */
@@ -1477,6 +1554,20 @@
                 transform: scale(0.85);
             }
 
+            /* (TAMBAHAN BARU) Penyesuaian Layar Nama Bot di Lanskap */
+            #bot-name-screen .setup-options {
+                transform: scale(0.85);
+                max-height: 55vh;   /* Batasi tinggi kotak */
+                overflow-y: auto;   /* Buat kotak bisa di-scroll */
+                padding: 15px;
+                gap: 15px;
+            }
+
+            #bot-name-screen .setup-buttons {
+                transform: scale(0.8);
+                margin-top: -5px;
+            }
+
             /* 6. Layar Pengundian */
             #pre-game-info {
                 transform: translate(-50%, -50%) scale(0.8);
@@ -1798,6 +1889,24 @@
             </div>
         </div>
 
+        <div id="bot-name-screen" class="screen hidden">
+            <h2 class="menu-title">Atur Nama Bot</h2>
+
+            <div class="setup-options">
+                <div id="bot-name-form-container">
+                </div>
+                <div class="bot-name-option">
+                    <input type="checkbox" id="default-bot-name-toggle" checked>
+                    <label for="default-bot-name-toggle">Gunakan Nama Default</label>
+                </div>
+            </div>
+
+            <div class="setup-buttons">
+                <button id="start-pre-game-from-bot-name-btn" class="menu-btn green">Lanjutkan</button>
+                <button id="back-to-setup-btn" class="menu-btn red">Kembali</button>
+            </div>
+        </div>
+
         <!-- Layar High Score -->
         <div id="highscore-screen" class="screen hidden">
             <h2 class="menu-title">High Score</h2>
@@ -1875,7 +1984,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.64</p>
+                    <p><strong>UNO HTML VERSION v2.70</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -1976,6 +2085,7 @@
                 let draggedCardData = null; // Data kartu yang di-drag
                 let ghostCard = null; // Kartu "hantu" yang mengikuti jari
                 let isAutoMode = false;
+                let lastUsedBotNames = [];
                 let pendingBotResume = false;
                 let pendingDrawResume = null; // null atau { playerIndex, amount, callback }
                 let touchedCardElement = null; // Kartu yang sedang disentuh/dipilih
@@ -1988,6 +2098,7 @@
                     mainMenu: document.getElementById('main-menu-screen'),
                     name: document.getElementById('player-name-screen'),
                     gameSetup: document.getElementById('game-setup-screen'),
+                    botName: document.getElementById('bot-name-screen'),
                     highscore: document.getElementById('highscore-screen'),
                     howToPlay: document.getElementById('how-to-play-screen'),
                     game: document.getElementById('game-wrapper'),
@@ -2159,15 +2270,33 @@
                         botDifficulty = document.getElementById('difficulty-select').value;
                         NUM_PLAYERS = parseInt(document.getElementById('player-count-select').value);
                         gameMode = document.getElementById('game-mode-select').value;
-                        startPreGame(); // Mulai game dengan pengaturan baru
+                        setupBotNameScreen();
                     };
                     document.getElementById('back-to-name-btn').onclick = () => showScreen('name');
 
+                    // --- [INI BAGIAN PENTING] Alur Layar Nama Bot -> Mulai Game ---
+                    document.getElementById('start-pre-game-from-bot-name-btn').onclick = () => {
+                        const botNames = [];
+                        const useDefault = document.getElementById('default-bot-name-toggle').checked;
+
+                        // Hanya baca nama jika kotak TIDAK dicentang
+                        if (!useDefault) {
+                            const inputs = document.querySelectorAll('.bot-name-input');
+                            inputs.forEach(input => {
+                                // Ambil nilai dari input, atau placeholder jika input kosong
+                                botNames.push(input.value.trim() || input.placeholder);
+                            });
+                        }
+                        lastUsedBotNames = [...botNames];
+                        // Jika kotak dicentang, botNames akan menjadi array kosong dan game akan pakai nama default
+                        startPreGame(botNames);
+                    };
+                    document.getElementById('back-to-setup-btn').onclick = () => showScreen('gameSetup');
 
                     // --- Tombol Kembali Lainnya ---
                     document.getElementById('back-to-menu-from-hs').onclick = () => showScreen('mainMenu');
                     document.getElementById('back-to-menu-from-htp').onclick = () => showScreen('mainMenu');
-                    document.getElementById('restart-game-btn').onclick = startPreGame;
+                    document.getElementById('restart-game-btn').onclick = startPreGame(lastUsedBotNames);
                     document.getElementById('back-to-menu-from-end').onclick = () => {
                         manageWakeLock('release');
                         showScreen('mainMenu');
@@ -2300,6 +2429,47 @@
                     });
                 }
 
+                // (TAMBAHAN BARU) Fungsi untuk menyiapkan dan menampilkan layar nama bot
+                function setupBotNameScreen() {
+                    const container = document.getElementById('bot-name-form-container');
+                    const checkbox = document.getElementById('default-bot-name-toggle');
+                    container.innerHTML = ''; // Kosongkan kontainer setiap kali dibuka
+
+                    const numBots = NUM_PLAYERS - 1;
+                    if (numBots > 0) {
+                        for (let i = 0; i < numBots; i++) {
+                            const inputGroup = document.createElement('div');
+                            inputGroup.className = 'bot-name-input-group';
+
+                            const label = document.createElement('label');
+                            label.htmlFor = `bot-name-input-${i + 1}`;
+                            label.textContent = `Nama Bot ${i + 1}:`;
+
+                            const input = document.createElement('input');
+                            input.type = 'text';
+                            input.id = `bot-name-input-${i + 1}`;
+                            input.className = 'bot-name-input';
+                            input.placeholder = `Bot ${i + 1}`;
+                            input.maxLength = 15;
+                            input.disabled = checkbox.checked; // Atur status disabled berdasarkan checkbox
+
+                            inputGroup.appendChild(label);
+                            inputGroup.appendChild(input);
+                            container.appendChild(inputGroup);
+                        }
+                    }
+
+                    // Tambahkan event listener untuk checkbox
+                    checkbox.onchange = (e) => {
+                        const inputs = document.querySelectorAll('.bot-name-input');
+                        inputs.forEach(input => {
+                            input.disabled = e.target.checked;
+                        });
+                    };
+
+                    showScreen('botName'); // Tampilkan layar
+                }
+
                 // =========================================================================
                 //  LOGIKA KARTU & DEK
                 // =========================================================================
@@ -2363,7 +2533,8 @@
                  * Properti `id` pada setiap objek bot sekarang secara konsisten merujuk pada slot visualnya
                  * (1=kiri, 2=atas, 3=kanan), yang memperbaiki bug animasi.
                  */
-                function resetGameState() {
+                // GANTI SELURUH FUNGSI INI DENGAN VERSI DI BAWAH
+                function resetGameState(botNames = []) { // Pastikan definisi fungsi menerima botNames
                     resetTimer();
                     deck = [];
                     discardPile = [];
@@ -2375,27 +2546,79 @@
                     isAutoMode = false;
 
                     const activePlayers = [];
-                    let botCounter = 1; // Counter untuk penamaan bot yang sekuensial
+                    let botCounter = 1; // Counter dimulai dari 1
 
                     // Player 0 (Manusia) selalu dibuat
                     activePlayers.push({ id: 0, name: mainPlayerName, hand: [], isBot: false, isFinished: false, unoCalled: false });
 
-                    // Bot dibuat berdasarkan NUM_PLAYERS dan ID slot visual, tapi nama disesuaikan
+                    // Bot dibuat berdasarkan NUM_PLAYERS
                     if (NUM_PLAYERS === 2) {
-                        // Slot 2 (Atas), Nama: Bot 1
-                        activePlayers.push({ id: 2, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
+                        // Slot 2 (Atas)
+                        activePlayers.push({
+                            id: 2,
+                            // Gunakan nama kustom jika ada, jika tidak gunakan nama default
+                            name: (botNames[0]) ? botNames[0] : `Bot ${botCounter}`,
+                            hand: [],
+                            isBot: true,
+                            isFinished: false,
+                            unoCalled: false
+                        });
+                        botCounter++; // PENTING: Pastikan baris ini ada
                     } else if (NUM_PLAYERS === 3) {
-                        // Slot 1 (Kiri), Nama: Bot 1
-                        activePlayers.push({ id: 1, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
-                        // Slot 3 (Kanan), Nama: Bot 2
-                        activePlayers.push({ id: 3, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
+                        // Slot 1 (Kiri)
+                        activePlayers.push({
+                            id: 1,
+                            name: (botNames[0]) ? botNames[0] : `Bot ${botCounter}`,
+                            hand: [],
+                            isBot: true,
+                            isFinished: false,
+                            unoCalled: false
+                        });
+                        botCounter++; // PENTING: Pastikan baris ini ada
+
+                        // Slot 3 (Kanan)
+                        activePlayers.push({
+                            id: 3,
+                            name: (botNames[1]) ? botNames[1] : `Bot ${botCounter}`,
+                            hand: [],
+                            isBot: true,
+                            isFinished: false,
+                            unoCalled: false
+                        });
+                        botCounter++; // PENTING: Pastikan baris ini ada
                     } else if (NUM_PLAYERS === 4) {
-                        // Slot 1 (Kiri), Nama: Bot 1
-                        activePlayers.push({ id: 1, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
-                        // Slot 2 (Atas), Nama: Bot 2
-                        activePlayers.push({ id: 2, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
-                        // Slot 3 (Kanan), Nama: Bot 3
-                        activePlayers.push({ id: 3, name: `Bot ${botCounter++}`, hand: [], isBot: true, isFinished: false, unoCalled: false });
+                        // Slot 1 (Kiri)
+                        activePlayers.push({
+                            id: 1,
+                            name: (botNames[0]) ? botNames[0] : `Bot ${botCounter}`,
+                            hand: [],
+                            isBot: true,
+                            isFinished: false,
+                            unoCalled: false
+                        });
+                        botCounter++; // PENTING: Pastikan baris ini ada
+
+                        // Slot 2 (Atas)
+                        activePlayers.push({
+                            id: 2,
+                            name: (botNames[1]) ? botNames[1] : `Bot ${botCounter}`,
+                            hand: [],
+                            isBot: true,
+                            isFinished: false,
+                            unoCalled: false
+                        });
+                        botCounter++; // PENTING: Pastikan baris ini ada
+
+                        // Slot 3 (Kanan)
+                        activePlayers.push({
+                            id: 3,
+                            name: (botNames[2]) ? botNames[2] : `Bot ${botCounter}`,
+                            hand: [],
+                            isBot: true,
+                            isFinished: false,
+                            unoCalled: false
+                        });
+                        botCounter++; // PENTING: Pastikan baris ini ada
                     }
 
                     players = activePlayers;
@@ -2425,13 +2648,13 @@
                     }
                 }
 
-                function startPreGame() {
+                function startPreGame(botNames = []) { // Beri nilai default array kosong
                     playMusic('gameplay');
                     showScreen('game');
                     gameContainer.classList.add('hidden');
                     preGameInfoElem.classList.remove('hidden');
 
-                    resetGameState();
+                    resetGameState(botNames);
                     preGameInfoElem.innerHTML = `<h3>Menentukan Giliran Pertama...</h3><div id="pre-game-cards"></div>`;
 
                     // --- LOGIKA BARU UNTUK KARTU UNIK (VERSI ALTERNATIF) ---
@@ -2518,7 +2741,7 @@
                         renderAll();
                         setTimeout(() => beginFirstTurn(firstCard), 500);
                     });
-                    
+
                     window.debugBridge = {
                         get players() { return players; },
                         get currentPlayerIndex() { return currentPlayerIndex; },
@@ -2630,7 +2853,7 @@
                         pauseMenu.querySelector('#resume-btn').onclick = togglePause;
                         pauseMenu.querySelector('#restart-pause-btn').onclick = () => {
                             screens.game.removeChild(pauseMenu); // Hapus menu sebelum restart
-                            startPreGame();
+                            startPreGame(lastUsedBotNames);
                         };
                         pauseMenu.querySelector('#exit-pause-btn').onclick = () => {
                             screens.game.removeChild(pauseMenu); // Hapus menu sebelum keluar
@@ -2668,7 +2891,7 @@
                             pendingBotResume = false; // Reset flag
                             return;
                         }
-                        
+
                         if (isAutoMode && currentPlayer && !currentPlayer.isBot && !currentPlayer.isFinished) {
                             botTurnTimeout = setTimeout(() => {
                                 if (isPaused) return;
