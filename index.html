@@ -1984,7 +1984,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.70</p>
+                    <p><strong>UNO HTML VERSION v2.71</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -2296,7 +2296,7 @@
                     // --- Tombol Kembali Lainnya ---
                     document.getElementById('back-to-menu-from-hs').onclick = () => showScreen('mainMenu');
                     document.getElementById('back-to-menu-from-htp').onclick = () => showScreen('mainMenu');
-                    document.getElementById('restart-game-btn').onclick = startPreGame(lastUsedBotNames);
+                    document.getElementById('restart-game-btn').onclick = () => startPreGame(lastUsedBotNames);
                     document.getElementById('back-to-menu-from-end').onclick = () => {
                         manageWakeLock('release');
                         showScreen('mainMenu');
