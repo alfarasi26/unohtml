@@ -1890,7 +1890,7 @@
 
         <!-- Layar Menu Utama -->
         <div id="main-menu-screen" class="screen">
-            <h1 class="menu-title">UNO <span class="game-version">v2.72</span></h1>
+            <h1 class="menu-title">UNO <span class="game-version">v2.80</span></h1>
             <button id="start-game-btn" class="menu-btn green">Mulai Game</button>
             <button id="how-to-play-btn" class="menu-btn blue">Petunjuk Permainan</button>
             <button id="highscore-btn" class="menu-btn yellow">High Score</button>
@@ -2054,7 +2054,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.72</p>
+                    <p><strong>UNO HTML VERSION v2.80</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -2160,6 +2160,9 @@
                 let pendingDrawResume = null; // null atau { playerIndex, amount, callback }
                 let touchedCardElement = null; // Kartu yang sedang disentuh/dipilih
                 let screenWakeLock = null; // Untuk menyimpan objek kunci layar
+                let sfx = {}; // Objek untuk menampung semua elemen audio SFX
+                let isSfxMuted = false;
+                let sfxVolume = 1.0; // 100% volume
 
                 // =========================================================================
                 //  SELEKTOR ELEMEN DOM
@@ -2311,9 +2314,45 @@
                 }
 
                 // =========================================================================
+                //  FUNGSI SFX (BARU)
+                // =========================================================================
+                function initSfx() {
+                    const sfxFiles = {
+                        drawcard: 'SFX/drawcard.mp3',
+                        notplayablecard: 'SFX/notplayablecard.mp3',
+                        challengepopup: 'SFX/challengepopup.mp3',
+                        draw1: 'SFX/draw1.mp3',
+                        draw2: 'SFX/draw2.mp3',
+                        draw4: 'SFX/draw4.mp3',
+                        skip: 'SFX/skip.mp3',
+                        reverse: 'SFX/reverse.mp3',
+                        uno: 'SFX/uno.mp3',
+                        winner: 'SFX/winner.mp3',
+                        red: 'SFX/red.mp3',
+                        green: 'SFX/green.mp3',
+                        blue: 'SFX/blue.mp3',
+                        yellow: 'SFX/yellow.mp3'
+                    };
+
+                    for (const key in sfxFiles) {
+                        sfx[key] = new Audio(sfxFiles[key]);
+                    }
+                }
+
+                function playSfx(effectName) {
+                    if (isSfxMuted || !sfx[effectName]) return;
+
+                    const audio = sfx[effectName];
+                    audio.volume = sfxVolume;
+                    audio.currentTime = 0; // Memastikan SFX bisa diputar berulang kali dengan cepat
+                    audio.play().catch(e => console.error(`Gagal memutar SFX ${effectName}:`, e));
+                }
+
+                // =========================================================================
                 //  LOGIKA MENU & HIGH SCORE
                 // =========================================================================
                 function initMenus() {
+                    initSfx();
                     audioMenu = document.getElementById('audio-menu');
                     audioGameplay = document.getElementById('audio-gameplay');
                     const settingsBtn = document.getElementById('settings-btn');
@@ -3120,6 +3159,7 @@
                         const endElem = document.getElementById(endElemId);
 
                         animateCardMove(deckPileElem, endElem, {}, () => {
+                            playSfx('drawcard');
                             renderAll();
                             playerDealIndex = (playerDealIndex + 1) % players.length;
                             cardsDealt++;
@@ -3332,6 +3372,7 @@
                         console.log("playCard diblok karena game di-pause");
                         return;
                     }
+                    playSfx('drawcard');
                     const player = players.find(p => p.id === playerIndex);
                     if (!player) return;
                     const cardIndex = player.hand.findIndex(c => c.color === card.color && c.value === card.value);
@@ -3345,6 +3386,9 @@
                         player.isFinished = true;
                         playerRanks.push({ id: player.id, name: player.name, time: gameSeconds });
                         showNotification(`${player.name} selesai! (Peringkat #${playerRanks.length})`);
+                        if (playerRanks.length === 1) { // Cek jika ini adalah pemenang pertama
+                            playSfx('winner'); // <<< TAMBAHKAN BARIS INI
+                        }
                         renderAll();
 
                         if (playerRanks.length >= NUM_PLAYERS - 1) {
@@ -3378,6 +3422,7 @@
 
                     switch (card.value) {
                         case 'skip':
+                            playSfx('skip');
                             showAction('🚫');
                             updateGameInfo(`Giliran ${players.find(p => p.id === victimId).name} dilewati!`);
                             currentPlayerIndex = victimId;
@@ -3385,6 +3430,7 @@
 
                         case 'reverse':
                             if (players.filter(p => !p.isFinished).length > 2) {
+                                playSfx('reverse');
                                 showAction('⟲');
                                 gameDirection *= -1;
                                 updateDirectionIndicator();
@@ -3392,6 +3438,7 @@
                             break;
 
                         case 'draw2':
+                            playSfx('draw2');
                             updateGameInfo(`${players.find(p => p.id === victimId).name} ambil 2 kartu!`);
                             shouldAdvanceTurn = false;
                             currentPlayerIndex = victimId;
@@ -3400,6 +3447,7 @@
 
                         case 'draw1': // Untuk kartu +1 di mode Express
                             if (isFirstCard) break;
+                            playSfx('draw1');
                             updateGameInfo(`${players.find(p => p.id === victimId).name} ambil 1 kartu!`);
                             shouldAdvanceTurn = false;
                             currentPlayerIndex = victimId;
@@ -3408,10 +3456,11 @@
 
                         case 'wild2': // Untuk kartu Wild +2 di mode Express
                             if (isFirstCard) break;
+                            playSfx('draw2');
                             shouldAdvanceTurn = false;
                             promptChooseColor(playerIndex, (chosenColor) => {
                                 promptChallenge(playerIndex, victimId, cardBeforePlay, card.value, chosenColor, () => nextTurn());
-                            });
+                            }, card);
                             break;
 
                         case 'wild':
@@ -3421,19 +3470,20 @@
                                     updateGameInfo();
                                     updatePlayerInfos();
                                     if (players.find(p => p.id === currentPlayerIndex).isBot) botTurnTimeout = setTimeout(playBotTurn, 2000);
-                                });
+                                }, card);
                             } else {
                                 shouldAdvanceTurn = false;
-                                promptChooseColor(playerIndex, () => nextTurn());
+                                promptChooseColor(playerIndex, () => nextTurn(), card);
                             }
                             break;
 
                         case 'wild4':
                             if (isFirstCard) break;
+                            playSfx('draw4'); 
                             shouldAdvanceTurn = false;
                             promptChooseColor(playerIndex, (chosenColor) => {
                                 promptChallenge(playerIndex, victimId, cardBeforePlay, 'wild4', chosenColor, () => nextTurn());
-                            });
+                            }, card);
                             break;
                     }
 
@@ -3464,7 +3514,7 @@
                     }
                 }
 
-                function promptChooseColor(playerIndex, callback) {
+                function promptChooseColor(playerIndex, callback, card) {
                     const player = players.find(p => p.id === playerIndex);
                     if (!player) return;
 
@@ -3487,6 +3537,16 @@
                         }
 
                         getTopCard().color = chosenColor;
+                        
+                        // Cek nilai kartu untuk menentukan apakah perlu jeda atau tidak
+                        if (card && (card.value === 'wild4' || card.value === 'wild2')) {
+                            // JIKA kartu adalah Wild+4 atau Wild+2, BERI JEDA
+                            setTimeout(() => playSfx(chosenColor), 1000);
+                        } else {
+                            // JIKA kartu adalah Wild biasa, mainkan suara LANGSUNG
+                            playSfx(chosenColor);
+                        }
+
                         showNotification(`${player.name}${nameSuffix} memilih warna ${chosenColor}.`);
                         renderAll();
                         if (callback) setTimeout(() => callback(chosenColor), 500);
@@ -3503,6 +3563,7 @@
                         btn.className = 'color-btn';
                         btn.style.backgroundColor = `var(--${color})`;
                         btn.onclick = () => {
+                            playSfx(color);
                             screens.game.removeChild(picker);
                             getTopCard().color = color;
                             renderAll();
@@ -3558,6 +3619,7 @@
                     }
 
                     // Tampilkan pop-up untuk pemain manusia
+                    playSfx('challengepopup');
                     const popup = document.createElement('div');
                     popup.id = 'challenge-popup';
                     popup.className = 'popup';
@@ -3616,6 +3678,7 @@
                         const endElem = document.getElementById(endElemId);
 
                         animateCardMove(deckPileElem, endElem, {}, () => {
+                            playSfx('drawcard');
                             drawCardLogic(playerIndex, 1);
                             renderAll();
                             drawnCount++;
@@ -3634,6 +3697,7 @@
 
                     if (bot.hand.length === 2 && cardToPlay) {
                         showNotification(`${bot.name} bilang UNO!`);
+                        playSfx('uno');
                         bot.unoCalled = true;
                     }
 
@@ -3763,6 +3827,7 @@
                         players[0].unoCalled = true;
                         unoButton.classList.add('called');
                         showNotification("UNO!");
+                        playSfx('uno');
                     }
 
                     if (cardToPlay) {
@@ -4000,8 +4065,19 @@
                             </label>
                         </div>
                         <div class="setting-option">
-                            <label for="volume-slider-popup" class="setting-label">Volume</label>
+                            <label for="sfx-toggle-popup" class="setting-label">SFX</label>
+                            <label class="switch">
+                                <input type="checkbox" id="sfx-toggle-popup">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="setting-option">
+                            <label for="volume-slider-popup" class="setting-label">Music Volume</label>
                             <input type="range" min="0" max="1" step="0.01" id="volume-slider-popup">
+                        </div>
+                        <div class="setting-option">
+                            <label for="sfx-volume-slider-popup" class="setting-label">SFX Volume</label>
+                            <input type="range" min="0" max="1" step="0.01" id="sfx-volume-slider-popup">
                         </div>
                     </div>
                     <button id="close-settings-popup" class="menu-btn red">Kembali</button>
@@ -4011,9 +4087,13 @@
                     const musicToggle = document.getElementById('music-toggle-popup');
                     const volumeSlider = document.getElementById('volume-slider-popup');
                     const closeBtn = document.getElementById('close-settings-popup');
+                    const sfxToggle = document.getElementById('sfx-toggle-popup');
+                    const sfxVolumeSlider = document.getElementById('sfx-volume-slider-popup');
                     highlightToggle.checked = isHighlightHintOn;
                     musicToggle.checked = !isMuted;
                     volumeSlider.value = musicVolume;
+                    sfxToggle.checked = !isSfxMuted; // Atur status awal toggle SFX
+                    sfxVolumeSlider.value = sfxVolume;
                     highlightToggle.onchange = (e) => {
                         isHighlightHintOn = e.target.checked;
                         // Langsung update tampilan kartu setelah di-toggle
@@ -4021,6 +4101,8 @@
                     };
                     musicToggle.onchange = (e) => toggleMute(!e.target.checked);
                     volumeSlider.oninput = (e) => updateVolume(e.target.value);
+                    sfxToggle.onchange = (e) => isSfxMuted = !e.target.checked;
+                    sfxVolumeSlider.oninput = (e) => sfxVolume = e.target.value;
                     closeBtn.onclick = () => document.body.removeChild(popup);
                 }
 
@@ -4031,6 +4113,7 @@
                     if (currentPlayerIndex === 0 && gameActive && !isPaused && !players[0].isFinished) {
                         if (playerHasValidMove(0)) {
                             showNotification("Anda memiliki kartu yang bisa dimainkan!");
+                            playSfx('notplayablecard');
                             return;
                         }
                         triggerDraw(0, 1, () => {
@@ -4068,6 +4151,7 @@
                             playCard(0, card);
                         } else {
                             showNotification("Kartu tidak cocok!");
+                            playSfx('notplayablecard');
                         }
                     } catch (err) {
                         console.error("Error parsing dropped card data:", err);
@@ -4088,6 +4172,7 @@
                         players[0].unoCalled = true;
                         unoButton.classList.add('called');
                         showNotification("UNO!");
+                        playSfx('uno');
                     }
                 });
 
