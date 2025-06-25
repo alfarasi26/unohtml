@@ -1082,6 +1082,23 @@
             animation-fill-mode: forwards;
         }
 
+        .game-version {
+            font-size: 1.5rem;      /* Ukuran font dibuat proporsional dengan judul */
+            font-weight: 400;       /* Gunakan bobot font normal (tidak tebal) */
+            vertical-align: middle; /* Posisikan di tengah secara vertikal relatif terhadap "UNO" */
+            margin-left: 10px;      /* Beri sedikit spasi dari kata "UNO" */
+            color: rgba(255, 255, 255, 0.85); /* Warna bisa sedikit lebih terang */
+        }
+
+        .coming-soon-text {
+            font-size: clamp(1.8rem, 8vw, 3rem);
+            font-weight: 700;
+            color: var(--yellow);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-align: center;
+            padding: 20px;
+        }
+
         /* ========================================================================= */
         /* ATURAN CSS KHUSUS UNTUK TAMPILAN MOBILE VERTIKAL (VERSI BARU)             */
         /* ========================================================================= */
@@ -1098,6 +1115,19 @@
             .screen {
                 padding: 10px;
                 /* Beri padding agar konten tidak menempel di tepi */
+            }
+
+            /* Penyesuaian layar pemilihan mode & coming soon di mobile vertikal */
+            #game-mode-selection-screen .menu-btn,
+            #coming-soon-screen .menu-btn {
+                padding: 12px 25px;
+                font-size: 1.1rem;
+                width: 80%; /* Agar lebar tombol konsisten */
+                max-width: 300px;
+            }
+
+            .coming-soon-text {
+                font-size: clamp(1.5rem, 7vw, 2.5rem);
             }
 
             #game-container {
@@ -1475,6 +1505,25 @@
                 padding-right: 10px;
                 /* Beri sedikit ruang agar tidak menempel */
             }
+
+            /* === KODE PENYESUAIAN UKURAN TOMBOL MOBILE VERTICAL === */
+            /* 1. Menyesuaikan tombol di layar High Score */
+            #highscore-screen .menu-btn {
+                padding: 10px 30px;
+                font-size: 1rem;
+            }
+
+            /* 2. Menyesuaikan tombol di dalam pop-up Reset High Score */
+            #reset-confirm-popup .menu-btn {
+                padding: 10px 30px;
+                font-size: 1rem;
+            }
+
+            /* Penyesuaian Tombol di Pop-up Reset High Score */
+            #reset-confirm-popup .menu-btn {
+                padding: 10px 30px; /* Ukuran padding disamakan agar konsisten */
+                font-size: 1rem;    /* Ukuran font disamakan agar konsisten */
+            }
         }
 
         /* ========================================================================= */
@@ -1492,6 +1541,12 @@
             body {
                 font-size: 14px;
                 /* Perkecil font dasar */
+            }
+
+            /* Penyesuaian layar coming soon di mobile horizontal */
+            .coming-soon-text {
+                font-size: clamp(1.5rem, 7vh, 2rem);
+                margin-top: 15px; /* Beri jarak atas sedikit */
             }
 
             #game-container {
@@ -1835,12 +1890,24 @@
 
         <!-- Layar Menu Utama -->
         <div id="main-menu-screen" class="screen">
-            <h1 class="menu-title">UNO</h1>
+            <h1 class="menu-title">UNO <span class="game-version">v2.72</span></h1>
             <button id="start-game-btn" class="menu-btn green">Mulai Game</button>
             <button id="how-to-play-btn" class="menu-btn blue">Petunjuk Permainan</button>
             <button id="highscore-btn" class="menu-btn yellow">High Score</button>
             <button id="settings-btn" class="menu-btn orange">Pengaturan</button>
             <button id="exit-btn" class="menu-btn red">Keluar</button>
+        </div>
+
+        <div id="game-mode-selection-screen" class="screen hidden">
+            <h2 class="menu-title">Pilih Mode</h2>
+            <button id="single-player-btn" class="menu-btn green">Single Player</button>
+            <button id="multiplayer-btn" class="menu-btn blue">Multiplayer Online</button>
+            <button id="back-to-menu-from-mode" class="menu-btn red">Kembali</button>
+        </div>
+
+        <div id="coming-soon-screen" class="screen hidden">
+            <div class="coming-soon-text">COMING SOON IN v3.0 :)</div>
+            <button id="back-to-mode-from-soon" class="menu-btn red">Kembali</button>
         </div>
 
         <!-- Layar Input Nama -->
@@ -1911,7 +1978,10 @@
         <div id="highscore-screen" class="screen hidden">
             <h2 class="menu-title">High Score</h2>
             <ul id="highscore-list"></ul>
-            <button id="back-to-menu-from-hs" class="menu-btn red">Kembali</button>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button id="reset-highscore-btn" class="menu-btn blue">Reset Skor</button>
+                <button id="back-to-menu-from-hs" class="menu-btn red">Kembali</button>
+            </div>
         </div>
 
         <!-- Layar Petunjuk Permainan -->
@@ -1984,7 +2054,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.71</p>
+                    <p><strong>UNO HTML VERSION v2.72</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -2096,6 +2166,8 @@
                 // =========================================================================
                 const screens = {
                     mainMenu: document.getElementById('main-menu-screen'),
+                    gameModeSelection: document.getElementById('game-mode-selection-screen'), // TAMBAHKAN INI
+                    comingSoon: document.getElementById('coming-soon-screen'),             // TAMBAHKAN INI
                     name: document.getElementById('player-name-screen'),
                     gameSetup: document.getElementById('game-setup-screen'),
                     botName: document.getElementById('bot-name-screen'),
@@ -2247,12 +2319,20 @@
                     const settingsBtn = document.getElementById('settings-btn');
                     updateVolume(musicVolume);
                     // --- Tombol Menu Utama ---
-                    document.getElementById('start-game-btn').onclick = () => showScreen('name');
+                    document.getElementById('start-game-btn').onclick = () => showScreen('gameModeSelection');
+                    // --- Tombol di Layar Pemilihan Mode ---
+                    document.getElementById('single-player-btn').onclick = () => showScreen('name');
+                    document.getElementById('multiplayer-btn').onclick = () => showScreen('comingSoon');
+                    document.getElementById('back-to-menu-from-mode').onclick = () => showScreen('mainMenu');
+                    // --- Tombol di Layar Coming Soon ---
+                    document.getElementById('back-to-mode-from-soon').onclick = () => showScreen('gameModeSelection');
                     document.getElementById('how-to-play-btn').onclick = () => showScreen('howToPlay');
                     document.getElementById('highscore-btn').onclick = () => {
                         displayHighScores();
                         showScreen('highscore');
                     };
+                    // Tambahkan baris ini di dalam fungsi initMenus()
+                    document.getElementById('reset-highscore-btn').onclick = resetHighScores;
                     settingsBtn.onclick = showSettingsPopup;
                     document.getElementById('exit-btn').onclick = showExitConfirmation;
 
@@ -2262,7 +2342,7 @@
                         mainPlayerName = document.getElementById('player-name-input').value.trim() || 'Pemain';
                         showScreen('gameSetup'); // Pindah ke layar pengaturan, BUKAN langsung mulai game
                     };
-                    document.getElementById('back-to-menu-from-name').onclick = () => showScreen('mainMenu');
+                    document.getElementById('back-to-menu-from-name').onclick = () => showScreen('gameModeSelection');
 
                     // --- Alur Layar Pengaturan -> Mulai Game ---
                     document.getElementById('start-pre-game-btn').onclick = () => {
@@ -2327,8 +2407,8 @@
                         return a.time - b.time; // Waktu lebih kecil lebih baik
                     });
 
-                    // Batasi hingga 20 skor teratas
-                    scores = scores.slice(0, 20);
+                    // Batasi hingga 50 skor teratas
+                    scores = scores.slice(0, 50);
                     localStorage.setItem(HIGHSCORE_KEY, JSON.stringify(scores));
                 }
 
@@ -2348,6 +2428,54 @@
                     } else {
                         list.innerHTML = '<li>Belum ada skor tinggi.</li>';
                     }
+                }
+
+                function resetHighScores() {
+                    // Mencegah pop-up ganda jika tombol diklik berkali-kali
+                    if (document.getElementById('reset-confirm-popup')) return;
+
+                    // 1. Buat elemen div utama untuk pop-up
+                    const popup = document.createElement('div');
+                    popup.id = 'reset-confirm-popup';
+                    popup.className = 'popup'; // Menggunakan style .popup yang sudah ada
+
+                    // 2. Isi konten pop-up dengan HTML (judul, pesan, dan tombol)
+                    // Strukturnya meniru pop-up konfirmasi keluar
+                    popup.innerHTML = `
+                        <h3>Reset High Score</h3>
+                        <p style="margin: 10px 0 20px 0; font-size: 1rem; text-align: center;">
+                            Apakah Anda yakin ingin menghapus semua data High Score? <br> Tindakan ini tidak dapat dibatalkan.
+                        </p>
+                        <div class="popup-options">
+                            <button id="reset-confirm-yes" class="menu-btn red">Ya, Hapus</button>
+                            <button id="reset-confirm-no" class="menu-btn green">Tidak</button>
+                        </div>
+                    `;
+
+                    // 3. Tambahkan pop-up ke dalam body agar tampil di atas segalanya
+                    document.body.appendChild(popup);
+
+                    // 4. Tambahkan fungsi untuk masing-masing tombol di dalam pop-up
+                    const btnYes = document.getElementById('reset-confirm-yes');
+                    const btnNo = document.getElementById('reset-confirm-no');
+
+                    // Jika tombol "Ya, Hapus" diklik
+                    btnYes.onclick = () => {
+                        // Hapus data dari localStorage
+                        localStorage.removeItem(HIGHSCORE_KEY);
+                        // Perbarui tampilan di layar agar menjadi kosong
+                        displayHighScores();
+                        // Beri notifikasi bahwa skor telah direset
+                        showNotification("High score telah direset.", 2500);
+                        // Hapus pop-up dari layar
+                        document.body.removeChild(popup);
+                    };
+
+                    // Jika tombol "Tidak" diklik
+                    btnNo.onclick = () => {
+                        // Cukup hapus pop-up dari layar
+                        document.body.removeChild(popup);
+                    };
                 }
 
                 function startSplashAnimation() {
