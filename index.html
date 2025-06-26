@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#1e6b52" />
-    <title>UNO HTML VERSION by Renaldi Alfarasi</title>
+    <title>UNO!</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="manifest" href="manifest.json">
@@ -37,11 +37,11 @@
 
         html {
             /* Memberi warna latar ke "pembungkus" terluar halaman */
-            background-color: #0c3b2e;
+            background-color: #3d0000;
         }
 
         body {
-            background-color: #0c3b2e;
+            background-color: #3d0000;
             font-family: 'Poppins', sans-serif;
             color: white;
             margin: 0;
@@ -62,7 +62,7 @@
             justify-content: center;
             align-items: center;
             gap: 20px;
-            background: radial-gradient(circle, #1e6b52, #0a5c3f);
+            background: radial-gradient(circle, #c72a18, #990f0f);
             position: absolute;
             top: 0;
             left: 0;
@@ -85,7 +85,7 @@
             max-height: none;
             border-radius: 20px;
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-            background: radial-gradient(circle, #1e6b52, #0a5c3f);
+            background: radial-gradient(circle, #c72a18, #990f0f);
         }
 
         /* --- Menu Utama & Tombol --- */
@@ -899,7 +899,7 @@
         #splash-screen {
             cursor: pointer;
             /* SAMAKAN background dengan .screen agar konsisten */
-            background: radial-gradient(circle, #1e6b52, #0a5c3f);
+            background: radial-gradient(circle, #c72a18, #990f0f);
         }
 
         #splash-cards-container {
@@ -940,6 +940,7 @@
             text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
             opacity: 0;
             transform: translateY(-100vh);
+            color: var(--yellow);
         }
 
         /* Animasi Slide Down */
@@ -984,6 +985,10 @@
             to {
                 opacity: 0;
             }
+        }
+    
+        #main-menu-screen .menu-title {
+        color: var(--yellow);
         }
 
         /* (TAMBAHKAN INI) CSS untuk highlight kartu yang bisa dimainkan */
@@ -1900,13 +1905,13 @@
         </div>
 
         <div id="splash-text-container">
-            <h1 id="splash-title">UNO</h1>
+            <h1 id="splash-title">UNO!</h1>
             <p id="splash-prompt">Tekan layar untuk melanjutkan</p>
         </div>
 
         <!-- Layar Menu Utama -->
         <div id="main-menu-screen" class="screen">
-            <h1 class="menu-title">UNO <span class="game-version">v2.83</span></h1>
+            <h1 class="menu-title">UNO!<span class="game-version">v2.84</span></h1>
             <button id="start-game-btn" class="menu-btn green">Mulai Game</button>
             <button id="how-to-play-btn" class="menu-btn blue">Petunjuk Permainan</button>
             <button id="highscore-btn" class="menu-btn yellow">High Score</button>
@@ -2070,7 +2075,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.83</p>
+                    <p><strong>UNO HTML VERSION v2.84</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
