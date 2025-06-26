@@ -1083,18 +1083,23 @@
         }
 
         .game-version {
-            font-size: 1.5rem;      /* Ukuran font dibuat proporsional dengan judul */
-            font-weight: 400;       /* Gunakan bobot font normal (tidak tebal) */
-            vertical-align: middle; /* Posisikan di tengah secara vertikal relatif terhadap "UNO" */
-            margin-left: 10px;      /* Beri sedikit spasi dari kata "UNO" */
-            color: rgba(255, 255, 255, 0.85); /* Warna bisa sedikit lebih terang */
+            font-size: 1.5rem;
+            /* Ukuran font dibuat proporsional dengan judul */
+            font-weight: 400;
+            /* Gunakan bobot font normal (tidak tebal) */
+            vertical-align: middle;
+            /* Posisikan di tengah secara vertikal relatif terhadap "UNO" */
+            margin-left: 10px;
+            /* Beri sedikit spasi dari kata "UNO" */
+            color: rgba(255, 255, 255, 0.85);
+            /* Warna bisa sedikit lebih terang */
         }
 
         .coming-soon-text {
             font-size: clamp(1.8rem, 8vw, 3rem);
             font-weight: 700;
             color: var(--yellow);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             text-align: center;
             padding: 20px;
         }
@@ -1122,7 +1127,8 @@
             #coming-soon-screen .menu-btn {
                 padding: 12px 25px;
                 font-size: 1.1rem;
-                width: 80%; /* Agar lebar tombol konsisten */
+                width: 80%;
+                /* Agar lebar tombol konsisten */
                 max-width: 300px;
             }
 
@@ -1191,12 +1197,15 @@
                 /* Gaya ini (background, padding, dll) akan otomatis diambil dari aturan .setup-options yang sudah ada */
                 display: flex;
                 flex-direction: column;
-                gap: 20px; /* Jarak antara form input dengan checkbox */
-                align-items: center; /* Memusatkan checkbox */
+                gap: 20px;
+                /* Jarak antara form input dengan checkbox */
+                align-items: center;
+                /* Memusatkan checkbox */
             }
 
             #bot-name-form-container {
-                width: 100%; /* Buat kontainer input mengisi lebar .setup-options */
+                width: 100%;
+                /* Buat kontainer input mengisi lebar .setup-options */
                 display: flex;
                 flex-direction: column;
                 gap: 15px;
@@ -1445,7 +1454,8 @@
                 justify-content: center;
             }
 
-            #exit-confirmation-popup .menu-btn {
+            #exit-confirmation-popup .menu-btn,
+            .confirmation-popup .menu-btn {
                 padding: 10px 30px;
                 /* Sesuaikan ukuran tombol agar muat */
                 font-size: 1rem;
@@ -1521,8 +1531,10 @@
 
             /* Penyesuaian Tombol di Pop-up Reset High Score */
             #reset-confirm-popup .menu-btn {
-                padding: 10px 30px; /* Ukuran padding disamakan agar konsisten */
-                font-size: 1rem;    /* Ukuran font disamakan agar konsisten */
+                padding: 10px 30px;
+                /* Ukuran padding disamakan agar konsisten */
+                font-size: 1rem;
+                /* Ukuran font disamakan agar konsisten */
             }
         }
 
@@ -1546,7 +1558,8 @@
             /* Penyesuaian layar coming soon di mobile horizontal */
             .coming-soon-text {
                 font-size: clamp(1.5rem, 7vh, 2rem);
-                margin-top: 15px; /* Beri jarak atas sedikit */
+                margin-top: 15px;
+                /* Beri jarak atas sedikit */
             }
 
             #game-container {
@@ -1612,8 +1625,10 @@
             /* (TAMBAHAN BARU) Penyesuaian Layar Nama Bot di Lanskap */
             #bot-name-screen .setup-options {
                 transform: scale(0.85);
-                max-height: 55vh;   /* Batasi tinggi kotak */
-                overflow-y: auto;   /* Buat kotak bisa di-scroll */
+                max-height: 55vh;
+                /* Batasi tinggi kotak */
+                overflow-y: auto;
+                /* Buat kotak bisa di-scroll */
                 padding: 15px;
                 gap: 15px;
             }
@@ -1732,7 +1747,8 @@
             }
 
             /* 8. Layar Jeda */
-            #pause-menu {
+            #pause-menu,
+            .confirmation-popup {
                 transform: translate(-50%, -50%) scale(0.8);
             }
 
@@ -1890,7 +1906,7 @@
 
         <!-- Layar Menu Utama -->
         <div id="main-menu-screen" class="screen">
-            <h1 class="menu-title">UNO <span class="game-version">v2.82</span></h1>
+            <h1 class="menu-title">UNO <span class="game-version">v2.83</span></h1>
             <button id="start-game-btn" class="menu-btn green">Mulai Game</button>
             <button id="how-to-play-btn" class="menu-btn blue">Petunjuk Permainan</button>
             <button id="highscore-btn" class="menu-btn yellow">High Score</button>
@@ -2054,7 +2070,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.82</p>
+                    <p><strong>UNO HTML VERSION v2.83</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -2335,7 +2351,8 @@
                         finish1: 'SFX/finish1.mp3',
                         finish2: 'SFX/finish2.mp3',
                         finish3: 'SFX/finish3.mp3',
-                        finish4: 'SFX/finish4.mp3'
+                        finish4: 'SFX/finish4.mp3',
+                        click: 'SFX/click.mp3'
                     };
 
                     for (const key in sfxFiles) {
@@ -2352,6 +2369,24 @@
                     audio.play().catch(e => console.error(`Gagal memutar SFX ${effectName}:`, e));
                 }
 
+                // --- TAMBAHKAN FUNGSI BARU INI ---
+                function playClickAndDo(action) {
+                    // Bagian ini sangat penting untuk memperbaiki masalah suara tidak muncul
+                    // Ini memastikan interaksi pertama Anda mengizinkan SEMUA suara untuk diputar
+                    if (!userHasInteracted) {
+                        userHasInteracted = true;
+                    }
+
+                    // Selalu putar suara klik
+                    playSfx('click');
+
+                    // Jalankan aksi asli dari tombol tersebut (misalnya, pindah layar)
+                    if (action && typeof action === 'function') {
+                        // Beri jeda sangat singkat agar suara sempat dimulai sebelum pindah halaman
+                        setTimeout(action, 50);
+                    }
+                }
+
                 // =========================================================================
                 //  LOGIKA MENU & HIGH SCORE
                 // =========================================================================
@@ -2362,70 +2397,75 @@
                     const settingsBtn = document.getElementById('settings-btn');
                     updateVolume(musicVolume);
                     // --- Tombol Menu Utama ---
-                    document.getElementById('start-game-btn').onclick = () => showScreen('gameModeSelection');
+                    document.getElementById('start-game-btn').onclick = () => playClickAndDo(() => showScreen('gameModeSelection'));
                     // --- Tombol di Layar Pemilihan Mode ---
-                    document.getElementById('single-player-btn').onclick = () => showScreen('name');
-                    document.getElementById('multiplayer-btn').onclick = () => showScreen('comingSoon');
-                    document.getElementById('back-to-menu-from-mode').onclick = () => showScreen('mainMenu');
+                    document.getElementById('single-player-btn').onclick = () => playClickAndDo(() => showScreen('name'));
+                    document.getElementById('multiplayer-btn').onclick = () => playClickAndDo(() => showScreen('comingSoon'));
+                    document.getElementById('back-to-menu-from-mode').onclick = () => playClickAndDo(() => showScreen('mainMenu'));
                     // --- Tombol di Layar Coming Soon ---
-                    document.getElementById('back-to-mode-from-soon').onclick = () => showScreen('gameModeSelection');
-                    document.getElementById('how-to-play-btn').onclick = () => showScreen('howToPlay');
-                    document.getElementById('highscore-btn').onclick = () => {
-                        displayHighScores();
-                        showScreen('highscore');
-                    };
+                    document.getElementById('back-to-mode-from-soon').onclick = () => playClickAndDo(() => showScreen('gameModeSelection'));
+                    document.getElementById('how-to-play-btn').onclick = () => playClickAndDo(() => showScreen('howToPlay'));
+                    document.getElementById('highscore-btn').onclick = () => playClickAndDo(() => { displayHighScores(); showScreen('highscore'); });
                     // Tambahkan baris ini di dalam fungsi initMenus()
-                    document.getElementById('reset-highscore-btn').onclick = resetHighScores;
-                    settingsBtn.onclick = showSettingsPopup;
-                    document.getElementById('exit-btn').onclick = showExitConfirmation;
+                    document.getElementById('reset-highscore-btn').onclick = () => playClickAndDo(resetHighScores);
+                    settingsBtn.onclick = () => playClickAndDo(showSettingsPopup);
+                    document.getElementById('exit-btn').onclick = () => playClickAndDo(showExitConfirmation);
 
                     // --- Alur Layar Nama -> Pengaturan ---
                     document.getElementById('player-name-form').onsubmit = (e) => {
                         e.preventDefault();
-                        mainPlayerName = document.getElementById('player-name-input').value.trim() || 'Pemain';
-                        showScreen('gameSetup'); // Pindah ke layar pengaturan, BUKAN langsung mulai game
+                        playClickAndDo(() => {
+                            mainPlayerName = document.getElementById('player-name-input').value.trim() || 'Pemain';
+                            showScreen('gameSetup'); // Pindah ke layar pengaturan, BUKAN langsung mulai game
+                        });
                     };
-                    document.getElementById('back-to-menu-from-name').onclick = () => showScreen('gameModeSelection');
+                    document.getElementById('back-to-menu-from-name').onclick = () => playClickAndDo(() => showScreen('gameModeSelection'));
 
                     // --- Alur Layar Pengaturan -> Mulai Game ---
                     document.getElementById('start-pre-game-btn').onclick = () => {
-                        // Ambil nilai dari dropdown
-                        botDifficulty = document.getElementById('difficulty-select').value;
-                        NUM_PLAYERS = parseInt(document.getElementById('player-count-select').value);
-                        gameMode = document.getElementById('game-mode-select').value;
-                        setupBotNameScreen();
+                        playClickAndDo(() => {
+                            // Ambil nilai dari dropdown
+                            botDifficulty = document.getElementById('difficulty-select').value;
+                            NUM_PLAYERS = parseInt(document.getElementById('player-count-select').value);
+                            gameMode = document.getElementById('game-mode-select').value;
+                            setupBotNameScreen();
+                        });
                     };
-                    document.getElementById('back-to-name-btn').onclick = () => showScreen('name');
+                    document.getElementById('back-to-name-btn').onclick = () => playClickAndDo(() => showScreen('name'));
 
                     // --- [INI BAGIAN PENTING] Alur Layar Nama Bot -> Mulai Game ---
                     document.getElementById('start-pre-game-from-bot-name-btn').onclick = () => {
-                        const botNames = [];
-                        const useDefault = document.getElementById('default-bot-name-toggle').checked;
+                        playClickAndDo(() => {
+                            const botNames = [];
+                            const useDefault = document.getElementById('default-bot-name-toggle').checked;
 
-                        // Hanya baca nama jika kotak TIDAK dicentang
-                        if (!useDefault) {
-                            const inputs = document.querySelectorAll('.bot-name-input');
-                            inputs.forEach(input => {
-                                // Ambil nilai dari input, atau placeholder jika input kosong
-                                botNames.push(input.value.trim() || input.placeholder);
-                            });
-                        }
-                        lastUsedBotNames = [...botNames];
-                        // Jika kotak dicentang, botNames akan menjadi array kosong dan game akan pakai nama default
-                        startPreGame(botNames);
+                            // Hanya baca nama jika kotak TIDAK dicentang
+                            if (!useDefault) {
+                                const inputs = document.querySelectorAll('.bot-name-input');
+                                inputs.forEach(input => {
+                                    // Ambil nilai dari input, atau placeholder jika input kosong
+                                    botNames.push(input.value.trim() || input.placeholder);
+                                });
+                            }
+                            lastUsedBotNames = [...botNames];
+                            // Jika kotak dicentang, botNames akan menjadi array kosong dan game akan pakai nama default
+                            startPreGame(botNames);
+                        });
                     };
-                    document.getElementById('back-to-setup-btn').onclick = () => showScreen('gameSetup');
+                    document.getElementById('back-to-setup-btn').onclick = () => playClickAndDo(() => showScreen('gameSetup'));
 
                     // --- Tombol Kembali Lainnya ---
-                    document.getElementById('back-to-menu-from-hs').onclick = () => showScreen('mainMenu');
-                    document.getElementById('back-to-menu-from-htp').onclick = () => showScreen('mainMenu');
-                    document.getElementById('restart-game-btn').onclick = () => startPreGame(lastUsedBotNames);
+                    document.getElementById('back-to-menu-from-hs').onclick = () => playClickAndDo(() => showScreen('mainMenu'));
+                    document.getElementById('back-to-menu-from-htp').onclick = () => playClickAndDo(() => showScreen('mainMenu'));
+                    document.getElementById('restart-game-btn').onclick = () => playClickAndDo(() => startPreGame(lastUsedBotNames));
                     document.getElementById('back-to-menu-from-end').onclick = () => {
-                        manageWakeLock('release');
-                        showScreen('mainMenu');
-                        playMusic('menu'); // <-- TAMBAHKAN INI
+                        playClickAndDo(() => {
+                            manageWakeLock('release');
+                            showScreen('mainMenu');
+                            playMusic('menu'); // <-- TAMBAHKAN INI
+                        });
                     };
-                    document.getElementById('pause-btn').onclick = togglePause;
+                    document.getElementById('pause-btn').onclick = () => playClickAndDo(togglePause);
                 }
 
                 function getHighScores() {
@@ -2504,20 +2544,24 @@
 
                     // Jika tombol "Ya, Hapus" diklik
                     btnYes.onclick = () => {
-                        // Hapus data dari localStorage
-                        localStorage.removeItem(HIGHSCORE_KEY);
-                        // Perbarui tampilan di layar agar menjadi kosong
-                        displayHighScores();
-                        // Beri notifikasi bahwa skor telah direset
-                        showNotification("High score telah direset.", 2500);
-                        // Hapus pop-up dari layar
-                        document.body.removeChild(popup);
+                        playClickAndDo(() => {
+                            // Hapus data dari localStorage
+                            localStorage.removeItem(HIGHSCORE_KEY);
+                            // Perbarui tampilan di layar agar menjadi kosong
+                            displayHighScores();
+                            // Beri notifikasi bahwa skor telah direset
+                            showNotification("High score telah direset.", 2500);
+                            // Hapus pop-up dari layar
+                            document.body.removeChild(popup);
+                        });
                     };
 
                     // Jika tombol "Tidak" diklik
                     btnNo.onclick = () => {
-                        // Cukup hapus pop-up dari layar
-                        document.body.removeChild(popup);
+                        playClickAndDo(() => {
+                            // Cukup hapus pop-up dari layar
+                            document.body.removeChild(popup);
+                        });
                     };
                 }
 
@@ -2944,7 +2988,7 @@
 
                     const lastPlayer = players.find(p => !p.isFinished);
                     if (lastPlayer) {
-                        playerRanks.push({ id: lastPlayer.id, name: lastPlayer.name, time: gameSeconds});
+                        playerRanks.push({ id: lastPlayer.id, name: lastPlayer.name, time: gameSeconds });
                     }
 
                     const ranksContainer = document.getElementById('end-game-ranks');
@@ -2962,7 +3006,7 @@
                             if (rankData) {
                                 saveHighScore(p.name, score, p.time);
                                 const sfxNameToPlay = `finish${i + 1}`;
-                                if(sfx[sfxNameToPlay]) {
+                                if (sfx[sfxNameToPlay]) {
                                     playSfx(sfxNameToPlay);
                                 }
                             }
@@ -3022,25 +3066,31 @@
                         updateAutoModeButton();
 
                         autoModeBtn.onclick = () => {
-                            isAutoMode = !isAutoMode;
-                            updateAutoModeButton();
+                            playClickAndDo(() => {
+                                isAutoMode = !isAutoMode;
+                                updateAutoModeButton();
+                            });
                         };
 
                         screens.game.appendChild(pauseMenu);
 
                         // Perbaikan ada di 2 baris di bawah ini
-                        pauseMenu.querySelector('#resume-btn').onclick = togglePause;
-                        pauseMenu.querySelector('#restart-pause-btn').onclick = () => {
-                            screens.game.removeChild(pauseMenu); // Hapus menu sebelum restart
-                            startPreGame(lastUsedBotNames);
-                        };
-                        pauseMenu.querySelector('#exit-pause-btn').onclick = () => {
-                            screens.game.removeChild(pauseMenu); // Hapus menu sebelum keluar
-                            manageWakeLock('release');
-                            showScreen('mainMenu');
-                            playMusic('menu');
-                        };
-                        pauseMenu.querySelector('#settings-pause-btn').onclick = showSettingsPopup;
+                        pauseMenu.querySelector('#resume-btn').onclick = () => playClickAndDo(togglePause);
+                        pauseMenu.querySelector('#restart-pause-btn').onclick = () => playClickAndDo(() => {
+                            showConfirmationPopup("Anda yakin ingin restart?", () => {
+                                screens.game.removeChild(pauseMenu); // Hapus menu sebelum restart
+                                startPreGame(lastUsedBotNames);
+                            });
+                        });
+                        pauseMenu.querySelector('#exit-pause-btn').onclick = () => playClickAndDo(() => {
+                            showConfirmationPopup("Anda yakin ingin keluar?", () => {
+                                screens.game.removeChild(pauseMenu); // Hapus menu sebelum keluar
+                                manageWakeLock('release');
+                                showScreen('mainMenu');
+                                playMusic('menu');
+                            });
+                        });
+                        pauseMenu.querySelector('#settings-pause-btn').onclick = () => playClickAndDo(showSettingsPopup);
                     } else {
                         manageWakeLock('request');
                         startTimer();
@@ -3491,7 +3541,7 @@
 
                         case 'wild4':
                             if (isFirstCard) break;
-                            playSfx('draw4'); 
+                            playSfx('draw4');
                             shouldAdvanceTurn = false;
                             promptChooseColor(playerIndex, (chosenColor) => {
                                 promptChallenge(playerIndex, victimId, cardBeforePlay, 'wild4', chosenColor, () => nextTurn());
@@ -3549,7 +3599,7 @@
                         }
 
                         getTopCard().color = chosenColor;
-                        
+
                         // Cek nilai kartu untuk menentukan apakah perlu jeda atau tidak
                         if (card && (card.value === 'wild4' || card.value === 'wild2')) {
                             // JIKA kartu adalah Wild+4 atau Wild+2, BERI JEDA
@@ -3983,7 +4033,7 @@
                     document.body.appendChild(popup);
 
                     // Tambahkan fungsi untuk tombol "Ya"
-                    document.getElementById('exit-confirm-yes').onclick = () => {
+                    document.getElementById('exit-confirm-yes').onclick = () => playClickAndDo(() => {
                         console.log("Klik keluar -> stopAllAudio()");
                         stopAllAudio();
                         if (window.AndroidBridge && typeof window.AndroidBridge.exitApp === 'function') {
@@ -3997,12 +4047,12 @@
                         if (document.body.contains(popup)) {
                             document.body.removeChild(popup);
                         }
-                    };
+                    });
 
                     // Tambahkan fungsi untuk tombol "Tidak"
-                    document.getElementById('exit-confirm-no').onclick = () => {
+                    document.getElementById('exit-confirm-no').onclick = () => playClickAndDo(() => {
                         document.body.removeChild(popup);
-                    };
+                    });
                 }
 
                 // MUSIK
@@ -4111,7 +4161,40 @@
                     volumeSlider.oninput = (e) => updateVolume(e.target.value);
                     sfxToggle.onchange = (e) => isSfxMuted = !e.target.checked;
                     sfxVolumeSlider.oninput = (e) => sfxVolume = e.target.value;
-                    closeBtn.onclick = () => document.body.removeChild(popup);
+                    closeBtn.onclick = () => playClickAndDo(() => document.body.removeChild(popup));
+                }
+
+                // --- TAMBAHKAN FUNGSI BARU INI ---
+                function showConfirmationPopup(message, onConfirm) {
+                    // Mencegah pop-up ganda
+                    if (document.querySelector('.confirmation-popup')) return;
+
+                    const popup = document.createElement('div');
+                    // Kita beri kelas generik agar mudah di-style
+                    popup.className = 'popup confirmation-popup';
+                    popup.innerHTML = `
+                        <h3>Konfirmasi</h3>
+                        <p style="margin-bottom: 20px; font-size: 1rem; text-align: center;">${message}</p>
+                        <div class="popup-options">
+                            <button class="menu-btn red confirm-yes">Ya</button>
+                            <button class="menu-btn green confirm-no">Tidak</button>
+                        </div>
+                    `;
+
+                    document.body.appendChild(popup);
+
+                    // Tombol "Ya"
+                    popup.querySelector('.confirm-yes').onclick = () => playClickAndDo(() => {
+                        if (onConfirm && typeof onConfirm === 'function') {
+                            onConfirm(); // Jalankan aksi konfirmasi (restart atau keluar)
+                        }
+                        document.body.removeChild(popup);
+                    });
+
+                    // Tombol "Tidak"
+                    popup.querySelector('.confirm-no').onclick = () => playClickAndDo(() => {
+                        document.body.removeChild(popup);
+                    });
                 }
 
                 // =========================================================================
