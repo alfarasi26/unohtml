@@ -1890,7 +1890,7 @@
 
         <!-- Layar Menu Utama -->
         <div id="main-menu-screen" class="screen">
-            <h1 class="menu-title">UNO <span class="game-version">v2.81</span></h1>
+            <h1 class="menu-title">UNO <span class="game-version">v2.82</span></h1>
             <button id="start-game-btn" class="menu-btn green">Mulai Game</button>
             <button id="how-to-play-btn" class="menu-btn blue">Petunjuk Permainan</button>
             <button id="highscore-btn" class="menu-btn yellow">High Score</button>
@@ -2054,7 +2054,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.81</p>
+                    <p><strong>UNO HTML VERSION v2.82</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -2331,7 +2331,11 @@
                         red: 'SFX/red.mp3',
                         green: 'SFX/green.mp3',
                         blue: 'SFX/blue.mp3',
-                        yellow: 'SFX/yellow.mp3'
+                        yellow: 'SFX/yellow.mp3',
+                        finish1: 'SFX/finish1.mp3',
+                        finish2: 'SFX/finish2.mp3',
+                        finish3: 'SFX/finish3.mp3',
+                        finish4: 'SFX/finish4.mp3'
                     };
 
                     for (const key in sfxFiles) {
@@ -2934,13 +2938,13 @@
                 function endGame() {
                     manageWakeLock('release');
                     stopTimer();
-                    playMusic('gameplay');
+                    if (audioGameplay) audioGameplay.pause();
                     gameActive = false;
                     clearTimeout(botTurnTimeout);
 
                     const lastPlayer = players.find(p => !p.isFinished);
                     if (lastPlayer) {
-                        playerRanks.push({ id: lastPlayer.id, name: lastPlayer.name });
+                        playerRanks.push({ id: lastPlayer.id, name: lastPlayer.name, time: gameSeconds});
                     }
 
                     const ranksContainer = document.getElementById('end-game-ranks');
@@ -2956,7 +2960,11 @@
                         if (p.id === 0) {
                             const rankData = playerRanks.find(r => r.id === p.id);
                             if (rankData) {
-                                saveHighScore(p.name, score, rankData.time);
+                                saveHighScore(p.name, score, p.time);
+                                const sfxNameToPlay = `finish${i + 1}`;
+                                if(sfx[sfxNameToPlay]) {
+                                    playSfx(sfxNameToPlay);
+                                }
                             }
                         }
                         const rankDiv = document.createElement('div');
@@ -2965,6 +2973,10 @@
                         rankDiv.innerHTML = `<span>#${i + 1} ${p.name}</span> <span style="float:right;"><span class="time">${formatTime(p.time)}</span><span class="score">${score} Poin</span></span>`;
                         ranksContainer.appendChild(rankDiv);
                     });
+                    // Atur timer untuk MEMUTAR KEMBALI musik setelah 5 detik
+                    setTimeout(() => {
+                        playMusic('gameplay');
+                    }, 5000);
                     showScreen('endGame');
                 }
 
