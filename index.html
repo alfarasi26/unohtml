@@ -1890,7 +1890,7 @@
 
         <!-- Layar Menu Utama -->
         <div id="main-menu-screen" class="screen">
-            <h1 class="menu-title">UNO <span class="game-version">v2.80</span></h1>
+            <h1 class="menu-title">UNO <span class="game-version">v2.81</span></h1>
             <button id="start-game-btn" class="menu-btn green">Mulai Game</button>
             <button id="how-to-play-btn" class="menu-btn blue">Petunjuk Permainan</button>
             <button id="highscore-btn" class="menu-btn yellow">High Score</button>
@@ -2054,7 +2054,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.80</p>
+                    <p><strong>UNO HTML VERSION v2.81</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -3977,14 +3977,10 @@
                         if (window.AndroidBridge && typeof window.AndroidBridge.exitApp === 'function') {
                             // Versi APK WebView (native)
                             window.AndroidBridge.exitApp();
-                        } else if (window.opener) {
+                        } else {
                             // Jika dibuka lewat window.open()
                             window.close();
-                        } else {
-                            // Jika tidak bisa tutup window
-                            alert("Untuk keluar dari aplikasi ini, silakan tutup tab secara manual.");
                         }
-
                         // Tetap tutup popup
                         if (document.body.contains(popup)) {
                             document.body.removeChild(popup);
