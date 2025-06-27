@@ -1911,7 +1911,7 @@
 
         <!-- Layar Menu Utama -->
         <div id="main-menu-screen" class="screen">
-            <h1 class="menu-title">UNO!<span class="game-version">v2.85</span></h1>
+            <h1 class="menu-title">UNO!<span class="game-version">v2.86</span></h1>
             <button id="start-game-btn" class="menu-btn green">Mulai Game</button>
             <button id="how-to-play-btn" class="menu-btn blue">Petunjuk Permainan</button>
             <button id="highscore-btn" class="menu-btn yellow">High Score</button>
@@ -2075,7 +2075,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.85</p>
+                    <p><strong>UNO HTML VERSION v2.86</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -4217,6 +4217,7 @@
                             if (!isValidMove(newCard, getTopCard())) {
                                 nextTurn();
                             } else {
+                                playSfx('challengepopup');
                                 showNotification("Anda bisa memainkan kartu yang baru diambil.");
                             }
                         });
