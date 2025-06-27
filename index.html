@@ -1078,6 +1078,20 @@
             }
         }
 
+        /* ========================================================================= */
+        /* KODE TAMBAHAN UNTUK MENYERAGAMKAN UKURAN TOMBOL MENU */
+        /* ========================================================================= */
+        #main-menu-screen .menu-btn,
+        #game-mode-selection-screen .menu-btn {
+            width: 300px;
+            /* Atur lebar tetap untuk semua tombol di layar ini */
+            box-sizing: border-box;
+            /* Pastikan padding & border termasuk dalam kalkulasi lebar */
+            padding-left: 15px;
+            /* Sesuaikan padding agar teks tetap di tengah */
+            padding-right: 15px;
+        }
+
         /* (PERBAIKAN) Persiapkan elemen menu utama untuk animasi pop-in */
         #main-menu-screen .menu-title,
         #main-menu-screen .menu-btn,
@@ -1963,7 +1977,7 @@
 
         <!-- Layar Menu Utama -->
         <div id="main-menu-screen" class="screen">
-            <h1 class="menu-title">UNO!<span class="game-version">v2.91</span></h1>
+            <h1 class="menu-title">UNO!<span class="game-version">v2.92</span></h1>
             <button id="start-game-btn" class="menu-btn green">Mulai Game</button>
             <button id="how-to-play-btn" class="menu-btn blue">Petunjuk Permainan</button>
             <button id="highscore-btn" class="menu-btn yellow">High Score</button>
@@ -2127,7 +2141,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.91</p>
+                    <p><strong>UNO HTML VERSION v2.92</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
