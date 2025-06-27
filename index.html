@@ -1080,10 +1080,48 @@
 
         /* (PERBAIKAN) Persiapkan elemen menu utama untuk animasi pop-in */
         #main-menu-screen .menu-title,
-        #main-menu-screen .menu-btn {
+        #main-menu-screen .menu-btn,
+
+        /* --- Layar Pilih Mode Game --- */
+        #game-mode-selection-screen .menu-title,
+        #game-mode-selection-screen .menu-btn,
+
+        /* --- Layar Coming Soon --- */
+        #coming-soon-screen .coming-soon-text,
+        #coming-soon-screen .menu-btn,
+
+        /* --- Layar Input Nama --- */
+        #player-name-screen .menu-title,
+        #player-name-screen #player-name-form,
+        #player-name-screen > .menu-btn,
+
+        /* --- Layar Pengaturan Game --- */
+        #game-setup-screen .menu-title,
+        #game-setup-screen .setup-options,
+        #game-setup-screen .setup-buttons,
+
+        /* --- Layar Atur Nama Bot --- */
+        #bot-name-screen .menu-title,
+        #bot-name-screen .setup-options,
+        #bot-name-screen .setup-buttons,
+
+        /* --- Layar High Score --- */
+        #highscore-screen .menu-title,
+        #highscore-screen #highscore-list,
+        /* (PERBAIKAN) Langsung targetkan tombolnya, bukan div pembungkusnya */
+        #highscore-screen .menu-btn,
+
+        /* --- Layar Petunjuk Permainan --- */
+        #how-to-play-screen .menu-title,
+        #how-to-play-screen .instructions-content,
+        #how-to-play-screen > .menu-btn,
+
+        /* --- Layar Permainan Selesai --- */
+        #end-game-screen .menu-title,
+        #end-game-screen #end-game-ranks,
+        #end-game-screen .end-game-options {
             opacity: 0;
-            /* TAMBAHAN PENTING: Atur ukuran awal agar animasi pop-in bekerja */
-            transform: scale(0.5);
+            transform: scale(0.6);
             animation-fill-mode: forwards;
         }
 
@@ -1107,6 +1145,20 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             text-align: center;
             padding: 20px;
+        }
+
+        /* ========================================================================= */
+        /* KODE ANIMASI UNTUK SEMUA POP-UP                                           */
+        /* ========================================================================= */
+        .popup {
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            opacity: 0 !important;
+            transform: translate(-50%, -50%) scale(0.7) !important;
+        }
+
+        .popup.show {
+            opacity: 1 !important;
+            transform: translate(-50%, -50%) scale(1) !important;
         }
 
         /* ========================================================================= */
@@ -1911,7 +1963,7 @@
 
         <!-- Layar Menu Utama -->
         <div id="main-menu-screen" class="screen">
-            <h1 class="menu-title">UNO!<span class="game-version">v2.86</span></h1>
+            <h1 class="menu-title">UNO!<span class="game-version">v2.90</span></h1>
             <button id="start-game-btn" class="menu-btn green">Mulai Game</button>
             <button id="how-to-play-btn" class="menu-btn blue">Petunjuk Permainan</button>
             <button id="highscore-btn" class="menu-btn yellow">High Score</button>
@@ -2075,7 +2127,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.86</p>
+                    <p><strong>UNO HTML VERSION v2.90</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -2215,9 +2267,22 @@
                 // =========================================================================
                 //  FUNGSI UTILITAS
                 // =========================================================================
+                // GANTI FUNGSI showScreen() DENGAN VERSI BARU INI
                 const showScreen = (screenName) => {
                     Object.values(screens).forEach(s => s.classList.add('hidden'));
-                    screens[screenName].classList.remove('hidden');
+                    const screenToShow = screens[screenName];
+                    if (screenToShow) {
+                        screenToShow.classList.remove('hidden');
+
+                        // Daftar layar yang TIDAK akan menggunakan animasi pop-in
+                        const nonAnimatedScreens = ['game', 'splash', 'updateCheck']; 
+
+                        // Jika layar yang ditampilkan BUKAN bagian dari yang dikecualikan, jalankan animasi
+                        if (!nonAnimatedScreens.includes(screenName) && !screenToShow.id.includes('update-check')) {
+                            // Panggil fungsi animasi kita yang baru
+                            triggerStaggeredPopIn(screenToShow);
+                        }
+                    }
                 };
 
                 const showNotification = (msg, duration = 2500) => {
@@ -2542,6 +2607,7 @@
 
                     // 3. Tambahkan pop-up ke dalam body agar tampil di atas segalanya
                     document.body.appendChild(popup);
+                    setTimeout(() => popup.classList.add('show'), 10);
 
                     // 4. Tambahkan fungsi untuk masing-masing tombol di dalam pop-up
                     const btnYes = document.getElementById('reset-confirm-yes');
@@ -2557,7 +2623,7 @@
                             // Beri notifikasi bahwa skor telah direset
                             showNotification("High score telah direset.", 2500);
                             // Hapus pop-up dari layar
-                            document.body.removeChild(popup);
+                            closePopup(popup);
                         });
                     };
 
@@ -2565,7 +2631,7 @@
                     btnNo.onclick = () => {
                         playClickAndDo(() => {
                             // Cukup hapus pop-up dari layar
-                            document.body.removeChild(popup);
+                            closePopup(popup);
                         });
                     };
                 }
@@ -2624,7 +2690,7 @@
                             setTimeout(() => {
                                 showScreen('mainMenu');
                                 // Panggil fungsi animasi menu yang baru kita buat
-                                animateMainMenu();
+                                triggerStaggeredPopIn();
                             }, 1000);;
                         }
 
@@ -2632,21 +2698,6 @@
                         splashScreen.addEventListener('touchstart', proceedToMenu);
 
                     }, 8000); // 2 detik setelah slide-down dimulai
-                }
-
-                function animateMainMenu() {
-                    const menuScreen = screens.mainMenu;
-                    const menuItems = [
-                        menuScreen.querySelector('.menu-title'),
-                        ...menuScreen.querySelectorAll('.menu-btn')
-                    ];
-
-                    menuItems.forEach((item, index) => {
-                        if (item) {
-                            item.style.animationDelay = `${index * 0.2}s`;
-                            item.classList.add('pop-in');
-                        }
-                    });
                 }
 
                 // (TAMBAHAN BARU) Fungsi untuk menyiapkan dan menampilkan layar nama bot
@@ -3037,7 +3088,7 @@
                     isPaused = !isPaused;
 
                     const existingPauseMenu = document.getElementById('pause-menu');
-                    if (existingPauseMenu) existingPauseMenu.remove();
+                    if (existingPauseMenu) closePopup(existingPauseMenu);
 
                     if (isPaused) {
                         manageWakeLock('release');
@@ -3078,6 +3129,7 @@
                         };
 
                         screens.game.appendChild(pauseMenu);
+                        setTimeout(() => pauseMenu.classList.add('show'), 10);
 
                         // Perbaikan ada di 2 baris di bawah ini
                         pauseMenu.querySelector('#resume-btn').onclick = () => playClickAndDo(togglePause);
@@ -3631,7 +3683,7 @@
                         btn.style.backgroundColor = `var(--${color})`;
                         btn.onclick = () => {
                             playSfx(color);
-                            screens.game.removeChild(picker);
+                            closePopup(picker);
                             getTopCard().color = color;
                             renderAll();
                             if (callback) callback(color);
@@ -3639,6 +3691,7 @@
                         picker.querySelector('.popup-options').appendChild(btn);
                     });
                     screens.game.appendChild(picker);
+                    setTimeout(() => picker.classList.add('show'), 10);
                 }
 
                 function promptChallenge(attackerIndex, victimIndex, cardBeforePlay, cardType, chosenColor, onComplete) {
@@ -3697,9 +3750,10 @@
             <button id="ch-no" class="menu-btn green">Terima (Ambil ${drawAmount})</button>
             <button id="ch-yes" class="menu-btn red">Tantang!</button>
         </div>`;
-                    popup.querySelector('#ch-no').onclick = () => { screens.game.removeChild(popup); resolveChallenge(false); };
-                    popup.querySelector('#ch-yes').onclick = () => { screens.game.removeChild(popup); resolveChallenge(true); };
+                    popup.querySelector('#ch-no').onclick = () => { closePopup(popup); resolveChallenge(false); };
+                    popup.querySelector('#ch-yes').onclick = () => { closePopup(popup); resolveChallenge(true); };
                     screens.game.appendChild(popup);
+                    setTimeout(() => popup.classList.add('show'), 10);
                 }
 
 
@@ -4036,6 +4090,7 @@
 
                     // (PERBAIKAN UTAMA) Tampilkan pop-up di atas BODY agar selalu terlihat
                     document.body.appendChild(popup);
+                    setTimeout(() => popup.classList.add('show'), 10);
 
                     // Tambahkan fungsi untuk tombol "Ya"
                     document.getElementById('exit-confirm-yes').onclick = () => playClickAndDo(() => {
@@ -4056,7 +4111,7 @@
 
                     // Tambahkan fungsi untuk tombol "Tidak"
                     document.getElementById('exit-confirm-no').onclick = () => playClickAndDo(() => {
-                        document.body.removeChild(popup);
+                        closePopup(popup);
                     });
                 }
 
@@ -4146,6 +4201,7 @@
                     <button id="close-settings-popup" class="menu-btn red">Kembali</button>
                 `;
                     document.body.appendChild(popup);
+                    setTimeout(() => popup.classList.add('show'), 10);
                     const highlightToggle = document.getElementById('highlight-toggle-popup');
                     const musicToggle = document.getElementById('music-toggle-popup');
                     const volumeSlider = document.getElementById('volume-slider-popup');
@@ -4166,7 +4222,7 @@
                     volumeSlider.oninput = (e) => updateVolume(e.target.value);
                     sfxToggle.onchange = (e) => isSfxMuted = !e.target.checked;
                     sfxVolumeSlider.oninput = (e) => sfxVolume = e.target.value;
-                    closeBtn.onclick = () => playClickAndDo(() => document.body.removeChild(popup));
+                    closeBtn.onclick = () => playClickAndDo(() => closePopup(popup));
                 }
 
                 // --- TAMBAHKAN FUNGSI BARU INI ---
@@ -4187,19 +4243,75 @@
                     `;
 
                     document.body.appendChild(popup);
+                    setTimeout(() => popup.classList.add('show'), 10);
 
                     // Tombol "Ya"
                     popup.querySelector('.confirm-yes').onclick = () => playClickAndDo(() => {
                         if (onConfirm && typeof onConfirm === 'function') {
                             onConfirm(); // Jalankan aksi konfirmasi (restart atau keluar)
                         }
-                        document.body.removeChild(popup);
+                        closePopup(popup);
                     });
 
                     // Tombol "Tidak"
                     popup.querySelector('.confirm-no').onclick = () => playClickAndDo(() => {
-                        document.body.removeChild(popup);
+                        closePopup(popup);
                     });
+                }
+
+                // GANTI FUNGSI LAMA DENGAN VERSI FINAL INI
+                function triggerStaggeredPopIn(screenElement) {
+                    if (!screenElement) return;
+
+                    // (PERBAIKAN) Daftar selector ini sekarang jauh lebih akurat dan konsisten
+                    // dengan yang kita definisikan di CSS, memastikan tidak ada yang terlewat.
+                    const selectors = [
+                        '.menu-title',
+                        '.menu-btn',
+                        '#player-name-form',
+                        '.setup-options',
+                        '.setup-buttons',
+                        '#highscore-list',
+                        '.instructions-content',
+                        '#end-game-ranks',
+                        '.end-game-options',
+                        '.coming-soon-text',
+                    ].join(', '); // Kita gabungkan semua selector menjadi satu string
+
+                    const itemsToAnimate = screenElement.querySelectorAll(selectors);
+
+                    itemsToAnimate.forEach((item, index) => {
+                        // Hapus class animasi sebelumnya agar bisa dipicu lagi
+                        item.classList.remove('pop-in');
+                        
+                        // Trik untuk memaksa browser 'sadar' ada perubahan
+                        void item.offsetWidth; 
+
+                        // Atur jeda waktu agar elemen muncul satu per satu
+                        item.style.animationDelay = `${index * 0.1}s`;
+                        item.classList.add('pop-in');
+                    });
+                }
+
+                // (TAMBAHKAN FUNGSI BARU INI)
+                /**
+                 * Fungsi untuk menutup pop-up dengan animasi pop-out.
+                 * @param {HTMLElement} popupElement - Elemen pop-up yang ingin ditutup.
+                 */
+                function closePopup(popupElement) {
+                    if (!popupElement) return;
+
+                    // 1. Hapus class .show untuk memicu animasi pop-out (fade & scale down)
+                    popupElement.classList.remove('show');
+
+                    // 2. Tunggu hingga animasi selesai (sesuai durasi di CSS, yaitu 0.25s atau 250ms),
+                    //    lalu hapus elemen dari DOM.
+                    setTimeout(() => {
+                        // Cek apakah elemen masih ada di dokumen sebelum mencoba menghapusnya
+                        if (popupElement.parentNode) {
+                            popupElement.parentNode.removeChild(popupElement);
+                        }
+                    }, 250); // Durasi ini HARUS SAMA dengan durasi transisi di CSS
                 }
 
                 // =========================================================================
