@@ -986,9 +986,9 @@
                 opacity: 0;
             }
         }
-    
+
         #main-menu-screen .menu-title {
-        color: var(--yellow);
+            color: var(--yellow);
         }
 
         /* (TAMBAHKAN INI) CSS untuk highlight kartu yang bisa dimainkan */
@@ -1093,7 +1093,7 @@
         /* --- Layar Input Nama --- */
         #player-name-screen .menu-title,
         #player-name-screen #player-name-form,
-        #player-name-screen > .menu-btn,
+        #player-name-screen>.menu-btn,
 
         /* --- Layar Pengaturan Game --- */
         #game-setup-screen .menu-title,
@@ -1114,7 +1114,7 @@
         /* --- Layar Petunjuk Permainan --- */
         #how-to-play-screen .menu-title,
         #how-to-play-screen .instructions-content,
-        #how-to-play-screen > .menu-btn,
+        #how-to-play-screen>.menu-btn,
 
         /* --- Layar Permainan Selesai --- */
         #end-game-screen .menu-title,
@@ -1963,7 +1963,7 @@
 
         <!-- Layar Menu Utama -->
         <div id="main-menu-screen" class="screen">
-            <h1 class="menu-title">UNO!<span class="game-version">v2.90</span></h1>
+            <h1 class="menu-title">UNO!<span class="game-version">v2.91</span></h1>
             <button id="start-game-btn" class="menu-btn green">Mulai Game</button>
             <button id="how-to-play-btn" class="menu-btn blue">Petunjuk Permainan</button>
             <button id="highscore-btn" class="menu-btn yellow">High Score</button>
@@ -2127,7 +2127,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.90</p>
+                    <p><strong>UNO HTML VERSION v2.91</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -2225,6 +2225,7 @@
                 let userHasInteracted = false; // Penanda interaksi pertama
                 let botTurnTimeout;
                 let draggedElement = null; // Elemen yang sedang di-drag via sentuhan
+                let endGameMusicTimeout;
                 let draggedCardData = null; // Data kartu yang di-drag
                 let ghostCard = null; // Kartu "hantu" yang mengikuti jari
                 let isAutoMode = false;
@@ -2275,7 +2276,7 @@
                         screenToShow.classList.remove('hidden');
 
                         // Daftar layar yang TIDAK akan menggunakan animasi pop-in
-                        const nonAnimatedScreens = ['game', 'splash', 'updateCheck']; 
+                        const nonAnimatedScreens = ['game', 'splash', 'updateCheck'];
 
                         // Jika layar yang ditampilkan BUKAN bagian dari yang dikecualikan, jalankan animasi
                         if (!nonAnimatedScreens.includes(screenName) && !screenToShow.id.includes('update-check')) {
@@ -2527,9 +2528,13 @@
                     // --- Tombol Kembali Lainnya ---
                     document.getElementById('back-to-menu-from-hs').onclick = () => playClickAndDo(() => showScreen('mainMenu'));
                     document.getElementById('back-to-menu-from-htp').onclick = () => playClickAndDo(() => showScreen('mainMenu'));
-                    document.getElementById('restart-game-btn').onclick = () => playClickAndDo(() => startPreGame(lastUsedBotNames));
+                    document.getElementById('restart-game-btn').onclick = () => playClickAndDo(() => {
+                        clearTimeout(endGameMusicTimeout);
+                        startPreGame(lastUsedBotNames);
+                    });
                     document.getElementById('back-to-menu-from-end').onclick = () => {
                         playClickAndDo(() => {
+                            clearTimeout(endGameMusicTimeout);
                             manageWakeLock('release');
                             showScreen('mainMenu');
                             playMusic('menu'); // <-- TAMBAHKAN INI
@@ -3074,9 +3079,9 @@
                         ranksContainer.appendChild(rankDiv);
                     });
                     // Atur timer untuk MEMUTAR KEMBALI musik setelah 5 detik
-                    setTimeout(() => {
+                    endGameMusicTimeout = setTimeout(() => {
                         playMusic('gameplay');
-                    }, 5000);
+                    }, 4000);
                     showScreen('endGame');
                 }
 
@@ -4283,9 +4288,9 @@
                     itemsToAnimate.forEach((item, index) => {
                         // Hapus class animasi sebelumnya agar bisa dipicu lagi
                         item.classList.remove('pop-in');
-                        
+
                         // Trik untuk memaksa browser 'sadar' ada perubahan
-                        void item.offsetWidth; 
+                        void item.offsetWidth;
 
                         // Atur jeda waktu agar elemen muncul satu per satu
                         item.style.animationDelay = `${index * 0.1}s`;
