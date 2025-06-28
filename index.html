@@ -583,6 +583,7 @@
             font-size: 20px;
             color: #ffc107;
             transform: rotate(-30deg);
+            pointer-events: none;
         }
 
         .card[data-color="red"] {
@@ -613,6 +614,11 @@
             /* (PERBAIKAN) Paksa hardware acceleration untuk animasi mulus */
             transform: translateZ(0);
             will-change: transform, top, left;
+        }
+
+        /* (TAMBAHAN BARU) Untuk membuat kartu asli tidak terlihat saat di-drag */
+        .card.dragging {
+            opacity: 0 !important;
         }
 
         #action-indicator {
@@ -683,11 +689,22 @@
 
         #deck-pile,
         #discard-pile-container {
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Pastikan ada transisi untuk box-shadow */
         }
 
         #deck-pile:hover {
             transform: scale(1.05);
+        }
+
+        /* (TAMBAHAN BARU) Perbaikan definitif untuk area klik/drop di dek & tumpukan buang */
+        #deck-pile::before,
+        #discard-pile-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
         }
 
         #discard-pile-container {
@@ -695,6 +712,7 @@
             height: var(--card-height);
             border: 3px dashed rgba(255, 255, 255, 0.7);
             border-radius: 10px;
+            position: relative;
         }
 
         #discard-pile-container.drag-over {
@@ -1013,6 +1031,12 @@
         .playable-card {
             box-shadow: 0 0 15px #ffc107, 0 0 5px white;
             transform: translateY(-10px)
+        }
+
+        /* (TAMBAHKAN INI) CSS untuk highlight dek jika tidak ada kartu yang bisa dimainkan */
+        .deck-hint {
+            box-shadow: 0 0 20px #ffc107, 0 0 8px white;
+            transform: scale(1.05) !important; /* Tambahkan !important untuk memastikan efeknya teraplikasi */
         }
 
         /* (TAMBAHKAN INI) CSS untuk Wadah Teks yang Hilang */
@@ -1995,7 +2019,7 @@
 
         <!-- Layar Menu Utama -->
         <div id="main-menu-screen" class="screen">
-            <h1 class="menu-title">UNO!<span class="game-version">v2.93</span></h1>
+            <h1 class="menu-title">UNO!<span class="game-version">v2.94</span></h1>
             <button id="start-game-btn" class="menu-btn green">Mulai Game</button>
             <button id="how-to-play-btn" class="menu-btn blue">Petunjuk Permainan</button>
             <button id="highscore-btn" class="menu-btn yellow">High Score</button>
@@ -2159,7 +2183,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.93</p>
+                    <p><strong>UNO HTML VERSION v2.94</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -3353,9 +3377,16 @@
                         cardElem.addEventListener('dragstart', (ev) => {
                             if (currentPlayerIndex === 0 && gameActive && !isPaused && !players[0].isFinished) {
                                 ev.dataTransfer.setData('text/plain', ev.target.dataset.cardData);
+                                setTimeout(() => {
+                                    ev.target.classList.add('dragging');
+                                }, 0);
                             } else {
                                 ev.preventDefault();
                             }
+                        });
+                         // TAMBAHKAN BLOK EVENT LISTENER BARU INI TEPAT DI BAWAHNYA
+                        cardElem.addEventListener('dragend', (ev) => {
+                            ev.target.classList.remove('dragging');
                         });
                         cardElem.addEventListener('touchstart', handleTouchStart, { passive: false });
                         playerHandElem.appendChild(cardElem);
@@ -3403,7 +3434,9 @@
 
                 // TEMUKAN FUNGSI INI DAN GANTI SELURUHNYA
                 function updatePlayableCards() {
+                    deckPileElem.classList.remove('deck-hint');
                     const cardElements = playerHandElem.querySelectorAll('.card');
+                    let hasPlayableCard = false;
 
                     // PERUBAHAN UTAMA: Cek apakah fitur hint ON dan apakah ini giliran pemain (index 0)
                     if (!isHighlightHintOn || currentPlayerIndex !== 0) {
@@ -3425,11 +3458,17 @@
                             // Cek validitas kartu dan tambahkan/hapus kelas
                             if (isValidMove(cardData, topCard)) {
                                 cardElem.classList.add('playable-card');
+                                hasPlayableCard = true;
                             } else {
                                 cardElem.classList.remove('playable-card');
                             }
                         } catch (e) { /* Abaikan jika ada error parsing */ }
                     });
+                    // Setelah memeriksa semua kartu, cek flag
+                    // Jika tidak ada kartu yang bisa dimainkan, highlight dek
+                    if (!hasPlayableCard && isHighlightHintOn && currentPlayerIndex === 0) {
+                        deckPileElem.classList.add('deck-hint');
+                    }
                 }
 
                 /**
@@ -4056,6 +4095,9 @@
                     // Jika kartu yang sama disentuh lagi, mulai proses drag.
                     if (touchedCardElement === currentCard) {
                         draggedElement = currentCard;
+                        setTimeout(() => {
+                            draggedElement.classList.add('dragging');
+                        }, 0);
                         draggedCardData = draggedElement.dataset.cardData;
 
                         ghostCard = draggedElement.cloneNode(true);
@@ -4113,6 +4155,9 @@
                     // Hapus listener dan reset semua variabel terkait drag.
                     document.removeEventListener('touchmove', handleTouchMove);
                     document.removeEventListener('touchend', handleTouchEnd); // Menghapus dirinya sendiri
+                    if (draggedElement) {
+                        draggedElement.classList.remove('dragging');
+                    }
                     ghostCard = null;
                     draggedElement = null;
                     draggedCardData = null;
