@@ -645,6 +645,8 @@
             background: rgba(0, 0, 0, 0.5);
             padding: 20px;
             border-radius: 15px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
         }
 
         #pre-game-cards {
@@ -985,6 +987,22 @@
             to {
                 opacity: 0;
             }
+        }
+
+        /* (TAMBAHKAN INI) CSS untuk animasi fade-out elemen menu */
+        .element-fade-out {
+            transition: opacity 0.5s ease-out;
+            opacity: 0 !important;
+        }
+
+        /* (TAMBAHKAN INI) CSS untuk animasi pop-in teks pemenang */
+        #pre-game-winner-text {
+            font-size: 1.5rem;
+            margin-top: 20px;
+            color: var(--yellow);
+            opacity: 0;
+            transform: scale(0.5);
+            animation-fill-mode: forwards;
         }
 
         #main-menu-screen .menu-title {
@@ -1977,7 +1995,7 @@
 
         <!-- Layar Menu Utama -->
         <div id="main-menu-screen" class="screen">
-            <h1 class="menu-title">UNO!<span class="game-version">v2.92</span></h1>
+            <h1 class="menu-title">UNO!<span class="game-version">v2.93</span></h1>
             <button id="start-game-btn" class="menu-btn green">Mulai Game</button>
             <button id="how-to-play-btn" class="menu-btn blue">Petunjuk Permainan</button>
             <button id="highscore-btn" class="menu-btn yellow">High Score</button>
@@ -2141,7 +2159,7 @@
                 <div class="credits-section">
                     <p><strong>CREDITS:</p>
 
-                    <p><strong>UNO HTML VERSION v2.92</p>
+                    <p><strong>UNO HTML VERSION v2.93</p>
                     <p><strong>ANDROID VERSION IS STILL ON BETA</p>
                     <p><strong>Developed by:</strong> Renaldi Alfarasi</p>
                     <p><strong>Instagram:</strong> rnd_savage</p>
@@ -2211,6 +2229,7 @@
                 // =========================================================================
                 //  KONSTANTA & STATE GAME
                 // =========================================================================
+                const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
                 const COLORS = ['red', 'yellow', 'green', 'blue'];
                 const VALUES = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'skip', 'reverse', 'draw2', 'draw1'];
                 const SPECIAL_VALUES = ['wild', 'wild4', 'wild2'];
@@ -2938,11 +2957,16 @@
                     }
                 }
 
-                function startPreGame(botNames = []) { // Beri nilai default array kosong
+                async function startPreGame(botNames = []) { // Beri nilai default array kosong
                     playMusic('gameplay');
                     showScreen('game');
                     gameContainer.classList.add('hidden');
                     preGameInfoElem.classList.remove('hidden');
+                    preGameInfoElem.removeAttribute('style'); // <-- PERBAIKAN KUNCI ADA DI SINI
+
+                    // --- Langkah 2: Fade-in ---
+                    await wait(50); // Beri browser napas sejenak
+                    preGameInfoElem.style.opacity = 1; // Memicu transisi fade-in
 
                     resetGameState(botNames);
                     preGameInfoElem.innerHTML = `<h3>Menentukan Giliran Pertama...</h3><div id="pre-game-cards"></div>`;
@@ -2978,24 +3002,35 @@
                         preGameCardsContainer.appendChild(cardContainer);
                     });
 
-                    setTimeout(() => {
-                        const highestCard = drawnCards.reduce((prev, current, index) => {
-                            const currentValue = parseInt(current.value);
-                            if (currentValue > prev.value) {
-                                return { value: currentValue, index: index };
-                            }
-                            return prev;
-                        }, { value: -1, index: -1 });
+                    // --- Langkah 4: Tunggu & Tampilkan Pemenang ---
+                    await wait(1500); // Tunggu 1.5 detik agar kartu terlihat
 
-                        const startingPlayer = players[highestCard.index];
-                        preGameInfoElem.innerHTML += `<p>${startingPlayer.name} mendapat giliran pertama!</p>`;
+                    const highestCard = drawnCards.reduce((prev, current, index) => {
+                        const currentValue = parseInt(current.value);
+                        if (currentValue > prev.value) {
+                            return { value: currentValue, index: index };
+                        }
+                        return prev;
+                    }, { value: -1, index: -1 });
 
-                        setTimeout(() => {
-                            preGameInfoElem.classList.add('hidden');
-                            gameContainer.classList.remove('hidden');
-                            startGame(startingPlayer.id);
-                        }, 2500);
-                    }, 1500);
+                    const startingPlayer = players[highestCard.index];
+                    const winnerText = document.createElement('p');
+                    winnerText.id = 'pre-game-winner-text';
+                    winnerText.textContent = `${startingPlayer.name} mendapat giliran pertama!`;
+                    preGameInfoElem.appendChild(winnerText);
+                    await wait(50);
+                    winnerText.classList.add('pop-in');
+
+                    // --- Langkah 5: Tunggu & Lakukan Fade-out ---
+                    await wait(2500); // Tunggu 2.5 detik untuk membaca pemenang
+                    preGameInfoElem.style.opacity = 0; // Memicu transisi fade-out
+
+                    // --- Langkah 6: Cleanup & Mulai Game ---
+                    await wait(500); // Tunggu animasi fade-out selesai (0.5 detik)
+
+                    preGameInfoElem.classList.add('hidden');
+                    gameContainer.classList.remove('hidden');
+                    startGame(startingPlayer.id);
                 }
 
                 function startGame(startIdx) {
